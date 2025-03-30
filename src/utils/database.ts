@@ -1,244 +1,8 @@
-// This file contains utilities to interact with MySQL database
-import mysql from 'mysql2/promise';
 
-interface DatabaseConfig {
-  host: string;
-  user: string;
-  password: string;
-  database: string;
-}
+// This file contains utilities to interact with mock database (for frontend use)
+// In a real application, these functions would call a backend API
 
-// Database configuration - Replace with your actual MySQL credentials
-const dbConfig: DatabaseConfig = {
-  host: "localhost",
-  user: "maabara_user",
-  password: "secure_password",
-  database: "maabara_db"
-};
-
-// Create a connection pool
-const pool = mysql.createPool(dbConfig);
-
-// Test database connection
-export const testConnection = async () => {
-  try {
-    const connection = await pool.getConnection();
-    console.log('Database connection successful');
-    connection.release();
-    return true;
-  } catch (error) {
-    console.error('Database connection failed:', error);
-    return false;
-  }
-};
-
-// Fetch events from database
-export const fetchEvents = async () => {
-  try {
-    const [rows] = await pool.query('SELECT * FROM events');
-    return rows;
-  } catch (error) {
-    console.error('Error fetching events:', error);
-    return mockEvents; // Fallback to mock data if query fails
-  }
-};
-
-// Fetch categories from database
-export const fetchCategories = async () => {
-  try {
-    const [rows] = await pool.query('SELECT * FROM categories');
-    return rows;
-  } catch (error) {
-    console.error('Error fetching categories:', error);
-    return mockCategories; // Fallback to mock data if query fails
-  }
-};
-
-// Fetch bookings from database
-export const fetchBookings = async () => {
-  try {
-    const [rows] = await pool.query(`
-      SELECT b.*, e.title as event 
-      FROM bookings b
-      JOIN events e ON b.event_id = e.id
-    `);
-    return rows;
-  } catch (error) {
-    console.error('Error fetching bookings:', error);
-    return mockBookings; // Fallback to mock data if query fails
-  }
-};
-
-// Fetch payments from database
-export const fetchPayments = async () => {
-  try {
-    const [rows] = await pool.query(`
-      SELECT p.*, b.customer, e.title as event
-      FROM payments p
-      JOIN bookings b ON p.booking_id = b.id
-      JOIN events e ON b.event_id = e.id
-    `);
-    return rows;
-  } catch (error) {
-    console.error('Error fetching payments:', error);
-    return mockPayments; // Fallback to mock data if query fails
-  }
-};
-
-// Fetch activity logs from database
-export const fetchActivityLogs = async () => {
-  try {
-    const [rows] = await pool.query('SELECT * FROM activity_logs ORDER BY timestamp DESC');
-    return rows;
-  } catch (error) {
-    console.error('Error fetching activity logs:', error);
-    return mockLogs; // Fallback to mock data if query fails
-  }
-};
-
-// Create a new event
-export const createEvent = async (eventData: any) => {
-  try {
-    const { title, description, date, time, location, price, category, image } = eventData;
-    const [result] = await pool.query(
-      'INSERT INTO events (title, description, date, time, location, price, category_id, image) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [title, description, date, time, location, price, category, image]
-    );
-    const insertId = (result as any).insertId;
-    
-    // Log the activity
-    await logActivity({
-      action: 'Event Created',
-      user: 'admin@maabara.co.ke', // In a real app, this would be the logged-in user
-      details: `Created new event: ${title}`,
-      level: 'info'
-    });
-    
-    return { success: true, id: insertId };
-  } catch (error) {
-    console.error('Error creating event:', error);
-    return { success: false, error };
-  }
-};
-
-// Create a new category
-export const createCategory = async (categoryData: any) => {
-  try {
-    const { name, description } = categoryData;
-    const [result] = await pool.query(
-      'INSERT INTO categories (name, description) VALUES (?, ?)',
-      [name, description]
-    );
-    const insertId = (result as any).insertId;
-    
-    // Log the activity
-    await logActivity({
-      action: 'Category Created',
-      user: 'admin@maabara.co.ke', // In a real app, this would be the logged-in user
-      details: `Created new category: ${name}`,
-      level: 'info'
-    });
-    
-    return { success: true, id: insertId };
-  } catch (error) {
-    console.error('Error creating category:', error);
-    return { success: false, error };
-  }
-};
-
-// Log activity
-export const logActivity = async (activity: any) => {
-  try {
-    const { action, user, details, level } = activity;
-    const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
-    const ip = "127.0.0.1"; // In a real app, this would be the actual IP
-    
-    await pool.query(
-      'INSERT INTO activity_logs (timestamp, action, user, details, ip, level) VALUES (?, ?, ?, ?, ?, ?)',
-      [timestamp, action, user, details, ip, level]
-    );
-    
-    return { success: true };
-  } catch (error) {
-    console.error('Error logging activity:', error);
-    return { success: false, error };
-  }
-};
-
-// User authentication for login
-export const authenticateUser = async (email: string, password: string) => {
-  try {
-    // In a real application, you would use bcrypt for password hashing and verification
-    const [rows] = await pool.query(
-      'SELECT * FROM users WHERE email = ? AND password = ?', 
-      [email, password]
-    );
-    
-    const users = rows as any[];
-    if (users.length === 0) {
-      return { success: false, message: 'Invalid credentials' };
-    }
-    
-    const user = users[0];
-    
-    // Log the login activity
-    await logActivity({
-      action: 'User Login',
-      user: email,
-      details: 'User logged in successfully',
-      level: 'info'
-    });
-    
-    return { 
-      success: true, 
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      }
-    };
-  } catch (error) {
-    console.error('Error authenticating user:', error);
-    return { success: false, error };
-  }
-};
-
-// Create a new user (registration)
-export const createUser = async (userData: any) => {
-  try {
-    const { name, email, password, userType, organizationType } = userData;
-    
-    // Check if user already exists
-    const [existingUsers] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
-    if ((existingUsers as any[]).length > 0) {
-      return { success: false, message: 'User with this email already exists' };
-    }
-    
-    // In a real application, you would hash the password with bcrypt
-    const [result] = await pool.query(
-      'INSERT INTO users (name, email, password, role, organization_type) VALUES (?, ?, ?, ?, ?)',
-      [name, email, password, userType, organizationType || null]
-    );
-    
-    const insertId = (result as any).insertId;
-    
-    // Log the registration activity
-    await logActivity({
-      action: 'User Registration',
-      user: email,
-      details: `New ${userType} account created`,
-      level: 'info'
-    });
-    
-    return { success: true, id: insertId };
-  } catch (error) {
-    console.error('Error creating user:', error);
-    return { success: false, error };
-  }
-};
-
-// Mock data for development (fallback if database queries fail)
+// Mock data for development
 const mockEvents = [
   {
     id: 1,
@@ -246,7 +10,8 @@ const mockEvents = [
     date: "2023-08-15",
     location: "Main Hall",
     category: "Science",
-    price: "500"
+    price: "500",
+    description: "Explore the wonders of science with interactive displays and demonstrations."
   },
   {
     id: 2,
@@ -254,7 +19,8 @@ const mockEvents = [
     date: "2023-08-20",
     location: "Lab 2",
     category: "Technology",
-    price: "750"
+    price: "750",
+    description: "Learn about the latest technologies and how to use them in your projects."
   }
 ];
 
@@ -343,3 +109,183 @@ const mockLogs = [
     level: "info"
   }
 ];
+
+const mockUsers = [
+  {
+    id: 1,
+    name: "Admin User",
+    email: "admin@maabara.co.ke",
+    password: "admin123", // In a real app, this would be hashed
+    role: "organizer"
+  },
+  {
+    id: 2,
+    name: "John Doe",
+    email: "john@example.com",
+    password: "password123", // In a real app, this would be hashed
+    role: "attendee"
+  }
+];
+
+// Test database connection
+export const testConnection = async () => {
+  console.log('Using mock database for frontend development');
+  return true;
+};
+
+// Fetch events from database
+export const fetchEvents = async () => {
+  return mockEvents;
+};
+
+// Fetch categories from database
+export const fetchCategories = async () => {
+  return mockCategories;
+};
+
+// Fetch bookings from database
+export const fetchBookings = async () => {
+  return mockBookings;
+};
+
+// Fetch payments from database
+export const fetchPayments = async () => {
+  return mockPayments;
+};
+
+// Fetch activity logs from database
+export const fetchActivityLogs = async () => {
+  return mockLogs;
+};
+
+// Create a new event
+export const createEvent = async (eventData: any) => {
+  console.log('Creating event:', eventData);
+  
+  // Simulate successful creation
+  const newId = mockEvents.length + 1;
+  const newEvent = {
+    id: newId,
+    ...eventData
+  };
+  
+  mockEvents.push(newEvent);
+  
+  // Log the activity
+  await logActivity({
+    action: 'Event Created',
+    user: 'admin@maabara.co.ke',
+    details: `Created new event: ${eventData.title}`,
+    level: 'info'
+  });
+  
+  return { success: true, id: newId };
+};
+
+// Create a new category
+export const createCategory = async (categoryData: any) => {
+  console.log('Creating category:', categoryData);
+  
+  // Simulate successful creation
+  const newId = mockCategories.length + 1;
+  const newCategory = {
+    id: newId,
+    ...categoryData,
+    events: 0
+  };
+  
+  mockCategories.push(newCategory);
+  
+  // Log the activity
+  await logActivity({
+    action: 'Category Created',
+    user: 'admin@maabara.co.ke',
+    details: `Created new category: ${categoryData.name}`,
+    level: 'info'
+  });
+  
+  return { success: true, id: newId };
+};
+
+// Log activity
+export const logActivity = async (activity: any) => {
+  console.log('Logging activity:', activity);
+  
+  const newId = mockLogs.length + 1;
+  const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
+  
+  const newLog = {
+    id: newId,
+    timestamp,
+    ip: "127.0.0.1",
+    ...activity
+  };
+  
+  mockLogs.unshift(newLog);
+  
+  return { success: true };
+};
+
+// User authentication for login
+export const authenticateUser = async (email: string, password: string) => {
+  console.log('Authenticating user:', email);
+  
+  // Find user in mock data
+  const user = mockUsers.find(u => u.email === email && u.password === password);
+  
+  if (!user) {
+    return { success: false, message: 'Invalid credentials' };
+  }
+  
+  // Log the login activity
+  await logActivity({
+    action: 'User Login',
+    user: email,
+    details: 'User logged in successfully',
+    level: 'info'
+  });
+  
+  return { 
+    success: true, 
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role
+    }
+  };
+};
+
+// Create a new user (registration)
+export const createUser = async (userData: any) => {
+  console.log('Creating user:', userData);
+  
+  // Check if user already exists
+  const existingUser = mockUsers.find(u => u.email === userData.email);
+  if (existingUser) {
+    return { success: false, message: 'User with this email already exists' };
+  }
+  
+  // Create new user
+  const newId = mockUsers.length + 1;
+  const newUser = {
+    id: newId,
+    name: userData.name,
+    email: userData.email,
+    password: userData.password, // In a real app, this would be hashed
+    role: userData.userType,
+    organizationType: userData.organizationType || null
+  };
+  
+  mockUsers.push(newUser);
+  
+  // Log the registration activity
+  await logActivity({
+    action: 'User Registration',
+    user: userData.email,
+    details: `New ${userData.userType} account created`,
+    level: 'info'
+  });
+  
+  return { success: true, id: newId };
+};
