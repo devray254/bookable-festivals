@@ -44,7 +44,16 @@ const Register = () => {
       
       if (result.success) {
         toast.success("Registration successful!");
-        navigate('/login');
+        
+        // Store user info in localStorage if needed
+        localStorage.setItem('user', JSON.stringify(result.user));
+        
+        // Redirect to appropriate page based on user type
+        if (userType === 'organizer') {
+          navigate('/admin');
+        } else {
+          navigate('/events');
+        }
       } else {
         toast.error(result.message || "Registration failed. Please try again.");
       }

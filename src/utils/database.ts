@@ -1,4 +1,3 @@
-
 // This file contains utilities to interact with mock database (for frontend use)
 // In a real application, these functions would call a backend API
 
@@ -124,6 +123,20 @@ const mockUsers = [
     email: "john@example.com",
     password: "password123", // In a real app, this would be hashed
     role: "attendee"
+  },
+  {
+    id: 3,
+    name: "Jane Smith",
+    email: "jane@example.com",
+    password: "jane123", // In a real app, this would be hashed
+    role: "attendee"
+  },
+  {
+    id: 4,
+    name: "Event Manager",
+    email: "manager@maabara.co.ke",
+    password: "manager123", // In a real app, this would be hashed
+    role: "organizer"
   }
 ];
 
@@ -241,7 +254,7 @@ export const authenticateUser = async (email: string, password: string) => {
   await logActivity({
     action: 'User Login',
     user: email,
-    details: 'User logged in successfully',
+    details: `User logged in successfully as ${user.role}`,
     level: 'info'
   });
   
@@ -287,5 +300,14 @@ export const createUser = async (userData: any) => {
     level: 'info'
   });
   
-  return { success: true, id: newId };
+  return { 
+    success: true, 
+    id: newId,
+    user: {
+      id: newId,
+      name: newUser.name,
+      email: newUser.email,
+      role: newUser.role
+    }
+  };
 };

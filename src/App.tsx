@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Organizers from "./pages/Organizers";
 import NotFound from "./pages/NotFound";
+import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminEvents from "./pages/admin/Events";
 import AdminCategories from "./pages/admin/Categories";
@@ -35,6 +36,7 @@ const App = () => (
           <Route path="/organizers" element={<Organizers />} />
           
           {/* Admin Routes */}
+          <Route path="/admin-portal" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/events" element={<AdminEvents />} />
           <Route path="/admin/categories" element={<AdminCategories />} />

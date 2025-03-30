@@ -1,10 +1,9 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Navbar } from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { authenticateUser } from "@/utils/database";
@@ -16,6 +15,24 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
+  // Check if user is already logged in
+  useEffect(() => {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        // If already logged in, redirect based on role
+        if (user.role === 'organizer') {
+          navigate('/admin');
+        } else {
+          navigate('/events');
+        }
+      } catch (error) {
+        console.error("Error parsing user:", error);
+      }
+    }
+  }, [navigate]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -26,7 +43,7 @@ const Login = () => {
       if (result.success) {
         toast.success("Login successful!");
         
-        // In a real app, you would store the user info in a context or state management
+        // Store the user info in localStorage
         localStorage.setItem('user', JSON.stringify(result.user));
         
         // Redirect based on user role
