@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,11 +12,6 @@ import {
   DialogDescription
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-} from "@/components/ui/input-otp";
 
 const MPESA_CONSUMER_KEY = "your_consumer_key";  // Replace with your consumer key
 const MPESA_CONSUMER_SECRET = "your_consumer_secret";  // Replace with your consumer secret  
@@ -39,9 +35,7 @@ const BookingDialog = ({
 }: BookingDialogProps) => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
-  const [paymentStep, setPaymentStep] = useState<"details" | "otp" | "confirmation">("details");
-  const [otp, setOtp] = useState("");
-  const [checkoutRequestId, setCheckoutRequestId] = useState("");
+  const [paymentStep, setPaymentStep] = useState<"details" | "processing" | "confirmation">("details");
   const { toast } = useToast();
   
   const totalAmount = eventPrice * ticketQuantity;
@@ -124,7 +118,7 @@ const BookingDialog = ({
       const data = await response.json();
       
       if (data.ResponseCode === "0") {
-        return data.CheckoutRequestID;
+        return true;
       } else {
         throw new Error(data.ResponseDescription || "M-Pesa request failed");
       }
@@ -145,98 +139,31 @@ const BookingDialog = ({
     }
     
     setIsProcessing(true);
+    setPaymentStep("processing");
     
     try {
-      const requestId = await initiateSTKPush(phoneNumber, grandTotal);
-      setCheckoutRequestId(requestId);
+      const success = await initiateSTKPush(phoneNumber, grandTotal);
       
-      setPaymentStep("otp");
-      toast({
-        title: "M-Pesa Request Sent",
-        description: "Please check your phone for the M-Pesa prompt and enter the OTP received.",
-      });
+      if (success) {
+        toast({
+          title: "M-Pesa Request Sent",
+          description: "Please check your phone and enter your M-Pesa PIN to complete the payment.",
+        });
+        
+        // After a short delay, show the confirmation screen
+        // In a real app, you would verify the transaction status with the M-Pesa Query API
+        setTimeout(() => {
+          setPaymentStep("confirmation");
+          setIsProcessing(false);
+        }, 5000);
+      }
     } catch (error) {
       toast({
         title: "Payment Failed",
         description: error instanceof Error ? error.message : "Failed to initiate M-Pesa payment",
         variant: "destructive",
       });
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const verifyTransaction = async (requestId: string, otpCode: string) => {
-    try {
-      // In a real implementation, you would verify the transaction status using the M-Pesa query API
-      // For demo purposes, we're simulating a successful verification if OTP is 6 digits
-      
-      // This would be a real API call in production
-      // const accessToken = await getAccessToken();
-      // const response = await fetch("https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query", {
-      //   method: "POST",
-      //   headers: {
-      //     "Authorization": `Bearer ${accessToken}`,
-      //     "Content-Type": "application/json"
-      //   },
-      //   body: JSON.stringify({
-      //     BusinessShortCode: MPESA_SHORTCODE,
-      //     Password: password,
-      //     Timestamp: timestamp,
-      //     CheckoutRequestID: requestId
-      //   })
-      // });
-      
-      // For demo, we'll simulate success if the OTP is valid
-      if (otpCode.length === 6) {
-        return {
-          success: true,
-          transactionId: "MP" + Math.random().toString(36).substring(2, 10).toUpperCase()
-        };
-      } else {
-        return { success: false };
-      }
-    } catch (error) {
-      console.error("Verification error:", error);
-      throw error;
-    }
-  };
-
-  const handleVerifyOtp = async () => {
-    if (otp.length !== 6) {
-      toast({
-        title: "Invalid OTP",
-        description: "Please enter the 6-digit OTP sent to your phone",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    setIsProcessing(true);
-    
-    try {
-      const result = await verifyTransaction(checkoutRequestId, otp);
-      
-      if (result.success) {
-        setPaymentStep("confirmation");
-        toast({
-          title: "Payment Successful!",
-          description: `Your payment of KES ${grandTotal.toLocaleString()} has been processed successfully.`,
-        });
-      } else {
-        toast({
-          title: "Verification Failed",
-          description: "Could not verify your payment. Please try again or contact support.",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Verification Error",
-        description: error instanceof Error ? error.message : "An error occurred while verifying your payment",
-        variant: "destructive",
-      });
-    } finally {
+      setPaymentStep("details");
       setIsProcessing(false);
     }
   };
@@ -244,8 +171,6 @@ const BookingDialog = ({
   const handleCloseDialog = () => {
     setPaymentStep("details");
     setPhoneNumber("");
-    setOtp("");
-    setCheckoutRequestId("");
     onOpenChange(false);
   };
 
@@ -306,43 +231,24 @@ const BookingDialog = ({
           </div>
         )}
         
-        {paymentStep === "otp" && (
+        {paymentStep === "processing" && (
           <div className="grid gap-4 py-4">
             <div className="text-center mb-2">
+              <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                <svg className="animate-spin h-10 w-10 text-purple-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-1">Payment in Progress</h3>
               <p className="text-sm text-gray-600 mb-4">
-                A payment request of <span className="font-semibold">KES {grandTotal.toLocaleString()}</span> has been 
+                An M-Pesa payment request of <span className="font-semibold">KES {grandTotal.toLocaleString()}</span> has been 
                 sent to <span className="font-semibold">{formatPhoneNumber(phoneNumber)}</span>
               </p>
               <p className="text-sm text-gray-600">
-                Please enter the OTP received on your phone:
+                Please check your phone and enter your M-Pesa PIN to complete the payment.
               </p>
             </div>
-            
-            <div className="flex justify-center py-4">
-              <InputOTP maxLength={6} value={otp} onChange={setOtp}>
-                <InputOTPGroup>
-                  <InputOTPSlot index={0} />
-                  <InputOTPSlot index={1} />
-                  <InputOTPSlot index={2} />
-                  <InputOTPSlot index={3} />
-                  <InputOTPSlot index={4} />
-                  <InputOTPSlot index={5} />
-                </InputOTPGroup>
-              </InputOTP>
-            </div>
-            
-            <DialogFooter className="mt-4">
-              <Button variant="outline" onClick={() => setPaymentStep("details")}>
-                Back
-              </Button>
-              <Button 
-                className="bg-eventPurple-700 hover:bg-eventPurple-800"
-                onClick={handleVerifyOtp}
-                disabled={isProcessing || otp.length !== 6}
-              >
-                {isProcessing ? "Verifying..." : "Verify Payment"}
-              </Button>
-            </DialogFooter>
           </div>
         )}
         
