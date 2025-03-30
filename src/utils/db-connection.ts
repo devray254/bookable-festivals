@@ -1,76 +1,27 @@
 
-// Database connection setup for browser-friendly environment
-import mysql from 'mysql2/promise';
+/**
+ * IMPORTANT: This file is set up for development purposes with mock data.
+ * In a production environment, database connections should be handled by a backend API.
+ * The browser cannot directly connect to MySQL as it's a Node.js capability.
+ */
 
-// Database connection configuration
-const dbConfig = {
-  host: 'localhost',
-  user: 'root',
-  password: '',  // Default empty password for local development
-  database: 'maabara_events',
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
-};
+// Mock database functionality for browser environment
+console.log('Using mock database service for browser environment');
 
-// Pool for connection management
-let pool: mysql.Pool | null = null;
-
-// Initialize connection pool
-const getPool = async () => {
-  if (!pool) {
-    try {
-      pool = mysql.createPool(dbConfig);
-      console.log('Database connection pool created');
-    } catch (error) {
-      console.error('Error creating connection pool:', error);
-      // Fall back to mock if connection fails
-      return null;
-    }
-  }
-  return pool;
-};
-
-// Test database connection
+// Test database connection - always returns false in browser
 export const testConnection = async () => {
-  try {
-    const pool = await getPool();
-    if (!pool) return false;
-    
-    const connection = await pool.getConnection();
-    connection.release();
-    console.log('Database connection successful');
-    return true;
-  } catch (error) {
-    console.error('Database connection failed:', error);
-    return false;
-  }
+  console.log('Testing mock database connection');
+  return false; // In browser, we can't connect directly to MySQL
 };
 
-// Execute query
+// Execute query with mock data
 export const query = async (sql: string, params?: any[]) => {
-  try {
-    const pool = await getPool();
-    
-    // If pool creation failed, fall back to mock data
-    if (!pool) {
-      console.warn('Using mock data as database connection failed');
-      return getMockResponse(sql, params);
-    }
-    
-    const [results] = await pool.execute(sql, params || []);
-    return results;
-  } catch (error) {
-    console.error('Query execution error:', error);
-    console.warn('Falling back to mock data due to query error');
-    return getMockResponse(sql, params);
-  }
+  console.log('Executing mock query:', sql, 'with params:', params);
+  return getMockResponse(sql, params);
 };
 
-// Mock response generator for fallback
+// Mock response generator for browser environment
 const getMockResponse = (sql: string, params?: any[]) => {
-  console.log('Executing mock query:', sql, 'with params:', params);
-  
   if (sql.toLowerCase().includes('select * from activity_logs')) {
     return getMockLogs();
   } else if (sql.toLowerCase().includes('insert into activity_logs')) {
@@ -92,7 +43,7 @@ const getMockResponse = (sql: string, params?: any[]) => {
   return { affectedRows: 0 };
 };
 
-// Mock logs data for fallback
+// Mock logs data
 const getMockLogs = () => {
   return [
     {
@@ -143,7 +94,7 @@ const getMockLogs = () => {
   ];
 };
 
-// Mock users data for fallback
+// Mock users data
 const getMockUsers = (params?: any[]) => {
   const users = [
     {

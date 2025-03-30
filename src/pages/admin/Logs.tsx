@@ -100,7 +100,7 @@ export default function AdminLogs() {
             </Badge>
             {!dbConnected && (
               <p className="text-sm text-yellow-600 mt-1">
-                Unable to connect to MySQL database. Please ensure MySQL is running and the database credentials are correct.
+                Browser applications cannot connect directly to MySQL databases. In a production environment, you would need a backend API for database operations.
               </p>
             )}
           </div>
