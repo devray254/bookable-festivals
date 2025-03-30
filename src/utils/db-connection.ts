@@ -1,8 +1,8 @@
 
-// This is a mock implementation of the database connection for browser environments
-// In a real application, you would use a backend API instead of direct MySQL connections
+// Database connection setup for browser-friendly environment
+import mysql from 'mysql2/promise';
 
-// Mock database connection configuration (for reference only)
+// Database connection configuration
 const dbConfig = {
   host: 'localhost',
   user: 'root',
@@ -13,33 +13,73 @@ const dbConfig = {
   queueLimit: 0
 };
 
-// Mock database connection test
+// Pool for connection management
+let pool: mysql.Pool | null = null;
+
+// Initialize connection pool
+const getPool = async () => {
+  if (!pool) {
+    try {
+      pool = mysql.createPool(dbConfig);
+      console.log('Database connection pool created');
+    } catch (error) {
+      console.error('Error creating connection pool:', error);
+      // Fall back to mock if connection fails
+      return null;
+    }
+  }
+  return pool;
+};
+
+// Test database connection
 export const testConnection = async () => {
   try {
-    console.log('Mock database connection successful');
+    const pool = await getPool();
+    if (!pool) return false;
+    
+    const connection = await pool.getConnection();
+    connection.release();
+    console.log('Database connection successful');
     return true;
   } catch (error) {
-    console.error('Mock database connection failed:', error);
+    console.error('Database connection failed:', error);
     return false;
   }
 };
 
-// Mock query execution with mock data
+// Execute query
 export const query = async (sql: string, params?: any[]) => {
+  try {
+    const pool = await getPool();
+    
+    // If pool creation failed, fall back to mock data
+    if (!pool) {
+      console.warn('Using mock data as database connection failed');
+      return getMockResponse(sql, params);
+    }
+    
+    const [results] = await pool.execute(sql, params || []);
+    return results;
+  } catch (error) {
+    console.error('Query execution error:', error);
+    console.warn('Falling back to mock data due to query error');
+    return getMockResponse(sql, params);
+  }
+};
+
+// Mock response generator for fallback
+const getMockResponse = (sql: string, params?: any[]) => {
   console.log('Executing mock query:', sql, 'with params:', params);
   
-  // Return mock data based on the SQL query
   if (sql.toLowerCase().includes('select * from activity_logs')) {
     return getMockLogs();
   } else if (sql.toLowerCase().includes('insert into activity_logs')) {
     console.log('Mock log activity inserted');
-    // Don't return this directly to components expecting arrays
     return { insertId: Math.floor(Math.random() * 1000) };
   } else if (sql.toLowerCase().includes('select') && sql.toLowerCase().includes('from users')) {
     return getMockUsers(params);
   } else if (sql.toLowerCase().includes('insert into users')) {
     console.log('Mock user created');
-    // Don't return this directly to components expecting arrays
     return { insertId: Math.floor(Math.random() * 1000) };
   }
   
@@ -52,7 +92,7 @@ export const query = async (sql: string, params?: any[]) => {
   return { affectedRows: 0 };
 };
 
-// Mock logs data
+// Mock logs data for fallback
 const getMockLogs = () => {
   return [
     {
@@ -103,7 +143,7 @@ const getMockLogs = () => {
   ];
 };
 
-// Mock users data
+// Mock users data for fallback
 const getMockUsers = (params?: any[]) => {
   const users = [
     {

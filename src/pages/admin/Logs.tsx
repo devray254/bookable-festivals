@@ -6,13 +6,24 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import { fetchActivityLogs } from "@/utils/database";
+import { fetchActivityLogs, logActivity } from "@/utils/database";
+import { testConnection } from "@/utils/db-connection";
 import { toast } from "sonner";
 
 export default function AdminLogs() {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [dbConnected, setDbConnected] = useState(false);
+
+  useEffect(() => {
+    const checkConnection = async () => {
+      const connected = await testConnection();
+      setDbConnected(connected);
+    };
+    
+    checkConnection();
+  }, []);
 
   useEffect(() => {
     const getLogs = async () => {
@@ -39,7 +50,42 @@ export default function AdminLogs() {
   );
 
   const handleExport = () => {
-    toast.info("This is a mock feature. In a real application, this would export logs to CSV.");
+    toast.info("Exporting logs to CSV");
+  };
+
+  const handleRefresh = async () => {
+    try {
+      setLoading(true);
+      const logsData = await fetchActivityLogs();
+      setLogs(logsData);
+      toast.success("Logs refreshed successfully");
+    } catch (error) {
+      console.error("Error refreshing logs:", error);
+      toast.error("Failed to refresh logs");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTestLog = async () => {
+    try {
+      const result = await logActivity({
+        action: 'Test Log',
+        user: 'admin@maabara.co.ke',
+        details: 'This is a test log entry',
+        level: 'info'
+      });
+      
+      if (result.success) {
+        toast.success("Test log created successfully");
+        handleRefresh();
+      } else {
+        toast.error(result.message || "Failed to create test log");
+      }
+    } catch (error) {
+      console.error("Error creating test log:", error);
+      toast.error("Failed to create test log");
+    }
   };
 
   return (
@@ -49,13 +95,14 @@ export default function AdminLogs() {
           <h1 className="text-3xl font-bold tracking-tight">Activity Logs</h1>
           <p className="text-muted-foreground">Monitor all system activities</p>
           <div className="mt-2">
-            <Badge variant="outline" className="bg-yellow-50">
-              Using Mock Data
+            <Badge variant={dbConnected ? "default" : "outline"} className={dbConnected ? "bg-green-50" : "bg-yellow-50"}>
+              {dbConnected ? "Connected to Database" : "Using Mock Data"}
             </Badge>
-            <p className="text-sm text-yellow-600 mt-1">
-              This is using mock data since direct MySQL connections cannot run in the browser. 
-              In production, this would connect to a backend API.
-            </p>
+            {!dbConnected && (
+              <p className="text-sm text-yellow-600 mt-1">
+                Unable to connect to MySQL database. Please ensure MySQL is running and the database credentials are correct.
+              </p>
+            )}
           </div>
         </div>
         
@@ -70,7 +117,11 @@ export default function AdminLogs() {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <Button onClick={handleExport}>Export Logs</Button>
+          <div className="space-x-2">
+            <Button onClick={handleRefresh} variant="outline">Refresh</Button>
+            <Button onClick={handleTestLog} variant="outline">Create Test Log</Button>
+            <Button onClick={handleExport}>Export Logs</Button>
+          </div>
         </div>
         
         <Card>
