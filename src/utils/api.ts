@@ -1,6 +1,6 @@
 
 // API utilities for making requests to the backend
-const API_URL = 'http://localhost:3001/api'; // Adjust this URL as needed
+const API_URL = 'http://localhost:3001/api'; // Default URL for XAMPP
 
 // Define the type for request options
 type FetchOptions = {
