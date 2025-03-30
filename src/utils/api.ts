@@ -2,8 +2,16 @@
 // API utilities for making requests to the backend
 const API_URL = 'http://localhost:3001/api'; // Adjust this URL as needed
 
+// Define the type for request options
+type FetchOptions = {
+  method?: string;
+  headers?: Record<string, string>;
+  body?: string;
+  [key: string]: any;
+};
+
 // Generic fetch wrapper with error handling
-const fetchFromApi = async (endpoint: string, options = {}) => {
+const fetchFromApi = async (endpoint: string, options: FetchOptions = {}) => {
   try {
     const response = await fetch(`${API_URL}${endpoint}`, {
       ...options,
