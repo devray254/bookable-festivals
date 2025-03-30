@@ -3,10 +3,7 @@
 // It re-exports all functions from the specialized modules
 
 // Test database connection
-export const testConnection = async () => {
-  console.log('Using mock database for frontend development');
-  return true;
-};
+export { testConnection } from './db-connection';
 
 // Re-export authentication utilities
 export { authenticateUser, createUser } from './auth';

@@ -21,6 +21,7 @@ import AdminLogs from "./pages/admin/Logs";
 import AboutUs from "./pages/AboutUs";
 import ContactUs from "./pages/ContactUs";
 import FAQ from "./pages/FAQ";
+import Terms from "./pages/Terms";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ const App = () => (
           <Route path="/about" element={<AboutUs />} />
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/faq" element={<FAQ />} />
+          <Route path="/terms" element={<Terms />} />
           
           {/* Admin Routes */}
           <Route path="/admin-portal" element={<AdminLogin />} />
