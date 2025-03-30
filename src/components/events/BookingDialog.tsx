@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +16,11 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
+
+const MPESA_CONSUMER_KEY = "your_consumer_key";  // Replace with your consumer key
+const MPESA_CONSUMER_SECRET = "your_consumer_secret";  // Replace with your consumer secret  
+const MPESA_PASSKEY = "your_passkey";  // Replace with your passkey
+const MPESA_SHORTCODE = "174379";  // Replace with your shortcode
 
 interface BookingDialogProps {
   isOpen: boolean;
@@ -37,6 +41,7 @@ const BookingDialog = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentStep, setPaymentStep] = useState<"details" | "otp" | "confirmation">("details");
   const [otp, setOtp] = useState("");
+  const [checkoutRequestId, setCheckoutRequestId] = useState("");
   const { toast } = useToast();
   
   const totalAmount = eventPrice * ticketQuantity;
@@ -69,7 +74,67 @@ const BookingDialog = ({
     return formatted;
   };
 
-  const handleInitiatePayment = () => {
+  const getAccessToken = async () => {
+    try {
+      const auth = btoa(`${MPESA_CONSUMER_KEY}:${MPESA_CONSUMER_SECRET}`);
+      const response = await fetch("https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials", {
+        method: "GET",
+        headers: {
+          "Authorization": `Basic ${auth}`
+        }
+      });
+      
+      const data = await response.json();
+      return data.access_token;
+    } catch (error) {
+      console.error("Error fetching access token:", error);
+      throw new Error("Could not authenticate with M-Pesa");
+    }
+  };
+
+  const initiateSTKPush = async (phone: string, amount: number) => {
+    try {
+      const accessToken = await getAccessToken();
+      const formattedPhone = formatPhoneNumber(phone);
+      
+      const timestamp = new Date().toISOString().replace(/[-:\.]/g, "").slice(0, 14);
+      const password = btoa(`${MPESA_SHORTCODE}${MPESA_PASSKEY}${timestamp}`);
+      
+      const response = await fetch("https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          BusinessShortCode: MPESA_SHORTCODE,
+          Password: password,
+          Timestamp: timestamp,
+          TransactionType: "CustomerPayBillOnline",
+          Amount: amount.toString(),
+          PartyA: formattedPhone,
+          PartyB: MPESA_SHORTCODE,
+          PhoneNumber: formattedPhone,
+          CallBackURL: "https://example.com/callback",
+          AccountReference: `Event-${eventTitle.substring(0, 10)}`,
+          TransactionDesc: `Payment for ${ticketQuantity} ticket(s) for ${eventTitle}`
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.ResponseCode === "0") {
+        return data.CheckoutRequestID;
+      } else {
+        throw new Error(data.ResponseDescription || "M-Pesa request failed");
+      }
+    } catch (error) {
+      console.error("STK Push error:", error);
+      throw error;
+    }
+  };
+
+  const handleInitiatePayment = async () => {
     if (!validatePhoneNumber(phoneNumber)) {
       toast({
         title: "Invalid Phone Number",
@@ -81,19 +146,63 @@ const BookingDialog = ({
     
     setIsProcessing(true);
     
-    // Simulate API call to initiate M-Pesa STK push
-    setTimeout(() => {
-      setIsProcessing(false);
-      setPaymentStep("otp");
+    try {
+      const requestId = await initiateSTKPush(phoneNumber, grandTotal);
+      setCheckoutRequestId(requestId);
       
+      setPaymentStep("otp");
       toast({
         title: "M-Pesa Request Sent",
-        description: "Please check your phone for the M-Pesa prompt and enter the OTP below.",
+        description: "Please check your phone for the M-Pesa prompt and enter the OTP received.",
       });
-    }, 2000);
+    } catch (error) {
+      toast({
+        title: "Payment Failed",
+        description: error instanceof Error ? error.message : "Failed to initiate M-Pesa payment",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
-  const handleVerifyOtp = () => {
+  const verifyTransaction = async (requestId: string, otpCode: string) => {
+    try {
+      // In a real implementation, you would verify the transaction status using the M-Pesa query API
+      // For demo purposes, we're simulating a successful verification if OTP is 6 digits
+      
+      // This would be a real API call in production
+      // const accessToken = await getAccessToken();
+      // const response = await fetch("https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query", {
+      //   method: "POST",
+      //   headers: {
+      //     "Authorization": `Bearer ${accessToken}`,
+      //     "Content-Type": "application/json"
+      //   },
+      //   body: JSON.stringify({
+      //     BusinessShortCode: MPESA_SHORTCODE,
+      //     Password: password,
+      //     Timestamp: timestamp,
+      //     CheckoutRequestID: requestId
+      //   })
+      // });
+      
+      // For demo, we'll simulate success if the OTP is valid
+      if (otpCode.length === 6) {
+        return {
+          success: true,
+          transactionId: "MP" + Math.random().toString(36).substring(2, 10).toUpperCase()
+        };
+      } else {
+        return { success: false };
+      }
+    } catch (error) {
+      console.error("Verification error:", error);
+      throw error;
+    }
+  };
+
+  const handleVerifyOtp = async () => {
     if (otp.length !== 6) {
       toast({
         title: "Invalid OTP",
@@ -105,22 +214,38 @@ const BookingDialog = ({
     
     setIsProcessing(true);
     
-    // Simulate API call to verify OTP and complete payment
-    setTimeout(() => {
-      setIsProcessing(false);
-      setPaymentStep("confirmation");
+    try {
+      const result = await verifyTransaction(checkoutRequestId, otp);
       
+      if (result.success) {
+        setPaymentStep("confirmation");
+        toast({
+          title: "Payment Successful!",
+          description: `Your payment of KES ${grandTotal.toLocaleString()} has been processed successfully.`,
+        });
+      } else {
+        toast({
+          title: "Verification Failed",
+          description: "Could not verify your payment. Please try again or contact support.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
       toast({
-        title: "Payment Successful!",
-        description: `Your payment of KES ${grandTotal.toLocaleString()} has been processed successfully.`,
+        title: "Verification Error",
+        description: error instanceof Error ? error.message : "An error occurred while verifying your payment",
+        variant: "destructive",
       });
-    }, 2000);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleCloseDialog = () => {
     setPaymentStep("details");
     setPhoneNumber("");
     setOtp("");
+    setCheckoutRequestId("");
     onOpenChange(false);
   };
 
