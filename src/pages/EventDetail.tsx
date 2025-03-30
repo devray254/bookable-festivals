@@ -1,20 +1,13 @@
-
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { 
-  CalendarIcon, 
-  ClockIcon, 
-  MapPinIcon, 
-  UserIcon, 
-  BanknoteIcon,
-  Share2Icon,
-  HeartIcon
-} from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import EventHeader from "@/components/events/EventHeader";
+import EventInfo from "@/components/events/EventInfo";
+import EventLocation from "@/components/events/EventLocation";
+import BookingCard from "@/components/events/BookingCard";
+import BookingDialog from "@/components/events/BookingDialog";
 
 // Mock event data (in a real app, we would fetch this from the backend)
 const eventsData = [
@@ -105,10 +98,8 @@ const EventDetail = () => {
   // Find the event by ID
   const event = eventsData.find(e => e.id === eventId);
   
-  const [ticketQuantity, setTicketQuantity] = useState(1);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [ticketQuantity, setTicketQuantity] = useState(1);
   
   // Handle when event is not found
   if (!event) {
@@ -129,55 +120,22 @@ const EventDetail = () => {
     );
   }
   
-  const handleBookNow = () => {
+  const handleBookNow = (quantity: number) => {
+    setTicketQuantity(quantity);
     setIsBookingModalOpen(true);
   };
-  
-  const handlePayment = async () => {
-    if (!phoneNumber) {
-      alert("Please enter a valid phone number");
-      return;
-    }
-    
-    setIsProcessing(true);
-    
-    // Simulate API call to M-Pesa
-    setTimeout(() => {
-      setIsProcessing(false);
-      alert(`Successfully initiated M-Pesa payment request to ${phoneNumber}. You'll receive a prompt on your phone to complete the payment.`);
-      setIsBookingModalOpen(false);
-    }, 2000);
-  };
-  
-  const totalAmount = event.price * ticketQuantity;
   
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
       {/* Event Header Section */}
-      <div className="relative h-96">
-        <div className="absolute inset-0">
-          <img 
-            src={event.image} 
-            alt={event.title} 
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-black bg-opacity-50"></div>
-        </div>
-        
-        <div className="relative container mx-auto px-4 h-full flex items-end pb-8">
-          <div className="text-white">
-            <div className="mb-4">
-              <span className="inline-block px-3 py-1 text-xs font-medium bg-eventPurple-700 rounded-full">
-                {event.category}
-              </span>
-            </div>
-            <h1 className="text-4xl font-bold mb-2">{event.title}</h1>
-            <p className="text-lg text-gray-200">Organized by {event.organizer}</p>
-          </div>
-        </div>
-      </div>
+      <EventHeader 
+        title={event.title}
+        image={event.image}
+        category={event.category}
+        organizer={event.organizer}
+      />
       
       {/* Event Details Section */}
       <div className="bg-gray-50 py-12">
@@ -185,155 +143,33 @@ const EventDetail = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2">
-              <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-                <h2 className="text-2xl font-bold mb-4">About This Event</h2>
-                <p className="text-gray-700 mb-8 whitespace-pre-line">
-                  {event.description}
-                </p>
-                
-                <div className="flex space-x-4">
-                  <Button variant="outline" className="text-gray-700">
-                    <Share2Icon className="h-4 w-4 mr-2" />
-                    Share
-                  </Button>
-                  <Button variant="outline" className="text-gray-700">
-                    <HeartIcon className="h-4 w-4 mr-2" />
-                    Save
-                  </Button>
-                </div>
-              </div>
-              
-              {/* Location Section */}
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h2 className="text-2xl font-bold mb-4">Location</h2>
-                <p className="text-gray-700 mb-4">{event.location}</p>
-                
-                {/* In a real app, this would be an actual map */}
-                <div className="h-64 bg-gray-200 rounded-lg flex items-center justify-center">
-                  <p className="text-gray-500">Map would be displayed here</p>
-                </div>
-              </div>
+              <EventInfo description={event.description} />
+              <EventLocation location={event.location} />
             </div>
             
             {/* Booking Card */}
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-lg shadow-sm p-6 sticky top-8">
-                <div className="mb-6 space-y-3">
-                  <div className="flex items-center text-gray-700">
-                    <CalendarIcon className="h-5 w-5 mr-3 text-eventPurple-700" />
-                    <span>{event.date}</span>
-                  </div>
-                  
-                  <div className="flex items-center text-gray-700">
-                    <ClockIcon className="h-5 w-5 mr-3 text-eventPurple-700" />
-                    <span>{event.time}</span>
-                  </div>
-                  
-                  <div className="flex items-center text-gray-700">
-                    <MapPinIcon className="h-5 w-5 mr-3 text-eventPurple-700" />
-                    <span>{event.location}</span>
-                  </div>
-                  
-                  <div className="flex items-center text-gray-700">
-                    <UserIcon className="h-5 w-5 mr-3 text-eventPurple-700" />
-                    <span>{event.availableTickets} tickets available</span>
-                  </div>
-                  
-                  <div className="flex items-center text-gray-900 font-medium text-lg">
-                    <BanknoteIcon className="h-5 w-5 mr-3 text-eventPurple-700" />
-                    <span>KES {event.price.toLocaleString()}</span>
-                  </div>
-                </div>
-                
-                <div className="mb-6">
-                  <label className="block text-gray-700 mb-2">Ticket Quantity</label>
-                  <div className="flex items-center">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => setTicketQuantity(Math.max(1, ticketQuantity - 1))}
-                      disabled={ticketQuantity <= 1}
-                    >
-                      -
-                    </Button>
-                    <span className="mx-4 w-8 text-center">{ticketQuantity}</span>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => setTicketQuantity(Math.min(10, ticketQuantity + 1))}
-                      disabled={ticketQuantity >= 10}
-                    >
-                      +
-                    </Button>
-                  </div>
-                </div>
-                
-                <Button 
-                  className="w-full bg-eventPurple-700 hover:bg-eventPurple-800"
-                  onClick={handleBookNow}
-                >
-                  Book Now
-                </Button>
-              </div>
+              <BookingCard 
+                date={event.date}
+                time={event.time}
+                location={event.location}
+                availableTickets={event.availableTickets}
+                price={event.price}
+                onBookNow={handleBookNow}
+              />
             </div>
           </div>
         </div>
       </div>
       
       {/* Booking Dialog */}
-      <Dialog open={isBookingModalOpen} onOpenChange={setIsBookingModalOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Complete Your Booking</DialogTitle>
-            <DialogDescription>
-              You're booking {ticketQuantity} ticket{ticketQuantity > 1 ? 's' : ''} for {event.title}
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="phone" className="text-right text-sm font-medium col-span-1">
-                M-Pesa Number
-              </label>
-              <Input
-                id="phone"
-                placeholder="07XXXXXXXX"
-                className="col-span-3"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-              />
-            </div>
-            
-            <div className="mt-2 space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-500">Ticket Price</span>
-                <span>KES {event.price.toLocaleString()} x {ticketQuantity}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">Processing Fee</span>
-                <span>KES 50</span>
-              </div>
-              <div className="flex justify-between font-medium pt-2 border-t">
-                <span>Total</span>
-                <span>KES {(totalAmount + 50).toLocaleString()}</span>
-              </div>
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsBookingModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button 
-              className="bg-eventPurple-700 hover:bg-eventPurple-800"
-              onClick={handlePayment}
-              disabled={isProcessing}
-            >
-              {isProcessing ? "Processing..." : "Pay with M-Pesa"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <BookingDialog 
+        isOpen={isBookingModalOpen}
+        onOpenChange={setIsBookingModalOpen}
+        ticketQuantity={ticketQuantity}
+        eventTitle={event.title}
+        eventPrice={event.price}
+      />
       
       <Footer />
     </div>
