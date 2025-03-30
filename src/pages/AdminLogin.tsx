@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Footer from "@/components/layout/Footer";
-import { authenticateUser } from "@/utils/database";
+import { authenticateUser } from "@/utils/auth";
 import { toast } from "sonner";
 import { LockKeyhole, Shield } from "lucide-react";
 
