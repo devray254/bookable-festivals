@@ -1,6 +1,6 @@
 
 import { Link } from "react-router-dom";
-import { CalendarIcon, MapPinIcon, ClockIcon, BanknotesIcon } from "lucide-react";
+import { CalendarIcon, MapPinIcon, ClockIcon, BanknoteIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export interface EventCardProps {
@@ -51,7 +51,7 @@ const EventCard = ({ id, title, image, date, time, location, price, category }: 
           </div>
           
           <div className="flex items-center text-gray-800 font-medium">
-            <BanknotesIcon className="h-4 w-4 mr-2" />
+            <BanknoteIcon className="h-4 w-4 mr-2" />
             <span className="text-sm">
               {price === 0 ? "Free" : `KES ${price.toLocaleString()}`}
             </span>

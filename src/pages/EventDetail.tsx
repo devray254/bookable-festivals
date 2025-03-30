@@ -10,7 +10,7 @@ import {
   ClockIcon, 
   MapPinIcon, 
   UserIcon, 
-  BanknotesIcon,
+  BanknoteIcon,
   Share2Icon,
   HeartIcon
 } from "lucide-react";
@@ -240,7 +240,7 @@ const EventDetail = () => {
                   </div>
                   
                   <div className="flex items-center text-gray-900 font-medium text-lg">
-                    <BanknotesIcon className="h-5 w-5 mr-3 text-eventPurple-700" />
+                    <BanknoteIcon className="h-5 w-5 mr-3 text-eventPurple-700" />
                     <span>KES {event.price.toLocaleString()}</span>
                   </div>
                 </div>
