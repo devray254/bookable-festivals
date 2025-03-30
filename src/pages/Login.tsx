@@ -1,27 +1,49 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Navbar } from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { authenticateUser } from "@/utils/database";
+import { toast } from "sonner";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate login API call
-    setTimeout(() => {
-      alert("Login functionality would be integrated with PHP/MySQL backend");
+    try {
+      const result = await authenticateUser(email, password);
+      
+      if (result.success) {
+        toast.success("Login successful!");
+        
+        // In a real app, you would store the user info in a context or state management
+        localStorage.setItem('user', JSON.stringify(result.user));
+        
+        // Redirect based on user role
+        if (result.user.role === 'organizer') {
+          navigate('/admin');
+        } else {
+          navigate('/events');
+        }
+      } else {
+        toast.error(result.message || "Login failed. Please check your credentials.");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      toast.error("An error occurred during login. Please try again.");
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (

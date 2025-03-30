@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,30 +8,52 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Navbar } from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { createUser } from "@/utils/database";
+import { toast } from "sonner";
 
 const Register = () => {
   const [userType, setUserType] = useState("attendee");
+  const [organizationType, setOrganizationType] = useState("company");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (password !== confirmPassword) {
-      alert("Passwords don't match");
+      toast.error("Passwords don't match");
       return;
     }
     
     setIsLoading(true);
 
-    // Simulate registration API call
-    setTimeout(() => {
-      alert(`${userType === "organizer" ? "Organizer" : "Attendee"} registration would be integrated with PHP/MySQL backend`);
+    try {
+      const userData = {
+        name,
+        email,
+        password,
+        userType,
+        organizationType: userType === 'organizer' ? organizationType : null
+      };
+
+      const result = await createUser(userData);
+      
+      if (result.success) {
+        toast.success("Registration successful!");
+        navigate('/login');
+      } else {
+        toast.error(result.message || "Registration failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Registration error:", error);
+      toast.error("An error occurred during registration. Please try again.");
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -43,7 +65,7 @@ const Register = () => {
           <div className="bg-white p-8 rounded-lg shadow-sm">
             <div className="text-center mb-6">
               <h1 className="text-2xl font-bold text-gray-900">Create your account</h1>
-              <p className="text-gray-600 mt-1">Sign up to start using BookEvent</p>
+              <p className="text-gray-600 mt-1">Sign up to start using Maabara Online</p>
             </div>
 
             <Tabs defaultValue="attendee" className="mb-6" onValueChange={setUserType}>
@@ -114,7 +136,7 @@ const Register = () => {
               {userType === "organizer" && (
                 <div className="space-y-2">
                   <Label>Organization Type</Label>
-                  <RadioGroup defaultValue="company">
+                  <RadioGroup defaultValue="company" onValueChange={setOrganizationType}>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="company" id="company" />
                       <Label htmlFor="company">Company or Business</Label>
