@@ -1,6 +1,7 @@
+
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import Navbar from "@/components/layout/Navbar";
+import { Navbar } from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import EventHeader from "@/components/events/EventHeader";
