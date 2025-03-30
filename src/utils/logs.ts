@@ -28,7 +28,13 @@ export const fetchActivityLogs = async () => {
       'SELECT * FROM activity_logs ORDER BY timestamp DESC'
     );
     
-    return logs;
+    // Ensure we always return an array of logs
+    if (Array.isArray(logs)) {
+      return logs;
+    } else {
+      console.error('Unexpected response format from logs query:', logs);
+      return [];
+    }
   } catch (error) {
     console.error('Error fetching logs:', error);
     return [];

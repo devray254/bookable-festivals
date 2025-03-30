@@ -33,16 +33,23 @@ export const query = async (sql: string, params?: any[]) => {
     return getMockLogs();
   } else if (sql.toLowerCase().includes('insert into activity_logs')) {
     console.log('Mock log activity inserted');
+    // Don't return this directly to components expecting arrays
     return { insertId: Math.floor(Math.random() * 1000) };
   } else if (sql.toLowerCase().includes('select') && sql.toLowerCase().includes('from users')) {
     return getMockUsers(params);
   } else if (sql.toLowerCase().includes('insert into users')) {
     console.log('Mock user created');
+    // Don't return this directly to components expecting arrays
     return { insertId: Math.floor(Math.random() * 1000) };
   }
   
-  // Default mock response
-  return [];
+  // Default mock response for SELECT queries
+  if (sql.toLowerCase().includes('select')) {
+    return [];
+  }
+  
+  // Default response for non-SELECT queries
+  return { affectedRows: 0 };
 };
 
 // Mock logs data
