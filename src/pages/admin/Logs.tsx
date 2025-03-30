@@ -6,20 +6,20 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import { fetchActivityLogs, logActivity } from "@/utils/database";
-import { testConnection } from "@/utils/db-connection";
+import { fetchActivityLogs, logActivity } from "@/utils/logs";
+import { testApiConnection } from "@/utils/api";
 import { toast } from "sonner";
 
 export default function AdminLogs() {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [dbConnected, setDbConnected] = useState(false);
+  const [apiConnected, setApiConnected] = useState(false);
 
   useEffect(() => {
     const checkConnection = async () => {
-      const connected = await testConnection();
-      setDbConnected(connected);
+      const connected = await testApiConnection();
+      setApiConnected(connected);
     };
     
     checkConnection();
@@ -95,12 +95,12 @@ export default function AdminLogs() {
           <h1 className="text-3xl font-bold tracking-tight">Activity Logs</h1>
           <p className="text-muted-foreground">Monitor all system activities</p>
           <div className="mt-2">
-            <Badge variant={dbConnected ? "default" : "outline"} className={dbConnected ? "bg-green-50" : "bg-yellow-50"}>
-              {dbConnected ? "Connected to Database" : "Using Mock Data"}
+            <Badge variant={apiConnected ? "default" : "outline"} className={apiConnected ? "bg-green-50" : "bg-yellow-50"}>
+              {apiConnected ? "Connected to Backend API" : "Using Mock Data"}
             </Badge>
-            {!dbConnected && (
+            {!apiConnected && (
               <p className="text-sm text-yellow-600 mt-1">
-                Browser applications cannot connect directly to MySQL databases. In a production environment, you would need a backend API for database operations.
+                Cannot connect to the backend API. Please ensure the backend server is running at the correct URL.
               </p>
             )}
           </div>
