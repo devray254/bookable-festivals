@@ -1,160 +1,49 @@
 
 /**
- * IMPORTANT: This file is set up for development purposes with mock data.
- * In a production environment, database connections should be handled by a backend API.
- * The browser cannot directly connect to MySQL as it's a Node.js capability.
+ * Database connection utility
+ * This file handles communication with the PHP backend
  */
 
-// Mock database functionality for browser environment
-console.log('Using mock database service for browser environment');
+// Base URL for PHP backend
+const API_BASE_URL = './api';
 
-// Test database connection - always returns false in browser
+// Test database connection
 export const testConnection = async () => {
-  console.log('Testing mock database connection');
-  return false; // In browser, we can't connect directly to MySQL
+  try {
+    const response = await fetch(`${API_BASE_URL}/test-connection.php`);
+    const data = await response.json();
+    return data.connected;
+  } catch (error) {
+    console.error('Database connection test failed:', error);
+    return false;
+  }
 };
 
-// Store mock users in memory so we can add new ones during development
-let mockUsers = [
-  {
-    id: 1,
-    name: 'Admin User',
-    email: 'admin@maabara.co.ke',
-    password: 'admin123',
-    role: 'admin'
-  },
-  {
-    id: 2,
-    name: 'John Doe',
-    email: 'john@example.com',
-    password: 'password123',
-    role: 'attendee'
-  },
-  {
-    id: 3,
-    name: 'Jane Smith',
-    email: 'jane@example.com',
-    password: 'jane123',
-    role: 'attendee'
-  },
-  {
-    id: 4,
-    name: 'Event Manager',
-    email: 'manager@maabara.co.ke',
-    password: 'manager123',
-    role: 'organizer'
-  }
-];
-
-// Store mock logs in memory
-let mockLogs = [
-  {
-    id: 1,
-    timestamp: "2023-08-25 09:30:45",
-    action: "Event Created",
-    user: "admin@maabara.co.ke",
-    details: "Created new event: Science Exhibition",
-    ip: "192.168.1.1",
-    level: "info"
-  },
-  {
-    id: 2,
-    timestamp: "2023-08-25 10:15:22",
-    action: "Payment Completed",
-    user: "john@example.com",
-    details: "Payment for Science Exhibition successful",
-    ip: "192.168.1.15",
-    level: "info"
-  },
-  {
-    id: 3,
-    timestamp: "2023-08-25 11:05:33",
-    action: "Booking Created",
-    user: "jane@example.com",
-    details: "New booking for Tech Workshop",
-    ip: "192.168.1.22",
-    level: "info"
-  },
-  {
-    id: 4,
-    timestamp: "2023-08-25 12:45:10",
-    action: "Payment Failed",
-    user: "mike@example.com",
-    details: "Payment for Chemistry Seminar failed: Invalid card details",
-    ip: "192.168.1.30",
-    level: "error"
-  },
-  {
-    id: 5,
-    timestamp: "2023-08-25 13:20:18",
-    action: "User Login",
-    user: "admin@maabara.co.ke",
-    details: "Admin login successful",
-    ip: "192.168.1.1",
-    level: "info"
-  }
-];
-
-// Execute query with mock data
+// Execute query via PHP backend
 export const query = async (sql: string, params?: any[]) => {
-  console.log('Executing mock query:', sql, 'with params:', params);
-  return getMockResponse(sql, params);
-};
-
-// Mock response generator for browser environment
-const getMockResponse = (sql: string, params?: any[]) => {
-  if (sql.toLowerCase().includes('select * from activity_logs')) {
-    return [...mockLogs]; // Return a copy of mock logs
-  } else if (sql.toLowerCase().includes('insert into activity_logs')) {
-    const newLog = {
-      id: mockLogs.length + 1,
-      timestamp: new Date().toISOString().slice(0, 19).replace('T', ' '),
-      action: params?.[1] || 'Unknown',
-      user: params?.[2] || 'Unknown',
-      details: params?.[3] || 'No details',
-      ip: params?.[4] || '127.0.0.1',
-      level: params?.[5] || 'info'
-    };
-    mockLogs.push(newLog);
-    console.log('Mock log activity inserted', newLog);
-    return { insertId: newLog.id };
-  } else if (sql.toLowerCase().includes('select') && sql.toLowerCase().includes('from users')) {
-    if (sql.toLowerCase().includes('where email =')) {
-      // Check if email exists (for user registration)
-      const email = params?.[0];
-      const existingUsers = mockUsers.filter(user => user.email === email);
-      return existingUsers;
+  try {
+    const response = await fetch(`${API_BASE_URL}/query.php`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        sql,
+        params: params || []
+      }),
+    });
+    
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || 'Database query failed');
     }
-    // Login check
-    if (params && params.length >= 2) {
-      const email = params[0];
-      const password = params[1];
-      return mockUsers.filter(user => user.email === email && user.password === password);
-    }
-    return [...mockUsers]; // Return a copy of all users
-  } else if (sql.toLowerCase().includes('insert into users')) {
-    // Create a new user
-    const newId = mockUsers.length + 1;
-    const newUser = {
-      id: newId,
-      name: params?.[0] || 'New User',
-      email: params?.[1] || `user${newId}@example.com`,
-      password: params?.[2] || 'password',
-      role: params?.[3] || 'attendee',
-      organization_type: params?.[4] || null
-    };
-    mockUsers.push(newUser);
-    console.log('Mock user created', newUser);
-    return { insertId: newId };
+    
+    return data.result;
+  } catch (error) {
+    console.error('Query execution failed:', error);
+    throw error;
   }
-  
-  // Default mock response for SELECT queries
-  if (sql.toLowerCase().includes('select')) {
-    return [];
-  }
-  
-  // Default response for non-SELECT queries
-  return { affectedRows: 0 };
 };
 
 export default {
