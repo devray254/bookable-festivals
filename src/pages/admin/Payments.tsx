@@ -1,106 +1,97 @@
 
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Eye } from "lucide-react";
+import { fetchPayments } from "@/utils/payments";
+
+interface Payment {
+  id: string;
+  booking_id: number;
+  event: string;
+  customer: string;
+  phone: string;
+  amount: string;
+  date: string;
+  method: string;
+  status: string;
+}
 
 export default function AdminPayments() {
-  const payments = [
-    {
-      id: "MPE123456",
-      booking: 1,
-      event: "Science Exhibition",
-      customer: "John Doe",
-      phone: "0712345678",
-      amount: "1000",
-      date: "2023-08-15 14:22:30",
-      method: "M-Pesa",
-      status: "successful"
-    },
-    {
-      id: "MPE234567",
-      booking: 2,
-      event: "Tech Workshop",
-      customer: "Jane Smith",
-      phone: "0723456789",
-      amount: "750",
-      date: "2023-08-20 10:15:45",
-      method: "M-Pesa",
-      status: "successful"
-    },
-    {
-      id: "MPE345678",
-      booking: 3,
-      event: "Chemistry Seminar",
-      customer: "Mike Johnson",
-      phone: "0734567890",
-      amount: "900",
-      date: "2023-08-25 16:30:10",
-      method: "M-Pesa",
-      status: "pending"
-    },
-    {
-      id: "MPE456789",
-      booking: 4,
-      event: "Tech Workshop",
-      customer: "Sarah Williams",
-      phone: "0745678901",
-      amount: "1500",
-      date: "2023-08-20 11:45:22",
-      method: "M-Pesa",
-      status: "failed"
-    }
-  ];
+  const { data: payments = [], isLoading, error } = useQuery({
+    queryKey: ['payments'],
+    queryFn: fetchPayments
+  });
 
+  // Filter payments by status
   const successfulPayments = payments.filter(payment => payment.status === "successful");
   const pendingPayments = payments.filter(payment => payment.status === "pending");
   const failedPayments = payments.filter(payment => payment.status === "failed");
 
-  const renderPaymentTable = (paymentsList: typeof payments) => (
+  // Calculate total revenue
+  const totalRevenue = successfulPayments.reduce((sum, payment) => sum + parseFloat(payment.amount), 0);
+
+  const renderPaymentTable = (paymentsList: Payment[]) => (
     <div className="overflow-x-auto">
-      <table className="w-full">
-        <thead>
-          <tr className="border-b">
-            <th className="text-left p-2">Transaction ID</th>
-            <th className="text-left p-2">Event</th>
-            <th className="text-left p-2">Customer</th>
-            <th className="text-left p-2">Phone</th>
-            <th className="text-left p-2">Amount (KES)</th>
-            <th className="text-left p-2">Date & Time</th>
-            <th className="text-left p-2">Method</th>
-            <th className="text-left p-2">Status</th>
-            <th className="text-left p-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {paymentsList.map((payment) => (
-            <tr key={payment.id} className="border-b">
-              <td className="p-2">{payment.id}</td>
-              <td className="p-2">{payment.event}</td>
-              <td className="p-2">{payment.customer}</td>
-              <td className="p-2">{payment.phone}</td>
-              <td className="p-2">{payment.amount}</td>
-              <td className="p-2">{payment.date}</td>
-              <td className="p-2">{payment.method}</td>
-              <td className="p-2">
-                <Badge variant={
-                  payment.status === "successful" ? "default" : 
-                  payment.status === "pending" ? "secondary" : "destructive"
-                }>
-                  {payment.status}
-                </Badge>
-              </td>
-              <td className="p-2">
-                <Button variant="ghost" size="icon">
-                  <Eye className="h-4 w-4" />
-                </Button>
-              </td>
+      {isLoading ? (
+        <div className="flex justify-center items-center p-8">
+          <div className="animate-spin h-8 w-8 border-4 border-eventPurple-700 rounded-full border-t-transparent"></div>
+        </div>
+      ) : error ? (
+        <div className="text-center p-4 text-red-500">
+          Error loading payments data. Please try again.
+        </div>
+      ) : paymentsList.length === 0 ? (
+        <div className="text-center p-4 text-gray-500">
+          No payments found in this category.
+        </div>
+      ) : (
+        <table className="w-full">
+          <thead>
+            <tr className="border-b">
+              <th className="text-left p-2">Transaction ID</th>
+              <th className="text-left p-2">Event</th>
+              <th className="text-left p-2">Customer</th>
+              <th className="text-left p-2">Phone</th>
+              <th className="text-left p-2">Amount (KES)</th>
+              <th className="text-left p-2">Date & Time</th>
+              <th className="text-left p-2">Method</th>
+              <th className="text-left p-2">Status</th>
+              <th className="text-left p-2">Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {paymentsList.map((payment) => (
+              <tr key={payment.id} className="border-b">
+                <td className="p-2">{payment.id}</td>
+                <td className="p-2">{payment.event}</td>
+                <td className="p-2">{payment.customer}</td>
+                <td className="p-2">{payment.phone}</td>
+                <td className="p-2">{payment.amount}</td>
+                <td className="p-2">{payment.date}</td>
+                <td className="p-2">{payment.method}</td>
+                <td className="p-2">
+                  <Badge variant={
+                    payment.status === "successful" ? "default" : 
+                    payment.status === "pending" ? "secondary" : "destructive"
+                  }>
+                    {payment.status}
+                  </Badge>
+                </td>
+                <td className="p-2">
+                  <Button variant="ghost" size="icon">
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 
@@ -137,7 +128,7 @@ export default function AdminPayments() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                KES {successfulPayments.reduce((sum, payment) => sum + parseInt(payment.amount), 0)}
+                KES {totalRevenue.toLocaleString()}
               </div>
             </CardContent>
           </Card>

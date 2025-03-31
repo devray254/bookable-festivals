@@ -13,10 +13,11 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 
-const MPESA_CONSUMER_KEY = "your_consumer_key";  // Replace with your consumer key
-const MPESA_CONSUMER_SECRET = "your_consumer_secret";  // Replace with your consumer secret  
-const MPESA_PASSKEY = "your_passkey";  // Replace with your passkey
-const MPESA_SHORTCODE = "174379";  // Replace with your shortcode
+// Real M-Pesa credentials
+const MPESA_CONSUMER_KEY = "2QBGZWGQOjGOs5OdvQT0PJ1TMVPuGsKo";
+const MPESA_CONSUMER_SECRET = "UH4Gt61wa1Glai6H";
+const MPESA_PASSKEY = "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919";
+const MPESA_SHORTCODE = "174379";
 
 interface BookingDialogProps {
   isOpen: boolean;
@@ -44,7 +45,6 @@ const BookingDialog = ({
   
   const validatePhoneNumber = (phone: string) => {
     // Basic Kenyan phone number validation (Safaricom)
-    // Accepts formats: 07XXXXXXXX, 7XXXXXXXX, +2547XXXXXXXX, 2547XXXXXXXX
     const regex = /^(?:(?:\+|)254|0)?7[0-9]{8}$/;
     return regex.test(phone);
   };
@@ -71,7 +71,9 @@ const BookingDialog = ({
   const getAccessToken = async () => {
     try {
       const auth = btoa(`${MPESA_CONSUMER_KEY}:${MPESA_CONSUMER_SECRET}`);
-      const response = await fetch("https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials", {
+      
+      // Use a PHP proxy to avoid CORS issues
+      const response = await fetch("./api/mpesa-auth.php", {
         method: "GET",
         headers: {
           "Authorization": `Basic ${auth}`
@@ -79,6 +81,12 @@ const BookingDialog = ({
       });
       
       const data = await response.json();
+      console.log("Access token response:", data);
+      
+      if (data.error) {
+        throw new Error(data.error_description || "Authentication failed");
+      }
+      
       return data.access_token;
     } catch (error) {
       console.error("Error fetching access token:", error);
@@ -94,30 +102,48 @@ const BookingDialog = ({
       const timestamp = new Date().toISOString().replace(/[-:\.]/g, "").slice(0, 14);
       const password = btoa(`${MPESA_SHORTCODE}${MPESA_PASSKEY}${timestamp}`);
       
-      const response = await fetch("https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest", {
+      // Use PHP proxy to avoid CORS issues
+      const response = await fetch("./api/mpesa-stkpush.php", {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${accessToken}`,
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          BusinessShortCode: MPESA_SHORTCODE,
-          Password: password,
-          Timestamp: timestamp,
-          TransactionType: "CustomerPayBillOnline",
-          Amount: amount.toString(),
-          PartyA: formattedPhone,
-          PartyB: MPESA_SHORTCODE,
-          PhoneNumber: formattedPhone,
-          CallBackURL: "https://example.com/callback",
-          AccountReference: `Event-${eventTitle.substring(0, 10)}`,
-          TransactionDesc: `Payment for ${ticketQuantity} ticket(s) for ${eventTitle}`
+          accessToken,
+          phoneNumber: formattedPhone,
+          amount: amount.toString(),
+          accountReference: `Event-${eventTitle.substring(0, 10)}`,
+          transactionDesc: `Payment for ${ticketQuantity} ticket(s) for ${eventTitle}`,
+          timestamp,
+          password
         })
       });
       
       const data = await response.json();
+      console.log("STK Push response:", data);
       
       if (data.ResponseCode === "0") {
+        // Save booking details to database
+        const bookingResponse = await fetch("./api/create-booking.php", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            event: eventTitle,
+            customer: "Customer", // In a real app, get from user profile
+            email: "customer@example.com", // In a real app, get from user profile
+            phone: formattedPhone,
+            date: new Date().toISOString().split('T')[0],
+            tickets: ticketQuantity,
+            total: grandTotal.toString(),
+            status: "pending"
+          })
+        });
+        
+        const bookingData = await bookingResponse.json();
+        console.log("Booking created:", bookingData);
+        
         return true;
       } else {
         throw new Error(data.ResponseDescription || "M-Pesa request failed");

@@ -1,33 +1,81 @@
 
-// Payments related utilities
+import { query } from './db-connection';
 
-// Mock data for payments
-const mockPayments = [
-  {
-    id: "MPE123456",
-    booking: 1,
-    event: "Science Exhibition",
-    customer: "John Doe",
-    phone: "0712345678",
-    amount: "1000",
-    date: "2023-08-15 14:22:30",
-    method: "M-Pesa",
-    status: "successful"
-  },
-  {
-    id: "MPE234567",
-    booking: 2,
-    event: "Tech Workshop",
-    customer: "Jane Smith",
-    phone: "0723456789",
-    amount: "750",
-    date: "2023-08-20 10:15:45",
-    method: "M-Pesa",
-    status: "successful"
-  }
-];
+// Interface for payment data
+interface Payment {
+  id: string;
+  booking_id: number;
+  event: string;
+  customer: string;
+  phone: string;
+  amount: string;
+  date: string;
+  method: string;
+  status: string;
+}
 
 // Fetch payments from database
-export const fetchPayments = async () => {
-  return mockPayments;
+export const fetchPayments = async (): Promise<Payment[]> => {
+  try {
+    // Get payments from the database
+    const results = await query('SELECT * FROM payments ORDER BY date DESC') as Payment[];
+    return results;
+  } catch (error) {
+    console.error('Error fetching payments:', error);
+    
+    // Return empty array on error
+    return [];
+  }
+};
+
+// Create a new payment record
+export const createPayment = async (paymentData: Omit<Payment, 'id' | 'date'>) => {
+  try {
+    const date = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    const id = `MP${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
+    
+    const result = await query(
+      'INSERT INTO payments (id, booking_id, event, customer, phone, amount, date, method, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [id, paymentData.booking_id, paymentData.event, paymentData.customer, paymentData.phone, paymentData.amount, date, paymentData.method, paymentData.status]
+    );
+    
+    return { success: true, id, result };
+  } catch (error) {
+    console.error('Error creating payment:', error);
+    return { success: false, message: 'Failed to create payment record' };
+  }
+};
+
+// Update payment status
+export const updatePaymentStatus = async (id: string, status: string) => {
+  try {
+    const result = await query(
+      'UPDATE payments SET status = ? WHERE id = ?',
+      [status, id]
+    );
+    
+    return { success: true, result };
+  } catch (error) {
+    console.error('Error updating payment status:', error);
+    return { success: false, message: 'Failed to update payment status' };
+  }
+};
+
+// Get payment details by ID
+export const getPaymentById = async (id: string) => {
+  try {
+    const results = await query(
+      'SELECT * FROM payments WHERE id = ?',
+      [id]
+    ) as Payment[];
+    
+    if (results.length === 0) {
+      return { success: false, message: 'Payment not found' };
+    }
+    
+    return { success: true, payment: results[0] };
+  } catch (error) {
+    console.error('Error fetching payment details:', error);
+    return { success: false, message: 'Failed to fetch payment details' };
+  }
 };

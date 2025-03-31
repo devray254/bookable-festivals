@@ -72,6 +72,17 @@ CREATE TABLE IF NOT EXISTS payments (
     FOREIGN KEY (booking_id) REFERENCES bookings(id)
 );
 
+-- Payment logs table for M-Pesa transaction logging
+CREATE TABLE IF NOT EXISTS payment_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    request_data TEXT NOT NULL,
+    response_data TEXT NOT NULL,
+    phone VARCHAR(20) NOT NULL,
+    amount DECIMAL(10,2) NOT NULL,
+    timestamp DATETIME NOT NULL,
+    status VARCHAR(20) DEFAULT 'pending'
+);
+
 -- Insert default admin user if not exists
 INSERT IGNORE INTO users (id, name, email, password, role) 
 VALUES (1, 'Admin User', 'admin@maabara.co.ke', 'admin123', 'admin');
