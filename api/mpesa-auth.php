@@ -20,8 +20,30 @@ if (empty($authHeader)) {
     exit;
 }
 
+// Include database connection
+require_once 'db-config.php';
+
+// Get M-Pesa settings from database
+$stmt = $conn->prepare("SELECT * FROM mpesa_settings WHERE id = 1");
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows === 0) {
+    http_response_code(400);
+    echo json_encode(['error' => 'mpesa_not_configured', 'error_description' => 'M-Pesa settings not configured']);
+    exit;
+}
+
+$settings = $result->fetch_assoc();
+$stmt->close();
+
+// Determine API URL based on environment
+$apiUrl = $settings['environment'] === 'production' 
+    ? 'https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials'
+    : 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
+
 // Initialize cURL session
-$ch = curl_init('https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials');
+$ch = curl_init($apiUrl);
 
 // Set cURL options
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -45,7 +67,23 @@ $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 // Close cURL session
 curl_close($ch);
 
+// Log the authentication attempt
+try {
+    $stmt = $conn->prepare("INSERT INTO activity_logs (timestamp, action, user, details, ip, level) VALUES (NOW(), 'mpesa_auth', 'system', ?, ?, 'info')");
+    $details = "M-Pesa auth request. Status: " . $httpCode;
+    $ip = $_SERVER['REMOTE_ADDR'];
+    $stmt->bind_param("ss", $details, $ip);
+    $stmt->execute();
+    $stmt->close();
+} catch (Exception $e) {
+    // Just log the error, don't affect the response
+    error_log('Error logging auth attempt: ' . $e->getMessage());
+}
+
 // Forward the response from Safaricom
 http_response_code($httpCode);
 echo $response;
+
+// Close connection
+$conn->close();
 ?>

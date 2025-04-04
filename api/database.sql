@@ -83,6 +83,20 @@ CREATE TABLE IF NOT EXISTS payment_logs (
     status VARCHAR(20) DEFAULT 'pending'
 );
 
+-- M-Pesa settings table
+CREATE TABLE IF NOT EXISTS mpesa_settings (
+    id INT PRIMARY KEY DEFAULT 1,
+    consumer_key VARCHAR(100) NOT NULL,
+    consumer_secret VARCHAR(100) NOT NULL,
+    passkey VARCHAR(100) NOT NULL,
+    shortcode VARCHAR(20) NOT NULL,
+    environment VARCHAR(20) DEFAULT 'sandbox',
+    callback_url VARCHAR(255) DEFAULT 'https://example.com/callback',
+    last_updated DATETIME NOT NULL,
+    updated_by VARCHAR(100) NOT NULL
+);
+
 -- Insert default admin user if not exists
 INSERT IGNORE INTO users (id, name, email, password, role) 
 VALUES (1, 'Admin User', 'admin@maabara.co.ke', 'admin123', 'admin');
+

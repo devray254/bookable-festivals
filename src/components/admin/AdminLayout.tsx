@@ -12,7 +12,15 @@ import {
   SidebarGroup,
   SidebarSeparator
 } from "@/components/ui/sidebar";
-import { CalendarDays, BookOpen, CreditCard, LayoutDashboard, FileText, Tag } from "lucide-react";
+import { 
+  CalendarDays, 
+  BookOpen, 
+  CreditCard, 
+  LayoutDashboard, 
+  FileText, 
+  Tag, 
+  Settings 
+} from "lucide-react";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -72,6 +80,14 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     <SidebarMenuButton isActive={isActive("/admin/payments")} tooltip="Payments">
                       <CreditCard className="h-4 w-4 mr-2" />
                       <span>Payments</span>
+                    </SidebarMenuButton>
+                  </Link>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <Link to="/admin/mpesa-settings">
+                    <SidebarMenuButton isActive={isActive("/admin/mpesa-settings")} tooltip="M-Pesa Settings">
+                      <Settings className="h-4 w-4 mr-2" />
+                      <span>M-Pesa Settings</span>
                     </SidebarMenuButton>
                   </Link>
                 </SidebarMenuItem>

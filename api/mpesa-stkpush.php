@@ -11,6 +11,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
+// Include database connection
+require_once 'db-config.php';
+
 // Get the request body
 $requestBody = file_get_contents('php://input');
 $data = json_decode($requestBody, true);
@@ -22,8 +25,24 @@ if (!isset($data['accessToken']) || !isset($data['phoneNumber']) || !isset($data
     exit;
 }
 
-// M-Pesa API constants
-$MPESA_SHORTCODE = "174379";
+// Get M-Pesa settings from database
+$stmt = $conn->prepare("SELECT * FROM mpesa_settings WHERE id = 1");
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows === 0) {
+    http_response_code(400);
+    echo json_encode(['ResponseCode' => '1', 'ResponseDescription' => 'M-Pesa settings not configured']);
+    exit;
+}
+
+$settings = $result->fetch_assoc();
+$stmt->close();
+
+// M-Pesa API constants from database
+$MPESA_SHORTCODE = $settings['shortcode'];
+$MPESA_ENVIRONMENT = $settings['environment'];
+$MPESA_CALLBACK_URL = $settings['callback_url'];
 
 // Extract data from request
 $accessToken = $data['accessToken'];
@@ -34,8 +53,13 @@ $transactionDesc = $data['transactionDesc'] ?? 'Event Booking Payment';
 $timestamp = $data['timestamp'] ?? null;
 $password = $data['password'] ?? null;
 
+// Determine API URL based on environment
+$apiUrl = $MPESA_ENVIRONMENT === 'production' 
+    ? 'https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest'
+    : 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest';
+
 // Initialize cURL session
-$ch = curl_init('https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest');
+$ch = curl_init($apiUrl);
 
 // Prepare the request payload
 $payload = [
@@ -47,7 +71,7 @@ $payload = [
     'PartyA' => $phoneNumber,
     'PartyB' => $MPESA_SHORTCODE,
     'PhoneNumber' => $phoneNumber,
-    'CallBackURL' => 'https://example.com/callback',
+    'CallBackURL' => $MPESA_CALLBACK_URL,
     'AccountReference' => $accountReference,
     'TransactionDesc' => $transactionDesc
 ];
@@ -78,8 +102,6 @@ $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
 
 // Log the transaction attempt to database
-require_once 'db-config.php';
-
 try {
     $stmt = $conn->prepare("INSERT INTO payment_logs (request_data, response_data, phone, amount, timestamp) VALUES (?, ?, ?, ?, NOW())");
     $requestData = json_encode($payload);
@@ -95,4 +117,7 @@ try {
 // Forward the response from Safaricom
 http_response_code($httpCode);
 echo $response;
+
+// Close connection
+$conn->close();
 ?>

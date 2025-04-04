@@ -18,6 +18,7 @@ import AdminCategories from "./pages/admin/Categories";
 import AdminBookings from "./pages/admin/Bookings";
 import AdminPayments from "./pages/admin/Payments";
 import AdminLogs from "./pages/admin/Logs";
+import MpesaSettings from "./pages/admin/MpesaSettings";
 import AboutUs from "./pages/AboutUs";
 import ContactUs from "./pages/ContactUs";
 import FAQ from "./pages/FAQ";
@@ -50,6 +51,7 @@ const App = () => (
           <Route path="/admin/categories" element={<AdminCategories />} />
           <Route path="/admin/bookings" element={<AdminBookings />} />
           <Route path="/admin/payments" element={<AdminPayments />} />
+          <Route path="/admin/mpesa-settings" element={<MpesaSettings />} />
           <Route path="/admin/logs" element={<AdminLogs />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

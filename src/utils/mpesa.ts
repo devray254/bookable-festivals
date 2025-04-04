@@ -1,16 +1,18 @@
 
 // M-Pesa API utility functions
 import { formatPhoneNumber } from "./phone";
-
-// Real M-Pesa credentials
-const MPESA_CONSUMER_KEY = "2QBGZWGQOjGOs5OdvQT0PJ1TMVPuGsKo";
-const MPESA_CONSUMER_SECRET = "UH4Gt61wa1Glai6H";
-const MPESA_PASSKEY = "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919";
-const MPESA_SHORTCODE = "174379";
+import { getMpesaSettings } from "./mpesa-settings";
 
 export const getAccessToken = async () => {
   try {
-    const auth = btoa(`${MPESA_CONSUMER_KEY}:${MPESA_CONSUMER_SECRET}`);
+    // Get M-Pesa settings from database
+    const settings = await getMpesaSettings();
+    
+    if (!settings) {
+      throw new Error("M-Pesa settings not configured. Please set up your M-Pesa credentials in the admin dashboard.");
+    }
+    
+    const auth = btoa(`${settings.consumer_key}:${settings.consumer_secret}`);
     
     // Use a PHP proxy to avoid CORS issues
     const response = await fetch("./api/mpesa-auth.php", {
@@ -36,11 +38,18 @@ export const getAccessToken = async () => {
 
 export const initiateSTKPush = async (phone: string, amount: number, eventTitle: string, ticketQuantity: number) => {
   try {
+    // Get M-Pesa settings from database
+    const settings = await getMpesaSettings();
+    
+    if (!settings) {
+      throw new Error("M-Pesa settings not configured. Please set up your M-Pesa credentials in the admin dashboard.");
+    }
+    
     const accessToken = await getAccessToken();
     const formattedPhone = formatPhoneNumber(phone);
     
     const timestamp = new Date().toISOString().replace(/[-:\.]/g, "").slice(0, 14);
-    const password = btoa(`${MPESA_SHORTCODE}${MPESA_PASSKEY}${timestamp}`);
+    const password = btoa(`${settings.shortcode}${settings.passkey}${timestamp}`);
     
     // Use PHP proxy to avoid CORS issues
     const response = await fetch("./api/mpesa-stkpush.php", {
