@@ -1,14 +1,15 @@
-
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Navbar } from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import EventHeader from "@/components/events/EventHeader";
 import EventInfo from "@/components/events/EventInfo";
 import EventLocation from "@/components/events/EventLocation";
 import BookingCard from "@/components/events/BookingCard";
 import BookingDialog from "@/components/events/BookingDialog";
+import { WebinarAccessCard } from "@/components/events/WebinarAccessCard";
 
 // Mock event data (in a real app, we would fetch this from the backend)
 const eventsData = [
@@ -23,7 +24,8 @@ const eventsData = [
     category: "Technology",
     description: "Join us for the biggest tech conference in East Africa. Network with industry leaders, attend workshops, and learn about the latest innovations in technology. This year's theme is 'The Future of AI and Machine Learning'.",
     organizer: "Tech Association of Kenya",
-    availableTickets: 150
+    availableTickets: 150,
+    hasWebinar: true
   },
   {
     id: 2,
@@ -36,7 +38,8 @@ const eventsData = [
     category: "Music",
     description: "Experience an unforgettable night of music under the stars. Featuring performances from top local and international artists across various genres. Food stalls and refreshments will be available.",
     organizer: "Beat Productions",
-    availableTickets: 500
+    availableTickets: 500,
+    hasWebinar: false
   },
   {
     id: 3,
@@ -141,25 +144,47 @@ const EventDetail = () => {
       {/* Event Details Section */}
       <div className="bg-gray-50 py-12">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Main Content */}
-            <div className="lg:col-span-2">
-              <EventInfo description={event.description} />
-              <EventLocation location={event.location} />
-            </div>
+          <Tabs defaultValue="details" className="mb-8">
+            <TabsList className="mb-6">
+              <TabsTrigger value="details">Event Details</TabsTrigger>
+              {event.hasWebinar && (
+                <TabsTrigger value="webinar">Webinar Access</TabsTrigger>
+              )}
+            </TabsList>
             
-            {/* Booking Card */}
-            <div className="lg:col-span-1">
-              <BookingCard 
-                date={event.date}
-                time={event.time}
-                location={event.location}
-                availableTickets={event.availableTickets}
-                price={event.price}
-                onBookNow={handleBookNow}
-              />
-            </div>
-          </div>
+            <TabsContent value="details">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Main Content */}
+                <div className="lg:col-span-2">
+                  <EventInfo description={event.description} />
+                  <EventLocation location={event.location} />
+                </div>
+                
+                {/* Booking Card */}
+                <div className="lg:col-span-1">
+                  <BookingCard 
+                    date={event.date}
+                    time={event.time}
+                    location={event.location}
+                    availableTickets={event.availableTickets}
+                    price={event.price}
+                    onBookNow={handleBookNow}
+                  />
+                </div>
+              </div>
+            </TabsContent>
+            
+            {event.hasWebinar && (
+              <TabsContent value="webinar">
+                <div className="max-w-md mx-auto">
+                  <WebinarAccessCard 
+                    eventId={event.id} 
+                    eventTitle={event.title} 
+                  />
+                </div>
+              </TabsContent>
+            )}
+          </Tabs>
         </div>
       </div>
       

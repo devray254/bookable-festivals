@@ -79,3 +79,18 @@ export const getPaymentById = async (id: string) => {
     return { success: false, message: 'Failed to fetch payment details' };
   }
 };
+
+// Check if a user has paid for an event
+export const hasUserPaidForEvent = async (phone: string, eventId: number): Promise<boolean> => {
+  try {
+    const results = await query(
+      'SELECT p.* FROM payments p JOIN bookings b ON p.booking_id = b.id WHERE p.phone = ? AND b.event_id = ? AND p.status = "successful"',
+      [phone, eventId]
+    ) as Payment[];
+    
+    return results.length > 0;
+  } catch (error) {
+    console.error('Error checking payment status:', error);
+    return false;
+  }
+};

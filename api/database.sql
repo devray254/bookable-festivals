@@ -34,7 +34,10 @@ CREATE TABLE IF NOT EXISTS events (
     location VARCHAR(100) NOT NULL,
     category VARCHAR(50) NOT NULL,
     price DECIMAL(10,2) NOT NULL,
-    description TEXT NOT NULL
+    description TEXT NOT NULL,
+    has_webinar BOOLEAN DEFAULT FALSE,
+    webinar_link VARCHAR(255) NULL,
+    webinar_time DATETIME NULL
 );
 
 -- Categories table
@@ -48,6 +51,7 @@ CREATE TABLE IF NOT EXISTS categories (
 -- Bookings table
 CREATE TABLE IF NOT EXISTS bookings (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    event_id INT NOT NULL,
     event VARCHAR(100) NOT NULL,
     customer VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL,
@@ -55,7 +59,9 @@ CREATE TABLE IF NOT EXISTS bookings (
     date DATE NOT NULL,
     tickets INT NOT NULL,
     total DECIMAL(10,2) NOT NULL,
-    status VARCHAR(20) NOT NULL
+    status VARCHAR(20) NOT NULL,
+    webinar_access BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (event_id) REFERENCES events(id)
 );
 
 -- Payments table
@@ -99,4 +105,3 @@ CREATE TABLE IF NOT EXISTS mpesa_settings (
 -- Insert default admin user if not exists
 INSERT IGNORE INTO users (id, name, email, password, role) 
 VALUES (1, 'Admin User', 'admin@maabara.co.ke', 'admin123', 'admin');
-
