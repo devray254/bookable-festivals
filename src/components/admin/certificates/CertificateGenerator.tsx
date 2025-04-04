@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,12 +24,12 @@ export function CertificateGenerator({ eventId }: CertificateGeneratorProps) {
   const [adminEmail, setAdminEmail] = useState('');
 
   // Get admin email from localStorage
-  useState(() => {
+  useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     if (user && user.email) {
       setAdminEmail(user.email);
     }
-  });
+  }, []);
 
   // Fetch all users who have registered
   const { data, isLoading } = useQuery({

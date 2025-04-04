@@ -1,4 +1,5 @@
 
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -26,44 +27,50 @@ import ContactUs from "./pages/ContactUs";
 import FAQ from "./pages/FAQ";
 import Terms from "./pages/Terms";
 
+// Create a new query client
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <BrowserRouter>
-        <Toaster />
-        <Sonner />
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/events" element={<Events />} />
-          <Route path="/events/:id" element={<EventDetail />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/organizers" element={<Organizers />} />
-          <Route path="/about" element={<AboutUs />} />
-          <Route path="/contact" element={<ContactUs />} />
-          <Route path="/faq" element={<FAQ />} />
-          <Route path="/terms" element={<Terms />} />
-          
-          {/* Admin Routes */}
-          <Route path="/admin-portal" element={<AdminLogin />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/users" element={<AdminUsers />} />
-          <Route path="/admin/events" element={<AdminEvents />} />
-          <Route path="/admin/categories" element={<AdminCategories />} />
-          <Route path="/admin/bookings" element={<AdminBookings />} />
-          <Route path="/admin/payments" element={<AdminPayments />} />
-          <Route path="/admin/certificates" element={<AdminCertificates />} />
-          <Route path="/admin/mpesa-settings" element={<MpesaSettings />} />
-          <Route path="/admin/logs" element={<AdminLogs />} />
-          
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+// Define App as a proper function component
+const App: React.FC = () => {
+  return (
+    <React.StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/events" element={<Events />} />
+              <Route path="/events/:id" element={<EventDetail />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/organizers" element={<Organizers />} />
+              <Route path="/about" element={<AboutUs />} />
+              <Route path="/contact" element={<ContactUs />} />
+              <Route path="/faq" element={<FAQ />} />
+              <Route path="/terms" element={<Terms />} />
+              
+              {/* Admin Routes */}
+              <Route path="/admin-portal" element={<AdminLogin />} />
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/users" element={<AdminUsers />} />
+              <Route path="/admin/events" element={<AdminEvents />} />
+              <Route path="/admin/categories" element={<AdminCategories />} />
+              <Route path="/admin/bookings" element={<AdminBookings />} />
+              <Route path="/admin/payments" element={<AdminPayments />} />
+              <Route path="/admin/certificates" element={<AdminCertificates />} />
+              <Route path="/admin/mpesa-settings" element={<MpesaSettings />} />
+              <Route path="/admin/logs" element={<AdminLogs />} />
+              
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </TooltipProvider>
+        </BrowserRouter>
+      </QueryClientProvider>
+    </React.StrictMode>
+  );
+};
 
 export default App;
