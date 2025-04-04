@@ -3,12 +3,14 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Award, Loader2, Check, Mail } from "lucide-react";
+import { Award, Loader2 } from "lucide-react";
 import { getAllUsers } from "@/utils/auth";
 import { generateCertificate, generateBulkCertificates } from "@/utils/certificates";
+import { UsersList } from "./UsersList";
+import { CertificateActions } from "./CertificateActions";
+import { BulkCertificateSection } from "./BulkCertificateSection";
 
 interface CertificateGeneratorProps {
   eventId: number;
@@ -135,111 +137,26 @@ export function CertificateGenerator({ eventId }: CertificateGeneratorProps) {
               />
             </div>
             
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={selectAllUsers}
-              >
-                Select All
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={clearSelection} 
-                disabled={selectedUsers.length === 0}
-              >
-                Clear
-              </Button>
-              <Button 
-                variant="default" 
-                size="sm" 
-                disabled={selectedUsers.length === 0 || isGenerating}
-                onClick={handleGenerateCertificates}
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Generating...
-                  </>
-                ) : (
-                  <>
-                    <Award className="mr-2 h-4 w-4" />
-                    Generate Selected
-                  </>
-                )}
-              </Button>
-            </div>
+            <CertificateActions 
+              selectAllUsers={selectAllUsers}
+              clearSelection={clearSelection}
+              handleGenerateCertificates={handleGenerateCertificates}
+              selectedUsers={selectedUsers}
+              isGenerating={isGenerating}
+            />
           </div>
           
-          <div className="border-t pt-4">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-medium">Bulk Certificate Generation</h3>
-              <Button
-                onClick={handleBulkGenerate}
-                disabled={isBulkGenerating}
-              >
-                {isBulkGenerating ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <Award className="mr-2 h-4 w-4" />
-                    Generate For All Paid Attendees
-                  </>
-                )}
-              </Button>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              This will generate certificates for all users who have paid for this event and have not yet received a certificate.
-            </p>
-          </div>
+          <BulkCertificateSection 
+            isBulkGenerating={isBulkGenerating}
+            onBulkGenerate={handleBulkGenerate}
+          />
           
-          <div className="border rounded-md">
-            <div className="grid grid-cols-1 p-4 font-medium border-b">
-              <div className="grid grid-cols-12 gap-2">
-                <div className="col-span-1"></div>
-                <div className="col-span-4">Name</div>
-                <div className="col-span-4">Email</div>
-                <div className="col-span-3">Phone</div>
-              </div>
-            </div>
-            
-            <div className="divide-y">
-              {isLoading ? (
-                <div className="flex justify-center p-8">
-                  <Loader2 className="h-8 w-8 animate-spin text-eventPurple-700" />
-                </div>
-              ) : filteredUsers.length === 0 ? (
-                <div className="p-8 text-center text-muted-foreground">
-                  No users found
-                </div>
-              ) : (
-                filteredUsers.map(user => (
-                  <div 
-                    key={user.id} 
-                    className={`p-4 hover:bg-gray-50 ${
-                      selectedUsers.includes(user.id) ? 'bg-gray-50' : ''
-                    }`}
-                  >
-                    <div className="grid grid-cols-12 gap-2 items-center">
-                      <div className="col-span-1">
-                        <Checkbox
-                          checked={selectedUsers.includes(user.id)}
-                          onCheckedChange={() => handleUserSelect(user.id)}
-                        />
-                      </div>
-                      <div className="col-span-4 truncate">{user.name}</div>
-                      <div className="col-span-4 truncate">{user.email}</div>
-                      <div className="col-span-3 truncate">{user.phone}</div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
+          <UsersList 
+            filteredUsers={filteredUsers}
+            selectedUsers={selectedUsers}
+            onUserSelect={handleUserSelect}
+            isLoading={isLoading}
+          />
         </div>
       </CardContent>
     </Card>

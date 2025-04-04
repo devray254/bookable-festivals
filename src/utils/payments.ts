@@ -1,5 +1,5 @@
-
 import { query } from './db-connection';
+import { Booking } from './bookings';
 
 // Interface for payment data
 interface Payment {
@@ -139,7 +139,9 @@ export const hasUserPaidForEvent = async (phone: string, eventId: number): Promi
     // In a real app, this would check the database
     // For our mock data, check if there's a payment with matching phone and event
     const payment = mockPayments.find(p => {
-      const booking = mockBookings.find(b => b.id === p.booking_id);
+      // Import the bookings to access the bookings data
+      const bookings = await import('./bookings').then(m => m.fetchBookings());
+      const booking = bookings.find(b => b.id === p.booking_id);
       return p.phone === phone && booking && booking.event_id === eventId && p.status === "successful";
     });
     
@@ -149,4 +151,3 @@ export const hasUserPaidForEvent = async (phone: string, eventId: number): Promi
     return false;
   }
 };
-
