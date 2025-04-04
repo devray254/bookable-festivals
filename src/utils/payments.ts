@@ -1,6 +1,6 @@
 
 import { query } from './db-connection';
-import { fetchBookings } from './bookings';
+import { fetchBookings, Booking } from './bookings';
 
 // Mock payments data for development
 const mockPayments = [
