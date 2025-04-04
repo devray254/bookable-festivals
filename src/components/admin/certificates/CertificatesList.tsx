@@ -73,9 +73,8 @@ export function CertificatesList({ eventId }: CertificatesListProps) {
       return;
     }
     
-    const eventDate = certificate.event_date 
-      ? new Date(certificate.event_date).toLocaleDateString()
-      : new Date().toLocaleDateString();
+    // Use a default date if event_date doesn't exist
+    const eventDate = new Date().toLocaleDateString();
 
     const issuedDate = new Date(certificate.issued_date).toLocaleDateString();
 
