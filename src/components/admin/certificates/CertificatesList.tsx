@@ -15,6 +15,7 @@ import {
   fetchCertificatesByEvent, 
   generateCertificateContent 
 } from "@/utils/certificates";
+import jsPDF from "jspdf";
 
 interface CertificatesListProps {
   eventId: number;
@@ -57,10 +58,120 @@ export function CertificatesList({ eventId }: CertificatesListProps) {
     });
   };
 
-  const handleDownload = (certificateId: string) => {
-    // In a real app, this would generate and download a PDF certificate
-    console.log("Downloading certificate:", certificateId);
-    alert(`In a production environment, this would download certificate ${certificateId}`);
+  const handleDownload = (certificateId: string, userName?: string, content?: string) => {
+    // If content is provided, generate PDF directly
+    if (content && userName) {
+      generatePDF(content, userName);
+      return;
+    }
+
+    // Find the certificate by ID
+    const certificate = certificates.find(cert => cert.id === certificateId);
+    
+    if (!certificate || !certificate.user_name || !certificate.event_title) {
+      console.error("Certificate data is incomplete");
+      return;
+    }
+    
+    const eventDate = certificate.event_date 
+      ? new Date(certificate.event_date).toLocaleDateString()
+      : new Date().toLocaleDateString();
+
+    const issuedDate = new Date(certificate.issued_date).toLocaleDateString();
+
+    const certificateContent = generateCertificateContent(
+      certificate.user_name,
+      certificate.event_title,
+      eventDate,
+      issuedDate
+    );
+
+    generatePDF(certificateContent, certificate.user_name);
+  };
+
+  const generatePDF = (content: string, userName: string) => {
+    // Create a new PDF document in A4 landscape format
+    const pdf = new jsPDF({
+      orientation: 'landscape',
+      unit: 'mm',
+      format: 'a4'
+    });
+    
+    // Set basic styling
+    pdf.setFont("helvetica", "normal");
+    
+    // Add a border
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const margin = 10;
+    
+    pdf.setDrawColor(0);
+    pdf.setLineWidth(0.5);
+    pdf.rect(margin, margin, pageWidth - 2 * margin, pageHeight - 2 * margin);
+    
+    // Add decorative elements
+    pdf.setDrawColor(128, 0, 128); // Purple color
+    pdf.setLineWidth(2);
+    pdf.line(margin * 2, margin * 2, pageWidth - margin * 2, margin * 2);
+    pdf.line(margin * 2, pageHeight - margin * 2, pageWidth - margin * 2, pageHeight - margin * 2);
+    
+    // Add logo or header
+    pdf.setFontSize(24);
+    pdf.setTextColor(70, 70, 70);
+    pdf.text("Certificate of Participation", pageWidth / 2, 30, { align: "center" });
+    
+    // Format and add the content
+    const lines = content.split('\n');
+    
+    let y = 50;
+    let fontSize = 12;
+    
+    // Process each line
+    lines.forEach(line => {
+      // Skip empty lines
+      if (!line.trim()) return;
+      
+      // Check for header lines
+      if (line.includes("Certificate of Participation")) return; // Skip title, already added
+      
+      // Check for bold text
+      if (line.includes("**")) {
+        const boldText = line.replace(/\*\*(.*?)\*\*/g, "$1");
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(16);
+        pdf.text(boldText, pageWidth / 2, y, { align: "center" });
+      } 
+      // Check for signature line
+      else if (line.includes("_______")) {
+        y += 15;
+        pdf.setLineWidth(0.5);
+        pdf.line(pageWidth / 2 - 40, y, pageWidth / 2 + 40, y);
+        y += 5;
+        pdf.setFont("helvetica", "normal");
+        pdf.setFontSize(12);
+        pdf.text("Maabara Online", pageWidth / 2, y, { align: "center" });
+      }
+      // Regular text
+      else {
+        pdf.setFont("helvetica", "normal");
+        pdf.setFontSize(fontSize);
+        pdf.text(line, pageWidth / 2, y, { align: "center" });
+      }
+      
+      // Increase vertical position
+      y += 10;
+    });
+    
+    // Add background watermark
+    pdf.setTextColor(230, 230, 230);
+    pdf.setFontSize(60);
+    pdf.text("MAABARA", pageWidth / 2, pageHeight / 2, { 
+      align: "center",
+      angle: 45
+    });
+    
+    // Save the PDF
+    pdf.save(`Certificate-${userName.replace(/\s+/g, '-')}.pdf`);
   };
 
   const handleSendEmail = (certificateId: string, email: string) => {
@@ -160,9 +271,13 @@ export function CertificatesList({ eventId }: CertificatesListProps) {
               Close
             </Button>
             {previewCertificate && (
-              <Button onClick={() => handleDownload(previewCertificate.id)}>
+              <Button onClick={() => previewCertificate && handleDownload(
+                previewCertificate.id,
+                previewCertificate.userName,
+                previewCertificate.content
+              )}>
                 <Download className="h-4 w-4 mr-2" />
-                Download
+                Download PDF
               </Button>
             )}
           </div>
