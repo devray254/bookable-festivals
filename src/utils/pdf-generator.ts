@@ -67,12 +67,15 @@ export const generateCertificatePDF = (
     pdf.setTextColor(230, 225, 215);
     pdf.setFontSize(12);
     
-    // Add watermark in a grid pattern
+    // Add watermark in a curled grid pattern with different angles
     for (let x = 20; x < pageWidth - 60; x += 40) {
       for (let y = 30; y < pageHeight - 20; y += 20) {
+        // Vary the angle for a more dynamic, curled appearance
+        const angle = ((x + y) % 60) - 30; // Angles between -30 and 30 degrees
+        
         pdf.saveGraphicsState();
         pdf.text("MAABARAONLINE", x, y, { 
-          angle: 30,
+          angle: angle,
           charSpace: 0
         });
         pdf.restoreGraphicsState();
@@ -95,7 +98,7 @@ export const generateCertificatePDF = (
     // "Is hereby presented to" text
     pdf.setFont("times", "normal");
     pdf.setFontSize(16);
-    pdf.text("Is hereby presented to", margin + 15, margin + 65);
+    pdf.text("This is to certify that", margin + 15, margin + 65);
     
     // Recipient name
     pdf.setFont("helvetica", "italic");
@@ -123,42 +126,66 @@ export const generateCertificatePDF = (
       }
     }
     
-    // Description text
+    // Certificate text
     pdf.setFont("times", "normal");
     pdf.setFontSize(14);
     pdf.setTextColor(100, 80, 40);
     
-    const description = `Demonstrated exceptional engagement and involvement during "${eventTitle}", which took place on ${eventDate}, actively participating in all sessions.`;
+    pdf.text(`has successfully participated in the event titled`, margin + 15, margin + 105);
     
-    // Word wrap the description
-    const splitDescription = pdf.splitTextToSize(description, pageWidth - margin - 80 - margin);
-    pdf.text(splitDescription, margin + 15, margin + 105);
+    // Event title
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(18);
+    pdf.text(`"${eventTitle}"`, margin + 15, margin + 120);
+    
+    // Additional content
+    pdf.setFont("times", "normal");
+    pdf.setFontSize(14);
+    pdf.text(`held on`, margin + 15, margin + 135);
+    
+    // Event date
+    pdf.setFont("helvetica", "italic");
+    pdf.setFontSize(16);
+    const formattedEventDate = new Date(eventDate).toLocaleDateString('en-US', {
+      day: 'numeric', month: 'long', year: 'numeric'
+    });
+    pdf.text(formattedEventDate, margin + 15, margin + 150);
+    
+    // Organized by text
+    pdf.setFont("times", "normal");
+    pdf.setFontSize(14);
+    pdf.text(`organized by `, margin + 15, margin + 165);
+    pdf.setFont("helvetica", "bold");
+    pdf.text(`Maabara Online Limited`, margin + 55, margin + 165);
+    
+    // Appreciation text
+    pdf.setFont("times", "italic");
+    pdf.setFontSize(12);
+    pdf.text("We appreciate your dedication to professional growth and continued learning.", margin + 15, margin + 180);
     
     // Signatures
     pdf.setFont("times", "normal");
-    pdf.setFontSize(16);
+    pdf.setFontSize(12);
     pdf.setTextColor(80, 60, 30);
-    pdf.text("CEO Maabara Online", margin + 25, pageHeight - margin - 30);
-    
-    pdf.text("CTO Maabara Online", pageWidth/2 + 25, pageHeight - margin - 30);
+    pdf.text("Maabara Online", margin + 25, pageHeight - margin - 30);
+    pdf.text("www.maabaraonline.com", margin + 25, pageHeight - margin - 20);
     
     // Signature lines
     pdf.setDrawColor(80, 60, 30);
     pdf.setLineWidth(0.5);
     pdf.line(margin + 15, pageHeight - margin - 40, margin + 90, pageHeight - margin - 40);
-    pdf.line(pageWidth/2 + 15, pageHeight - margin - 40, pageWidth/2 + 90, pageHeight - margin - 40);
     
     // Certificate ID and awarded date
-    pdf.setFontSize(12);
-    pdf.text(`Certificate ID: ${certificateId}`, margin + 15, pageHeight - margin - 15);
+    pdf.setFontSize(10);
+    pdf.text(`Certificate ID: ${certificateId}`, margin + 15, pageHeight - margin - 10);
     
     const issuedDate = new Date().toLocaleDateString('en-GB', {
       day: '2-digit',
-      month: '2-digit',
+      month: 'long',
       year: 'numeric'
-    }).replace(/\//g, '.');
+    });
     
-    pdf.text(`Awarded on: ${issuedDate}`, pageWidth/2 + 15, pageHeight - margin - 15);
+    pdf.text(`Issued on: ${issuedDate}`, pageWidth/2 + 15, pageHeight - margin - 10);
     
     pdf.save(`Certificate-${userName.replace(/\s+/g, '-')}.pdf`);
   } catch (error) {
