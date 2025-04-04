@@ -10,9 +10,12 @@ CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
+    phone VARCHAR(20) NOT NULL,
     password VARCHAR(100) NOT NULL,
     role VARCHAR(20) NOT NULL,
-    organization_type VARCHAR(50) NULL
+    organization_type VARCHAR(50) NULL,
+    reset_token VARCHAR(100) NULL,
+    reset_token_expires DATETIME NULL
 );
 
 -- Activity logs table
@@ -103,5 +106,5 @@ CREATE TABLE IF NOT EXISTS mpesa_settings (
 );
 
 -- Insert default admin user if not exists
-INSERT IGNORE INTO users (id, name, email, password, role) 
-VALUES (1, 'Admin User', 'admin@maabara.co.ke', 'admin123', 'admin');
+INSERT IGNORE INTO users (id, name, email, phone, password, role) 
+VALUES (1, 'Admin User', 'admin@maabara.co.ke', '0700000000', 'admin123', 'admin');

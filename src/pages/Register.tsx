@@ -4,18 +4,15 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Navbar } from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { createUser } from "@/utils/auth";
 import { toast } from "sonner";
 
 const Register = () => {
-  const [userType, setUserType] = useState("attendee");
-  const [organizationType, setOrganizationType] = useState("company");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -28,6 +25,16 @@ const Register = () => {
       toast.error("Passwords don't match");
       return;
     }
+
+    if (!email.trim()) {
+      toast.error("Email is required");
+      return;
+    }
+
+    if (!phone.trim()) {
+      toast.error("Phone number is required");
+      return;
+    }
     
     setIsLoading(true);
 
@@ -35,9 +42,9 @@ const Register = () => {
       const userData = {
         name,
         email,
+        phone,
         password,
-        userType,
-        organizationType: userType === 'organizer' ? organizationType : null
+        userType: 'attendee'
       };
 
       const result = await createUser(userData);
@@ -48,12 +55,8 @@ const Register = () => {
         // Store user info in localStorage if needed
         localStorage.setItem('user', JSON.stringify(result.user));
         
-        // Redirect to appropriate page based on user type
-        if (userType === 'organizer') {
-          navigate('/admin');
-        } else {
-          navigate('/events');
-        }
+        // Redirect to events page
+        navigate('/events');
       } else {
         toast.error(result.message || "Registration failed. Please try again.");
       }
@@ -77,23 +80,6 @@ const Register = () => {
               <p className="text-gray-600 mt-1">Sign up to start using Maabara Online</p>
             </div>
 
-            <Tabs defaultValue="attendee" className="mb-6" onValueChange={setUserType}>
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="attendee">Attendee</TabsTrigger>
-                <TabsTrigger value="organizer">Event Organizer</TabsTrigger>
-              </TabsList>
-              <TabsContent value="attendee">
-                <p className="text-sm text-gray-600 mt-2">
-                  Create an attendee account to discover and book tickets for events.
-                </p>
-              </TabsContent>
-              <TabsContent value="organizer">
-                <p className="text-sm text-gray-600 mt-2">
-                  Create an organizer account to host and manage your own events.
-                </p>
-              </TabsContent>
-            </Tabs>
-
             <form onSubmit={handleRegister} className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name</Label>
@@ -114,6 +100,18 @@ const Register = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone Number</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="0712345678"
                   required
                 />
               </div>
@@ -141,26 +139,6 @@ const Register = () => {
                   required
                 />
               </div>
-
-              {userType === "organizer" && (
-                <div className="space-y-2">
-                  <Label>Organization Type</Label>
-                  <RadioGroup defaultValue="company" onValueChange={setOrganizationType}>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="company" id="company" />
-                      <Label htmlFor="company">Company or Business</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="non-profit" id="non-profit" />
-                      <Label htmlFor="non-profit">Non-Profit Organization</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="individual" id="individual" />
-                      <Label htmlFor="individual">Individual</Label>
-                    </div>
-                  </RadioGroup>
-                </div>
-              )}
 
               <Button
                 type="submit"

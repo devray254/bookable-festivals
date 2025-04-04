@@ -19,7 +19,8 @@ import {
   LayoutDashboard, 
   FileText, 
   Tag, 
-  Settings 
+  Settings,
+  Users
 } from "lucide-react";
 
 interface AdminLayoutProps {
@@ -48,6 +49,14 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     <SidebarMenuButton isActive={isActive("/admin")} tooltip="Dashboard">
                       <LayoutDashboard className="h-4 w-4 mr-2" />
                       <span>Dashboard</span>
+                    </SidebarMenuButton>
+                  </Link>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <Link to="/admin/users">
+                    <SidebarMenuButton isActive={isActive("/admin/users")} tooltip="Users">
+                      <Users className="h-4 w-4 mr-2" />
+                      <span>Users</span>
                     </SidebarMenuButton>
                   </Link>
                 </SidebarMenuItem>

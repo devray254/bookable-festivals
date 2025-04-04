@@ -18,6 +18,7 @@ import AdminCategories from "./pages/admin/Categories";
 import AdminBookings from "./pages/admin/Bookings";
 import AdminPayments from "./pages/admin/Payments";
 import AdminLogs from "./pages/admin/Logs";
+import AdminUsers from "./pages/admin/Users";
 import MpesaSettings from "./pages/admin/MpesaSettings";
 import AboutUs from "./pages/AboutUs";
 import ContactUs from "./pages/ContactUs";
@@ -47,6 +48,7 @@ const App = () => (
           {/* Admin Routes */}
           <Route path="/admin-portal" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/events" element={<AdminEvents />} />
           <Route path="/admin/categories" element={<AdminCategories />} />
           <Route path="/admin/bookings" element={<AdminBookings />} />
