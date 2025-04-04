@@ -8,8 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Edit, Trash } from "lucide-react";
+import { Plus, Edit, Trash, Upload, Image } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { useToast } from "@/hooks/use-toast";
 import {
   Form,
   FormControl,
@@ -32,6 +33,10 @@ interface EventFormData {
 
 export default function AdminEvents() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const { toast } = useToast();
+  
   const [events, setEvents] = useState([
     {
       id: 1,
@@ -72,8 +77,42 @@ export default function AdminEvents() {
     }
   });
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        toast({
+          title: "File too large",
+          description: "Image must be less than 5MB",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      setSelectedImage(file);
+      
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+      
+      // For demo purposes, set the image field to the file name
+      form.setValue("image", file.name);
+    }
+  };
+
   const onSubmit = (data: EventFormData) => {
     console.log(data);
+    console.log("Selected image:", selectedImage);
+    
+    // Here you would upload the image to your server and get back a URL
+    // In a real implementation, you'd make an API call to upload the file
+    
+    // For demonstration purposes, we'll use the file name or preview URL
+    const imageUrl = imagePreview || "/placeholder.svg";
+    
     // In a real app, we would send this to an API
     setEvents([...events, { 
       id: events.length + 1, 
@@ -83,7 +122,16 @@ export default function AdminEvents() {
       category: data.category,
       price: data.price
     }]);
+    
+    toast({
+      title: "Event created",
+      description: `Successfully created ${data.title} with image: ${selectedImage?.name || 'none'}`
+    });
+    
+    // Reset form and image state
     setIsDialogOpen(false);
+    setSelectedImage(null);
+    setImagePreview(null);
     form.reset();
   };
 
@@ -226,15 +274,70 @@ export default function AdminEvents() {
                     />
                   </div>
                   
+                  {/* Replace URL input with file upload */}
                   <FormField
                     control={form.control}
                     name="image"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Image URL</FormLabel>
-                        <FormControl>
-                          <Input placeholder="https://example.com/image.jpg" {...field} />
-                        </FormControl>
+                        <FormLabel>Event Image</FormLabel>
+                        <div className="grid gap-2">
+                          <div className="flex items-center gap-2">
+                            <Input
+                              type="file"
+                              id="event-image"
+                              className="hidden"
+                              accept="image/*"
+                              onChange={handleImageChange}
+                            />
+                            <Label 
+                              htmlFor="event-image" 
+                              className="flex h-10 w-full cursor-pointer items-center justify-center rounded-md border border-input bg-background px-3 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                            >
+                              <Upload className="mr-2 h-4 w-4" />
+                              {selectedImage ? "Change Image" : "Upload Image"}
+                            </Label>
+                            <Input 
+                              {...field} 
+                              className="hidden" 
+                              readOnly
+                            />
+                          </div>
+                          
+                          {/* Image preview */}
+                          {imagePreview && (
+                            <div className="mt-2 relative w-full aspect-video rounded-md overflow-hidden border">
+                              <img 
+                                src={imagePreview} 
+                                alt="Preview" 
+                                className="w-full h-full object-cover" 
+                              />
+                              <Button 
+                                type="button"
+                                variant="destructive" 
+                                size="sm"
+                                className="absolute top-2 right-2"
+                                onClick={() => {
+                                  setSelectedImage(null);
+                                  setImagePreview(null);
+                                  form.setValue("image", "");
+                                }}
+                              >
+                                Remove
+                              </Button>
+                            </div>
+                          )}
+                          
+                          {!imagePreview && (
+                            <div className="flex items-center justify-center w-full p-6 border border-dashed rounded-md">
+                              <div className="flex flex-col items-center text-sm text-muted-foreground">
+                                <Image className="w-8 h-8 mb-2 text-muted-foreground" />
+                                <p>Upload an image for your event</p>
+                                <p className="text-xs">PNG, JPG or GIF up to 5MB</p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}

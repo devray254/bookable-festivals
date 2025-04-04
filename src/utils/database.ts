@@ -22,3 +22,6 @@ export { fetchPayments } from './payments';
 
 // Re-export logs utilities
 export { fetchActivityLogs, logActivity } from './logs';
+
+// Re-export image upload utilities
+export { uploadEventImage, validateImage } from './image-upload';
