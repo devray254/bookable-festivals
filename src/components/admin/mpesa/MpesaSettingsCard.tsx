@@ -13,7 +13,8 @@ export function MpesaSettingsCard({ settings }: MpesaSettingsCardProps) {
       <CardHeader>
         <CardTitle>M-Pesa API Configuration</CardTitle>
         <CardDescription>
-          Enter your Safaricom M-Pesa API credentials for payment processing
+          Enter your Safaricom M-Pesa API credentials for payment processing.
+          You can use test credentials for the sandbox environment.
         </CardDescription>
       </CardHeader>
       <CardContent>

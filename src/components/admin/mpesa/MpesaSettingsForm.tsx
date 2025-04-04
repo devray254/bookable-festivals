@@ -8,13 +8,23 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Save } from "lucide-react";
+import { Loader2, Save, TestTube2 } from "lucide-react";
 import { updateMpesaSettings, type MpesaSettings } from "@/utils/mpesa-settings";
 import { mpesaFormSchema, type MpesaFormValues } from "./MpesaSettingsSchema";
 
 interface MpesaSettingsFormProps {
   initialData: MpesaSettings | null;
 }
+
+// Sandbox test credentials
+const TEST_CREDENTIALS: MpesaFormValues = {
+  consumer_key: "2sh7EgkM79EYKcAYsGZ9OAZlxgzXvDrG",
+  consumer_secret: "F7jG9MnI3FppN8lY",
+  passkey: "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919",
+  shortcode: "174379",
+  environment: "sandbox",
+  callback_url: "https://example.com/callback"
+};
 
 export function MpesaSettingsForm({ initialData }: MpesaSettingsFormProps) {
   const { toast } = useToast();
@@ -63,18 +73,37 @@ export function MpesaSettingsForm({ initialData }: MpesaSettingsFormProps) {
     }
   };
 
+  const applyTestCredentials = () => {
+    form.reset(TEST_CREDENTIALS);
+    toast({
+      title: "Test Credentials Applied",
+      description: "Sandbox test credentials have been applied. Don't forget to save!"
+    });
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="flex items-center space-x-2 mb-6">
-          <Switch
-            checked={showSecrets}
-            onCheckedChange={setShowSecrets}
-            id="show-secrets"
-          />
-          <label htmlFor="show-secrets" className="text-sm font-medium">
-            Show sensitive information
-          </label>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-2">
+            <Switch
+              checked={showSecrets}
+              onCheckedChange={setShowSecrets}
+              id="show-secrets"
+            />
+            <label htmlFor="show-secrets" className="text-sm font-medium">
+              Show sensitive information
+            </label>
+          </div>
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={applyTestCredentials}
+            className="flex items-center gap-2"
+          >
+            <TestTube2 className="h-4 w-4" />
+            Apply Test Credentials
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -205,6 +234,13 @@ export function MpesaSettingsForm({ initialData }: MpesaSettingsFormProps) {
               </FormItem>
             )}
           />
+        </div>
+
+        <div className="bg-muted p-4 rounded-md mb-4">
+          <h3 className="text-sm font-medium mb-2">About Sandbox Testing</h3>
+          <p className="text-xs text-muted-foreground">
+            These are Safaricom's official test credentials for the Sandbox environment. They allow you to simulate M-Pesa transactions without using real money. For testing STK Push, use phone number 254708374149 with PIN 12345.
+          </p>
         </div>
 
         <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
