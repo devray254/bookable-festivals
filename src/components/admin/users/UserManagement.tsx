@@ -1,19 +1,12 @@
 
 import { useState, useEffect } from "react";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Pencil, RefreshCw, UserPlus } from "lucide-react";
-import { getAllUsers, resetUserPassword } from "@/utils/auth";
+import { UserPlus } from "lucide-react";
+import { getAllUsers } from "@/utils/auth";
 import { AddUserDialog } from "./AddUserDialog";
 import { EditUserDialog } from "./EditUserDialog";
+import { UsersTable } from "./UsersTable";
 
 export function UserManagement() {
   const [users, setUsers] = useState<any[]>([]);
@@ -53,21 +46,6 @@ export function UserManagement() {
     fetchUsers();
   }, []);
 
-  // Handle password reset
-  const handleResetPassword = async (email: string) => {
-    try {
-      const result = await resetUserPassword(email, adminEmail);
-      if (result.success) {
-        toast.success(result.message);
-      } else {
-        toast.error(result.message);
-      }
-    } catch (error) {
-      console.error("Password reset error:", error);
-      toast.error("Failed to reset password");
-    }
-  };
-
   // Handle edit user
   const handleEditUser = (user: any) => {
     setSelectedUser(user);
@@ -84,67 +62,12 @@ export function UserManagement() {
         </Button>
       </div>
 
-      {loading ? (
-        <div className="flex justify-center my-8">
-          <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
-      ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Phone</TableHead>
-              <TableHead>Role</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {users.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                  No users found
-                </TableCell>
-              </TableRow>
-            ) : (
-              users.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell>{user.name}</TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>{user.phone}</TableCell>
-                  <TableCell>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
-                    }`}>
-                      {user.role}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex space-x-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => handleEditUser(user)}
-                      >
-                        <Pencil className="h-4 w-4 mr-1" />
-                        Edit
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleResetPassword(user.email)}
-                      >
-                        <RefreshCw className="h-4 w-4 mr-1" />
-                        Reset Password
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      )}
+      <UsersTable 
+        users={users} 
+        isLoading={loading} 
+        adminEmail={adminEmail}
+        onEditUser={handleEditUser}
+      />
 
       <AddUserDialog 
         open={addDialogOpen} 
