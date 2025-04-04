@@ -1,6 +1,8 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { 
   Dialog, 
   DialogContent, 
@@ -17,16 +19,20 @@ import { useToast } from "@/hooks/use-toast";
 import { EventFormFields } from "./EventFormFields";
 import { EventImageUpload } from "./EventImageUpload";
 
-interface EventFormData {
-  title: string;
-  description: string;
-  date: string;
-  time: string;
-  location: string;
-  price: string;
-  category: string;
-  image: string;
-}
+// Define the validation schema with Zod
+const eventFormSchema = z.object({
+  title: z.string().min(3, { message: "Title must be at least 3 characters" }),
+  description: z.string().min(10, { message: "Description must be at least 10 characters" }),
+  date: z.string().min(1, { message: "Date is required" }),
+  time: z.string().min(1, { message: "Time is required" }),
+  location: z.string().min(3, { message: "Location must be at least 3 characters" }),
+  price: z.string().min(1, { message: "Price is required" }),
+  category: z.string().min(1, { message: "Please select a category" }),
+  image: z.string().optional(),
+});
+
+// Infer the type from the schema
+type EventFormData = z.infer<typeof eventFormSchema>;
 
 interface AddEventDialogProps {
   onEventAdded: (event: any) => void;
@@ -37,6 +43,7 @@ export function AddEventDialog({ onEventAdded }: AddEventDialogProps) {
   const { toast } = useToast();
   
   const form = useForm<EventFormData>({
+    resolver: zodResolver(eventFormSchema),
     defaultValues: {
       title: "",
       description: "",
@@ -48,9 +55,12 @@ export function AddEventDialog({ onEventAdded }: AddEventDialogProps) {
       image: ""
     }
   });
+  
+  const { formState } = form;
+  const { errors } = formState;
 
   const onSubmit = (data: EventFormData) => {
-    console.log(data);
+    console.log("Form submitted:", data);
     
     // For demonstration purposes, we'll use the file name or preview URL
     const newEvent = { 
@@ -87,7 +97,7 @@ export function AddEventDialog({ onEventAdded }: AddEventDialogProps) {
         <DialogHeader>
           <DialogTitle>Add New Event</DialogTitle>
           <DialogDescription>
-            Create a new event for Maabara Online. Fill in all the details below.
+            Create a new event for Maabara Online. Fill in all the required fields below.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -96,7 +106,9 @@ export function AddEventDialog({ onEventAdded }: AddEventDialogProps) {
             <EventImageUpload form={form} />
             
             <DialogFooter>
-              <Button type="submit">Create Event</Button>
+              <Button type="submit" disabled={formState.isSubmitting}>
+                {formState.isSubmitting ? "Creating..." : "Create Event"}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

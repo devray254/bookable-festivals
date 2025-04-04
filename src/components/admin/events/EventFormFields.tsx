@@ -3,9 +3,10 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/comp
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { UseFormReturn } from "react-hook-form";
 
 interface EventFormFieldsProps {
-  form: any;
+  form: UseFormReturn<any>;
 }
 
 export function EventFormFields({ form }: EventFormFieldsProps) {
@@ -17,7 +18,7 @@ export function EventFormFields({ form }: EventFormFieldsProps) {
           name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Title</FormLabel>
+              <FormLabel>Title<span className="text-red-500">*</span></FormLabel>
               <FormControl>
                 <Input placeholder="Enter event title" {...field} />
               </FormControl>
@@ -30,7 +31,7 @@ export function EventFormFields({ form }: EventFormFieldsProps) {
           name="category"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Category</FormLabel>
+              <FormLabel>Category<span className="text-red-500">*</span></FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
@@ -55,7 +56,7 @@ export function EventFormFields({ form }: EventFormFieldsProps) {
         name="description"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Description</FormLabel>
+            <FormLabel>Description<span className="text-red-500">*</span></FormLabel>
             <FormControl>
               <Textarea 
                 placeholder="Enter event description" 
@@ -74,7 +75,7 @@ export function EventFormFields({ form }: EventFormFieldsProps) {
           name="date"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Date</FormLabel>
+              <FormLabel>Date<span className="text-red-500">*</span></FormLabel>
               <FormControl>
                 <Input type="date" {...field} />
               </FormControl>
@@ -87,7 +88,7 @@ export function EventFormFields({ form }: EventFormFieldsProps) {
           name="time"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Time</FormLabel>
+              <FormLabel>Time<span className="text-red-500">*</span></FormLabel>
               <FormControl>
                 <Input type="time" {...field} />
               </FormControl>
@@ -103,7 +104,7 @@ export function EventFormFields({ form }: EventFormFieldsProps) {
           name="location"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Location</FormLabel>
+              <FormLabel>Location<span className="text-red-500">*</span></FormLabel>
               <FormControl>
                 <Input placeholder="Enter venue" {...field} />
               </FormControl>
@@ -116,7 +117,7 @@ export function EventFormFields({ form }: EventFormFieldsProps) {
           name="price"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Price (KES)</FormLabel>
+              <FormLabel>Price (KES)<span className="text-red-500">*</span></FormLabel>
               <FormControl>
                 <Input type="number" placeholder="0" {...field} />
               </FormControl>
