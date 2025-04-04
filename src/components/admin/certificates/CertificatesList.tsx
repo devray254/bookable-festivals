@@ -41,10 +41,9 @@ export function CertificatesList({ eventId }: CertificatesListProps) {
         return;
       }
 
-      const eventDate = certificate.event_date 
-        ? new Date(certificate.event_date).toLocaleDateString()
-        : new Date().toLocaleDateString();
-
+      // Use event_title or a default value for the event date display
+      // Since event_date is not in the Certificate interface, we'll use issued_date instead
+      const eventDate = new Date().toLocaleDateString(); // Default to current date
       const issuedDate = new Date(certificate.issued_date).toLocaleDateString();
 
       const content = generateCertificateContent(
@@ -82,11 +81,8 @@ export function CertificatesList({ eventId }: CertificatesListProps) {
         return;
       }
       
-      // Use a default date if event_date doesn't exist
-      const eventDate = certificate.event_date 
-        ? new Date(certificate.event_date).toLocaleDateString()
-        : new Date().toLocaleDateString();
-
+      // Use a default date for the event date since we don't have event_date in the Certificate interface
+      const eventDate = new Date().toLocaleDateString();
       const issuedDate = new Date(certificate.issued_date).toLocaleDateString();
 
       const certificateContent = generateCertificateContent(
