@@ -27,6 +27,15 @@ export { fetchBookings } from './bookings';
 // Re-export payments utilities
 export { fetchPayments } from './payments/core';
 
+// Re-export certificates utilities
+export { 
+  fetchCertificatesByEvent,
+  fetchCertificatesByUser,
+  generateCertificate,
+  generateBulkCertificates,
+  generateCertificateContent
+} from './certificates';
+
 // Re-export logs utilities
 export { fetchActivityLogs, logActivity } from './logs';
 
