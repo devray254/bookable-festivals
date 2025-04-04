@@ -11,6 +11,7 @@ import {
   DialogTitle,
   DialogDescription
 } from "@/components/ui/dialog";
+import { toast } from "sonner";
 import { 
   fetchCertificatesByEvent, 
   generateCertificateContent 
@@ -28,155 +29,180 @@ export function CertificatesList({ eventId }: CertificatesListProps) {
     userName: string;
   } | null>(null);
 
-  const { data: certificates = [], isLoading } = useQuery({
+  const { data: certificates = [], isLoading, refetch } = useQuery({
     queryKey: ['certificates', eventId],
     queryFn: () => fetchCertificatesByEvent(eventId)
   });
 
   const handlePreview = (certificate: any) => {
-    if (!certificate.user_name || !certificate.event_title) {
-      return;
+    try {
+      if (!certificate.user_name || !certificate.event_title) {
+        toast.error("Certificate data is incomplete");
+        return;
+      }
+
+      const eventDate = certificate.event_date 
+        ? new Date(certificate.event_date).toLocaleDateString()
+        : new Date().toLocaleDateString();
+
+      const issuedDate = new Date(certificate.issued_date).toLocaleDateString();
+
+      const content = generateCertificateContent(
+        certificate.user_name,
+        certificate.event_title,
+        eventDate,
+        issuedDate
+      );
+
+      setPreviewCertificate({
+        id: certificate.id,
+        content,
+        userName: certificate.user_name
+      });
+    } catch (error) {
+      console.error("Error previewing certificate:", error);
+      toast.error("Error previewing certificate");
     }
-
-    const eventDate = certificate.event_date 
-      ? new Date(certificate.event_date).toLocaleDateString()
-      : new Date().toLocaleDateString();
-
-    const issuedDate = new Date(certificate.issued_date).toLocaleDateString();
-
-    const content = generateCertificateContent(
-      certificate.user_name,
-      certificate.event_title,
-      eventDate,
-      issuedDate
-    );
-
-    setPreviewCertificate({
-      id: certificate.id,
-      content,
-      userName: certificate.user_name
-    });
   };
 
   const handleDownload = (certificateId: string, userName?: string, content?: string) => {
-    // If content is provided, generate PDF directly
-    if (content && userName) {
-      generatePDF(content, userName);
-      return;
+    try {
+      // If content is provided, generate PDF directly
+      if (content && userName) {
+        generatePDF(content, userName);
+        return;
+      }
+
+      // Find the certificate by ID
+      const certificate = certificates.find(cert => cert.id === certificateId);
+      
+      if (!certificate || !certificate.user_name || !certificate.event_title) {
+        console.error("Certificate data is incomplete");
+        toast.error("Certificate data is incomplete");
+        return;
+      }
+      
+      // Use a default date if event_date doesn't exist
+      const eventDate = certificate.event_date 
+        ? new Date(certificate.event_date).toLocaleDateString()
+        : new Date().toLocaleDateString();
+
+      const issuedDate = new Date(certificate.issued_date).toLocaleDateString();
+
+      const certificateContent = generateCertificateContent(
+        certificate.user_name,
+        certificate.event_title,
+        eventDate,
+        issuedDate
+      );
+
+      generatePDF(certificateContent, certificate.user_name);
+      toast.success("Certificate downloaded successfully");
+    } catch (error) {
+      console.error("Error downloading certificate:", error);
+      toast.error("Error downloading certificate");
     }
-
-    // Find the certificate by ID
-    const certificate = certificates.find(cert => cert.id === certificateId);
-    
-    if (!certificate || !certificate.user_name || !certificate.event_title) {
-      console.error("Certificate data is incomplete");
-      return;
-    }
-    
-    // Use a default date if event_date doesn't exist
-    const eventDate = new Date().toLocaleDateString();
-
-    const issuedDate = new Date(certificate.issued_date).toLocaleDateString();
-
-    const certificateContent = generateCertificateContent(
-      certificate.user_name,
-      certificate.event_title,
-      eventDate,
-      issuedDate
-    );
-
-    generatePDF(certificateContent, certificate.user_name);
   };
 
   const generatePDF = (content: string, userName: string) => {
-    // Create a new PDF document in A4 landscape format
-    const pdf = new jsPDF({
-      orientation: 'landscape',
-      unit: 'mm',
-      format: 'a4'
-    });
-    
-    // Set basic styling
-    pdf.setFont("helvetica", "normal");
-    
-    // Add a border
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const margin = 10;
-    
-    pdf.setDrawColor(0);
-    pdf.setLineWidth(0.5);
-    pdf.rect(margin, margin, pageWidth - 2 * margin, pageHeight - 2 * margin);
-    
-    // Add decorative elements
-    pdf.setDrawColor(128, 0, 128); // Purple color
-    pdf.setLineWidth(2);
-    pdf.line(margin * 2, margin * 2, pageWidth - margin * 2, margin * 2);
-    pdf.line(margin * 2, pageHeight - margin * 2, pageWidth - margin * 2, pageHeight - margin * 2);
-    
-    // Add logo or header
-    pdf.setFontSize(24);
-    pdf.setTextColor(70, 70, 70);
-    pdf.text("Certificate of Participation", pageWidth / 2, 30, { align: "center" });
-    
-    // Format and add the content
-    const lines = content.split('\n');
-    
-    let y = 50;
-    let fontSize = 12;
-    
-    // Process each line
-    lines.forEach(line => {
-      // Skip empty lines
-      if (!line.trim()) return;
+    try {
+      // Create a new PDF document in A4 landscape format
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4'
+      });
       
-      // Check for header lines
-      if (line.includes("Certificate of Participation")) return; // Skip title, already added
+      // Set basic styling
+      pdf.setFont("helvetica", "normal");
       
-      // Check for bold text
-      if (line.includes("**")) {
-        const boldText = line.replace(/\*\*(.*?)\*\*/g, "$1");
-        pdf.setFont("helvetica", "bold");
-        pdf.setFontSize(16);
-        pdf.text(boldText, pageWidth / 2, y, { align: "center" });
-      } 
-      // Check for signature line
-      else if (line.includes("_______")) {
-        y += 15;
-        pdf.setLineWidth(0.5);
-        pdf.line(pageWidth / 2 - 40, y, pageWidth / 2 + 40, y);
-        y += 5;
-        pdf.setFont("helvetica", "normal");
-        pdf.setFontSize(12);
-        pdf.text("Maabara Online", pageWidth / 2, y, { align: "center" });
-      }
-      // Regular text
-      else {
-        pdf.setFont("helvetica", "normal");
-        pdf.setFontSize(fontSize);
-        pdf.text(line, pageWidth / 2, y, { align: "center" });
-      }
+      // Add a border
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 10;
       
-      // Increase vertical position
-      y += 10;
-    });
-    
-    // Add background watermark
-    pdf.setTextColor(230, 230, 230);
-    pdf.setFontSize(60);
-    pdf.text("MAABARA", pageWidth / 2, pageHeight / 2, { 
-      align: "center",
-      angle: 45
-    });
-    
-    // Save the PDF
-    pdf.save(`Certificate-${userName.replace(/\s+/g, '-')}.pdf`);
+      pdf.setDrawColor(0);
+      pdf.setLineWidth(0.5);
+      pdf.rect(margin, margin, pageWidth - 2 * margin, pageHeight - 2 * margin);
+      
+      // Add decorative elements
+      pdf.setDrawColor(128, 0, 128); // Purple color
+      pdf.setLineWidth(2);
+      pdf.line(margin * 2, margin * 2, pageWidth - margin * 2, margin * 2);
+      pdf.line(margin * 2, pageHeight - margin * 2, pageWidth - margin * 2, pageHeight - margin * 2);
+      
+      // Add logo or header
+      pdf.setFontSize(24);
+      pdf.setTextColor(70, 70, 70);
+      pdf.text("Certificate of Participation", pageWidth / 2, 30, { align: "center" });
+      
+      // Format and add the content
+      const lines = content.split('\n');
+      
+      let y = 50;
+      let fontSize = 12;
+      
+      // Process each line
+      lines.forEach(line => {
+        // Skip empty lines
+        if (!line.trim()) return;
+        
+        // Check for header lines
+        if (line.includes("Certificate of Participation")) return; // Skip title, already added
+        
+        // Check for bold text
+        if (line.includes("**")) {
+          const boldText = line.replace(/\*\*(.*?)\*\*/g, "$1");
+          pdf.setFont("helvetica", "bold");
+          pdf.setFontSize(16);
+          pdf.text(boldText, pageWidth / 2, y, { align: "center" });
+        } 
+        // Check for signature line
+        else if (line.includes("_______")) {
+          y += 15;
+          pdf.setLineWidth(0.5);
+          pdf.line(pageWidth / 2 - 40, y, pageWidth / 2 + 40, y);
+          y += 5;
+          pdf.setFont("helvetica", "normal");
+          pdf.setFontSize(12);
+          pdf.text("Maabara Online", pageWidth / 2, y, { align: "center" });
+        }
+        // Regular text
+        else {
+          pdf.setFont("helvetica", "normal");
+          pdf.setFontSize(fontSize);
+          pdf.text(line, pageWidth / 2, y, { align: "center" });
+        }
+        
+        // Increase vertical position
+        y += 10;
+      });
+      
+      // Add background watermark
+      pdf.setTextColor(230, 230, 230);
+      pdf.setFontSize(60);
+      pdf.text("MAABARA", pageWidth / 2, pageHeight / 2, { 
+        align: "center",
+        angle: 45
+      });
+      
+      // Save the PDF
+      pdf.save(`Certificate-${userName.replace(/\s+/g, '-')}.pdf`);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      toast.error("Error generating PDF");
+    }
   };
 
   const handleSendEmail = (certificateId: string, email: string) => {
-    // In a real app, this would send an email with the certificate
-    console.log("Sending certificate to:", email);
-    alert(`In a production environment, this would email certificate ${certificateId} to ${email}`);
+    try {
+      // In a real app, this would send an email with the certificate
+      console.log("Sending certificate to:", email);
+      toast.success(`Certificate would be emailed to ${email} in production`);
+    } catch (error) {
+      console.error("Error sending email:", error);
+      toast.error("Error sending email");
+    }
   };
 
   return (
