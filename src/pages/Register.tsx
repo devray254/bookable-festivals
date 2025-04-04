@@ -16,22 +16,27 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
     
     if (password !== confirmPassword) {
+      setError("Passwords don't match");
       toast.error("Passwords don't match");
       return;
     }
 
     if (!email.trim()) {
+      setError("Email is required");
       toast.error("Email is required");
       return;
     }
 
     if (!phone.trim()) {
+      setError("Phone number is required");
       toast.error("Phone number is required");
       return;
     }
@@ -47,7 +52,10 @@ const Register = () => {
         userType: 'attendee'
       };
 
+      console.log("Attempting to register user:", { ...userData, password: "***" });
+      
       const result = await createUser(userData);
+      console.log("Registration result:", result);
       
       if (result.success) {
         toast.success("Registration successful!");
@@ -58,10 +66,12 @@ const Register = () => {
         // Redirect to events page
         navigate('/events');
       } else {
+        setError(result.message || "Registration failed. Please try again.");
         toast.error(result.message || "Registration failed. Please try again.");
       }
     } catch (error) {
       console.error("Registration error:", error);
+      setError("An error occurred during registration. Please try again.");
       toast.error("An error occurred during registration. Please try again.");
     } finally {
       setIsLoading(false);
@@ -79,6 +89,12 @@ const Register = () => {
               <h1 className="text-2xl font-bold text-gray-900">Create your account</h1>
               <p className="text-gray-600 mt-1">Sign up to start using Maabara Online</p>
             </div>
+
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
+                {error}
+              </div>
+            )}
 
             <form onSubmit={handleRegister} className="space-y-6">
               <div className="space-y-2">
