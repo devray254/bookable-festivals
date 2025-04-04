@@ -23,7 +23,7 @@ const AdminLogin = () => {
     try {
       const result = await authenticateUser(email, password);
       
-      if (result.success && result.user.role === 'organizer') {
+      if (result.success && (result.user.role === 'admin' || result.user.role === 'organizer')) {
         toast.success("Admin login successful!");
         
         // Store the user info in localStorage

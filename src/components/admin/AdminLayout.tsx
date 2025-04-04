@@ -20,7 +20,8 @@ import {
   FileText, 
   Tag, 
   Settings,
-  Users
+  Users,
+  Award
 } from "lucide-react";
 
 interface AdminLayoutProps {
@@ -89,6 +90,14 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     <SidebarMenuButton isActive={isActive("/admin/payments")} tooltip="Payments">
                       <CreditCard className="h-4 w-4 mr-2" />
                       <span>Payments</span>
+                    </SidebarMenuButton>
+                  </Link>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <Link to="/admin/certificates">
+                    <SidebarMenuButton isActive={isActive("/admin/certificates")} tooltip="Certificates">
+                      <Award className="h-4 w-4 mr-2" />
+                      <span>Certificates</span>
                     </SidebarMenuButton>
                   </Link>
                 </SidebarMenuItem>

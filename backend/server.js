@@ -1,4 +1,3 @@
-
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2/promise');
@@ -190,9 +189,201 @@ app.put('/api/users/:id', async (req, res) => {
   }
 });
 
-// Create database and tables if they don't exist
-async function initializeDatabase() {
+// Certificate generation endpoint - for a single user
+app.post('/api/certificates/generate', async (req, res) => {
   try {
+    const { eventId, userId, adminEmail } = req.body;
+    
+    // Check if event and user exist
+    const [events] = await pool.query('SELECT * FROM events WHERE id = ?', [eventId]);
+    if (events.length === 0) {
+      return res.status(400).json({ success: false, message: 'Event not found' });
+    }
+    
+    const [users] = await pool.query('SELECT * FROM users WHERE id = ?', [userId]);
+    if (users.length === 0) {
+      return res.status(400).json({ success: false, message: 'User not found' });
+    }
+    
+    // Check if user has attended the event (has a booking and payment)
+    const [bookings] = await pool.query(
+      'SELECT b.* FROM bookings b JOIN payments p ON b.id = p.booking_id WHERE b.event_id = ? AND b.user_id = ? AND p.status = "successful"',
+      [eventId, userId]
+    );
+    
+    if (bookings.length === 0) {
+      return res.status(400).json({ success: false, message: 'User has not paid for this event' });
+    }
+    
+    // Generate certificate ID
+    const certificateId = `CERT-${eventId}-${userId}-${Date.now()}`;
+    
+    // Insert certificate record
+    const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    await pool.execute(
+      'INSERT INTO certificates (id, event_id, user_id, issued_date, issued_by) VALUES (?, ?, ?, ?, ?)',
+      [certificateId, eventId, userId, timestamp, adminEmail]
+    );
+    
+    // Log activity
+    await pool.execute(
+      'INSERT INTO activity_logs (timestamp, action, user, details, ip, level) VALUES (?, ?, ?, ?, ?, ?)',
+      [timestamp, 'Certificate Generated', adminEmail, `Certificate ${certificateId} generated for user ${userId} for event ${eventId}`, req.ip || '127.0.0.1', 'info']
+    );
+    
+    res.status(201).json({ 
+      success: true, 
+      certificateId,
+      message: 'Certificate generated successfully' 
+    });
+  } catch (error) {
+    console.error('Error generating certificate:', error);
+    res.status(500).json({ success: false, message: 'Failed to generate certificate' });
+  }
+});
+
+// Certificate bulk generation endpoint - for all attendees of an event
+app.post('/api/certificates/bulk-generate', async (req, res) => {
+  try {
+    const { eventId, adminEmail } = req.body;
+    
+    // Check if event exists
+    const [events] = await pool.query('SELECT * FROM events WHERE id = ?', [eventId]);
+    if (events.length === 0) {
+      return res.status(400).json({ success: false, message: 'Event not found' });
+    }
+    
+    // Get all users who have paid for this event
+    const [attendees] = await pool.query(
+      `SELECT DISTINCT u.id, u.name, u.email 
+       FROM users u 
+       JOIN bookings b ON u.id = b.user_id 
+       JOIN payments p ON b.id = p.booking_id 
+       WHERE b.event_id = ? AND p.status = "successful"`,
+      [eventId]
+    );
+    
+    if (attendees.length === 0) {
+      return res.status(400).json({ success: false, message: 'No paid attendees found for this event' });
+    }
+    
+    const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    const generatedCertificates = [];
+    
+    // Generate certificates for all attendees
+    for (const attendee of attendees) {
+      // Check if certificate already exists
+      const [existingCert] = await pool.query(
+        'SELECT id FROM certificates WHERE event_id = ? AND user_id = ?',
+        [eventId, attendee.id]
+      );
+      
+      // Skip if certificate already exists
+      if (existingCert.length > 0) {
+        continue;
+      }
+      
+      // Generate certificate ID
+      const certificateId = `CERT-${eventId}-${attendee.id}-${Date.now()}`;
+      
+      // Insert certificate record
+      await pool.execute(
+        'INSERT INTO certificates (id, event_id, user_id, issued_date, issued_by) VALUES (?, ?, ?, ?, ?)',
+        [certificateId, eventId, attendee.id, timestamp, adminEmail]
+      );
+      
+      generatedCertificates.push({
+        certificateId,
+        userId: attendee.id,
+        userName: attendee.name,
+        userEmail: attendee.email
+      });
+    }
+    
+    // Log activity
+    await pool.execute(
+      'INSERT INTO activity_logs (timestamp, action, user, details, ip, level) VALUES (?, ?, ?, ?, ?, ?)',
+      [timestamp, 'Bulk Certificate Generation', adminEmail, `${generatedCertificates.length} certificates generated for event ${eventId}`, req.ip || '127.0.0.1', 'important']
+    );
+    
+    res.status(201).json({ 
+      success: true, 
+      generated: generatedCertificates.length,
+      total: attendees.length,
+      certificates: generatedCertificates,
+      message: `Generated ${generatedCertificates.length} new certificates out of ${attendees.length} attendees` 
+    });
+  } catch (error) {
+    console.error('Error generating certificates in bulk:', error);
+    res.status(500).json({ success: false, message: 'Failed to generate certificates in bulk' });
+  }
+});
+
+// Get certificates for an event
+app.get('/api/certificates/event/:id', async (req, res) => {
+  try {
+    const eventId = req.params.id;
+    
+    const [certificates] = await pool.query(
+      `SELECT c.*, u.name as user_name, u.email as user_email, e.title as event_title 
+       FROM certificates c 
+       JOIN users u ON c.user_id = u.id 
+       JOIN events e ON c.event_id = e.id 
+       WHERE c.event_id = ? 
+       ORDER BY c.issued_date DESC`,
+      [eventId]
+    );
+    
+    res.json(certificates);
+  } catch (error) {
+    console.error('Error fetching certificates:', error);
+    res.status(500).json({ message: 'Failed to fetch certificates' });
+  }
+});
+
+// Get certificates for a user
+app.get('/api/certificates/user/:id', async (req, res) => {
+  try {
+    const userId = req.params.id;
+    
+    const [certificates] = await pool.query(
+      `SELECT c.*, e.title as event_title 
+       FROM certificates c 
+       JOIN events e ON c.event_id = e.id 
+       WHERE c.user_id = ? 
+       ORDER BY c.issued_date DESC`,
+      [userId]
+    );
+    
+    res.json(certificates);
+  } catch (error) {
+    console.error('Error fetching user certificates:', error);
+    res.status(500).json({ message: 'Failed to fetch user certificates' });
+  }
+});
+
+// Start the server and database initialization
+app.listen(PORT, async () => {
+  console.log(`Server running on port ${PORT}`);
+  
+  // Initialize the database with new certificates table
+  try {
+    const connection = await pool.getConnection();
+    
+    // Create certificates table if it doesn't exist
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS certificates (
+        id VARCHAR(100) PRIMARY KEY,
+        event_id INT NOT NULL,
+        user_id INT NOT NULL,
+        issued_date DATETIME NOT NULL,
+        issued_by VARCHAR(100) NOT NULL,
+        sent_email BOOLEAN DEFAULT FALSE,
+        downloaded BOOLEAN DEFAULT FALSE,
+        UNIQUE KEY event_user_unique (event_id, user_id)
+      )
+    `);
+    
     // Create connection without database selection
     const initialConnection = await mysql.createConnection({
       host: process.env.DB_HOST || 'localhost',
@@ -205,9 +396,6 @@ async function initializeDatabase() {
     await initialConnection.end();
     
     // Create tables
-    const connection = await pool.getConnection();
-    
-    // Create activity_logs table
     await connection.execute(`
       CREATE TABLE IF NOT EXISTS activity_logs (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -246,14 +434,9 @@ async function initializeDatabase() {
     }
     
     connection.release();
-    console.log('Database initialized successfully');
+    console.log('Database initialization completed, including certificates table');
+    
   } catch (error) {
     console.error('Database initialization error:', error);
   }
-}
-
-// Start the server
-app.listen(PORT, async () => {
-  console.log(`Server running on port ${PORT}`);
-  await initializeDatabase();
 });

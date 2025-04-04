@@ -22,7 +22,7 @@ const Login = () => {
       try {
         const user = JSON.parse(userStr);
         // If already logged in, redirect based on role
-        if (user.role === 'organizer') {
+        if (user.role === 'admin' || user.role === 'organizer') {
           navigate('/admin');
         } else {
           navigate('/events');
@@ -47,7 +47,7 @@ const Login = () => {
         localStorage.setItem('user', JSON.stringify(result.user));
         
         // Redirect based on user role
-        if (result.user.role === 'organizer') {
+        if (result.user.role === 'admin' || result.user.role === 'organizer') {
           navigate('/admin');
         } else {
           navigate('/events');
