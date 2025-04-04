@@ -112,15 +112,22 @@ export const fetchPayments = async (): Promise<Payment[]> => {
 };
 
 // Function to check if a user has paid for an event
-export const hasUserPaidForEvent = async (userId: number, eventId: number): Promise<boolean> => {
+export const hasUserPaidForEvent = async (phone: string, eventId: number): Promise<boolean> => {
   try {
     // In a real app, this would query the payments table
     const payments = await fetchPayments();
+    const bookings = await fetchBookings();
     
-    // Check if there's a successful payment for this user and event
+    // Find booking with matching phone number and event ID
+    const booking = bookings.find(b => b.phone === phone && b.event_id === eventId);
+    
+    if (!booking) {
+      return false;
+    }
+    
+    // Check if there's a successful payment for this booking
     const payment = payments.find(p => 
-      p.user_id === userId && 
-      p.event_id === eventId && 
+      p.booking_id === booking.id && 
       p.status === 'completed'
     );
     

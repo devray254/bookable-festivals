@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,6 +32,7 @@ export function WebinarAccessCard({ eventId, eventTitle }: WebinarAccessCardProp
 
     setIsChecking(true);
     try {
+      // Pass the phone number as a string, which matches the updated function signature
       const hasPaid = await hasUserPaidForEvent(phoneNumber, eventId);
       
       if (hasPaid) {
