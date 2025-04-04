@@ -14,7 +14,7 @@ export const getAccessToken = async () => {
     
     const auth = btoa(`${settings.consumer_key}:${settings.consumer_secret}`);
     
-    // Use a PHP proxy to avoid CORS issues
+    // Use a PHP proxy to avoid CORS issues - use correct relative path
     const response = await fetch("./api/mpesa-auth.php", {
       method: "GET",
       headers: {
@@ -51,7 +51,7 @@ export const initiateSTKPush = async (phone: string, amount: number, eventTitle:
     const timestamp = new Date().toISOString().replace(/[-:\.]/g, "").slice(0, 14);
     const password = btoa(`${settings.shortcode}${settings.passkey}${timestamp}`);
     
-    // Use PHP proxy to avoid CORS issues
+    // Use PHP proxy to avoid CORS issues - use correct relative path
     const response = await fetch("./api/mpesa-stkpush.php", {
       method: "POST",
       headers: {
@@ -72,7 +72,7 @@ export const initiateSTKPush = async (phone: string, amount: number, eventTitle:
     console.log("STK Push response:", data);
     
     if (data.ResponseCode === "0") {
-      // Save booking details to database
+      // Save booking details to database - use correct relative path
       const bookingResponse = await fetch("./api/create-booking.php", {
         method: "POST",
         headers: {

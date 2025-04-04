@@ -13,7 +13,8 @@ export interface MpesaSettings {
 // Fetch M-Pesa settings
 export const getMpesaSettings = async (): Promise<MpesaSettings | null> => {
   try {
-    const response = await fetch('/api/mpesa-settings.php', {
+    // Use correct relative path for API endpoint
+    const response = await fetch('./api/mpesa-settings.php', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -34,7 +35,8 @@ export const getMpesaSettings = async (): Promise<MpesaSettings | null> => {
 // Update M-Pesa settings
 export const updateMpesaSettings = async (settings: MpesaSettings): Promise<boolean> => {
   try {
-    const response = await fetch('/api/mpesa-settings.php', {
+    // Use correct relative path for API endpoint
+    const response = await fetch('./api/mpesa-settings.php', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

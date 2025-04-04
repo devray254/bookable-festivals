@@ -12,7 +12,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Loader2, Save } from "lucide-react";
-import { getMpesaSettings, updateMpesaSettings } from "@/utils/mpesa-settings";
+import { getMpesaSettings, updateMpesaSettings, type MpesaSettings } from "@/utils/mpesa-settings";
 
 // Define the form schema with Zod
 const mpesaFormSchema = z.object({
@@ -70,7 +70,17 @@ export default function MpesaSettings() {
   const onSubmit = async (data: MpesaFormValues) => {
     setIsLoading(true);
     try {
-      await updateMpesaSettings(data);
+      // Since we've validated with zod, we can safely cast this as MpesaSettings
+      const settingsData: MpesaSettings = {
+        consumer_key: data.consumer_key,
+        consumer_secret: data.consumer_secret,
+        passkey: data.passkey,
+        shortcode: data.shortcode,
+        environment: data.environment,
+        callback_url: data.callback_url
+      };
+      
+      await updateMpesaSettings(settingsData);
       toast({
         title: "Success",
         description: "M-Pesa settings updated successfully"
