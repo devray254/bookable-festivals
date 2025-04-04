@@ -6,7 +6,14 @@
 export { testConnection } from './db-connection';
 
 // Re-export authentication utilities
-export { authenticateUser, createUser } from './auth';
+export { 
+  authenticateUser, 
+  createUser,
+  createAdminUser,
+  updateUser,
+  resetUserPassword,
+  getAllUsers
+} from './auth';
 
 // Re-export events utilities
 export { fetchEvents, createEvent } from './events';
