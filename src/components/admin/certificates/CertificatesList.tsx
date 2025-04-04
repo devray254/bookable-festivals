@@ -121,6 +121,52 @@ export function CertificatesList({ eventId }: CertificatesListProps) {
       pdf.setLineWidth(0.5);
       pdf.rect(margin, margin, pageWidth - 2 * margin, pageHeight - 2 * margin);
       
+      // Add repeating "MAABARAONLINE" watermark as background
+      pdf.setTextColor(245, 245, 245); // Very light gray
+      pdf.setFontSize(16);
+      
+      // Create a pattern of watermarks across the page
+      const watermarkText = "MAABARAONLINE";
+      const watermarkGap = 30; // Gap between watermarks
+      
+      // Save the graphics state before adding watermarks
+      pdf.saveGraphics();
+      
+      // Set rotation for diagonal watermarks
+      pdf.setTextColor(248, 248, 248); // Even lighter gray
+      
+      // Add diagonal watermarks
+      for (let x = 0; x < pageWidth + pageHeight; x += watermarkGap) {
+        for (let y = -pageHeight; y < pageHeight; y += watermarkGap) {
+          pdf.saveGraphics();
+          pdf.setTransformation(
+            1, 0, 0, 1, // Matrix components for position
+            x, y
+          );
+          pdf.rotate(45); // Rotate 45 degrees
+          pdf.text(watermarkText, 0, 0, { 
+            baseline: 'middle',
+            opacity: 0.2 // Set opacity
+          });
+          pdf.restoreGraphics();
+        }
+      }
+      
+      // Add horizontal watermarks
+      for (let y = 0; y < pageHeight; y += watermarkGap) {
+        for (let x = 0; x < pageWidth; x += watermarkGap * 1.5) {
+          pdf.saveGraphics();
+          pdf.text(watermarkText, x, y, { 
+            baseline: 'middle',
+            opacity: 0.15 // Set opacity
+          });
+          pdf.restoreGraphics();
+        }
+      }
+      
+      // Restore the graphics state after adding watermarks
+      pdf.restoreGraphics();
+      
       // Add decorative elements
       pdf.setDrawColor(128, 0, 128); // Purple color
       pdf.setLineWidth(2);
@@ -172,14 +218,6 @@ export function CertificatesList({ eventId }: CertificatesListProps) {
         
         // Increase vertical position
         y += 10;
-      });
-      
-      // Add background watermark
-      pdf.setTextColor(230, 230, 230);
-      pdf.setFontSize(60);
-      pdf.text("MAABARA", pageWidth / 2, pageHeight / 2, { 
-        align: "center",
-        angle: 45
       });
       
       // Save the PDF
