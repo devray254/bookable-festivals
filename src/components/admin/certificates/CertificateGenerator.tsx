@@ -30,10 +30,13 @@ export function CertificateGenerator({ eventId }: CertificateGeneratorProps) {
   });
 
   // Fetch all users who have registered
-  const { data: users = [], isLoading } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['users'],
     queryFn: getAllUsers
   });
+
+  // Extract users array from the response
+  const users = data?.success ? data.users : [];
 
   const filteredUsers = users.filter(user => 
     (user.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 

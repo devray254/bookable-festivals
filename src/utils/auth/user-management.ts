@@ -9,9 +9,13 @@ export const getAllUsers = async () => {
       'SELECT id, name, email, phone, role, organization_type FROM users ORDER BY name'
     ) as any[];
     
-    return { success: true, users };
+    // Make sure we return an array of users
+    return { 
+      success: true, 
+      users: Array.isArray(users) ? users : [] 
+    };
   } catch (error) {
     console.error('Error fetching users:', error);
-    return { success: false, message: 'Failed to fetch users' };
+    return { success: false, message: 'Failed to fetch users', users: [] };
   }
 };
