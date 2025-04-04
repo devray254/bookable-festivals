@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -41,9 +40,7 @@ export function CertificatesList({ eventId }: CertificatesListProps) {
         return;
       }
 
-      // Use event_title or a default value for the event date display
-      // Since event_date is not in the Certificate interface, we'll use issued_date instead
-      const eventDate = new Date().toLocaleDateString(); // Default to current date
+      const eventDate = new Date().toLocaleDateString();
       const issuedDate = new Date(certificate.issued_date).toLocaleDateString();
 
       const content = generateCertificateContent(
@@ -66,13 +63,11 @@ export function CertificatesList({ eventId }: CertificatesListProps) {
 
   const handleDownload = (certificateId: string, userName?: string, content?: string) => {
     try {
-      // If content is provided, generate PDF directly
       if (content && userName) {
         generatePDF(content, userName);
         return;
       }
 
-      // Find the certificate by ID
       const certificate = certificates.find(cert => cert.id === certificateId);
       
       if (!certificate || !certificate.user_name || !certificate.event_title) {
@@ -81,7 +76,6 @@ export function CertificatesList({ eventId }: CertificatesListProps) {
         return;
       }
       
-      // Use a default date for the event date since we don't have event_date in the Certificate interface
       const eventDate = new Date().toLocaleDateString();
       const issuedDate = new Date(certificate.issued_date).toLocaleDateString();
 
@@ -102,17 +96,14 @@ export function CertificatesList({ eventId }: CertificatesListProps) {
 
   const generatePDF = (content: string, userName: string) => {
     try {
-      // Create a new PDF document in A4 landscape format
       const pdf = new jsPDF({
         orientation: 'landscape',
         unit: 'mm',
         format: 'a4'
       });
       
-      // Set basic styling
       pdf.setFont("helvetica", "normal");
       
-      // Add a border
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
       const margin = 10;
@@ -121,85 +112,57 @@ export function CertificatesList({ eventId }: CertificatesListProps) {
       pdf.setLineWidth(0.5);
       pdf.rect(margin, margin, pageWidth - 2 * margin, pageHeight - 2 * margin);
       
-      // Add repeating "MAABARAONLINE" watermark as background
-      pdf.setTextColor(245, 245, 245); // Very light gray
+      pdf.setTextColor(245, 245, 245);
       pdf.setFontSize(16);
       
-      // Create a pattern of watermarks across the page
       const watermarkText = "MAABARAONLINE";
-      const watermarkGap = 30; // Gap between watermarks
+      const watermarkGap = 30;
       
-      // Save the graphics state before adding watermarks
-      pdf.saveGraphics();
+      pdf.setTextColor(248, 248, 248);
       
-      // Set rotation for diagonal watermarks
-      pdf.setTextColor(248, 248, 248); // Even lighter gray
-      
-      // Add diagonal watermarks
-      for (let x = 0; x < pageWidth + pageHeight; x += watermarkGap) {
-        for (let y = -pageHeight; y < pageHeight; y += watermarkGap) {
-          pdf.saveGraphics();
-          pdf.setTransformation(
-            1, 0, 0, 1, // Matrix components for position
-            x, y
-          );
-          pdf.rotate(45); // Rotate 45 degrees
-          pdf.text(watermarkText, 0, 0, { 
-            baseline: 'middle',
-            opacity: 0.2 // Set opacity
-          });
-          pdf.restoreGraphics();
-        }
-      }
-      
-      // Add horizontal watermarks
-      for (let y = 0; y < pageHeight; y += watermarkGap) {
-        for (let x = 0; x < pageWidth; x += watermarkGap * 1.5) {
-          pdf.saveGraphics();
+      for (let x = 0; x < pageWidth; x += watermarkGap * 2) {
+        for (let y = 0; y < pageHeight; y += watermarkGap * 2) {
+          pdf.saveGraphicsState();
           pdf.text(watermarkText, x, y, { 
-            baseline: 'middle',
-            opacity: 0.15 // Set opacity
+            angle: 45,
+            charSpace: 0.5
           });
-          pdf.restoreGraphics();
+          pdf.restoreGraphicsState();
         }
       }
       
-      // Restore the graphics state after adding watermarks
-      pdf.restoreGraphics();
+      for (let y = margin; y < pageHeight - margin; y += watermarkGap) {
+        for (let x = margin; x < pageWidth - margin; x += watermarkGap * 2) {
+          pdf.setTextColor(250, 250, 250);
+          pdf.text(watermarkText, x, y);
+        }
+      }
       
-      // Add decorative elements
-      pdf.setDrawColor(128, 0, 128); // Purple color
+      pdf.setDrawColor(128, 0, 128);
       pdf.setLineWidth(2);
       pdf.line(margin * 2, margin * 2, pageWidth - margin * 2, margin * 2);
       pdf.line(margin * 2, pageHeight - margin * 2, pageWidth - margin * 2, pageHeight - margin * 2);
       
-      // Add logo or header
       pdf.setFontSize(24);
       pdf.setTextColor(70, 70, 70);
       pdf.text("Certificate of Participation", pageWidth / 2, 30, { align: "center" });
       
-      // Format and add the content
       const lines = content.split('\n');
       
       let y = 50;
       let fontSize = 12;
       
-      // Process each line
       lines.forEach(line => {
-        // Skip empty lines
         if (!line.trim()) return;
         
-        // Check for header lines
-        if (line.includes("Certificate of Participation")) return; // Skip title, already added
+        if (line.includes("Certificate of Participation")) return;
         
-        // Check for bold text
         if (line.includes("**")) {
           const boldText = line.replace(/\*\*(.*?)\*\*/g, "$1");
           pdf.setFont("helvetica", "bold");
           pdf.setFontSize(16);
           pdf.text(boldText, pageWidth / 2, y, { align: "center" });
         } 
-        // Check for signature line
         else if (line.includes("_______")) {
           y += 15;
           pdf.setLineWidth(0.5);
@@ -209,18 +172,15 @@ export function CertificatesList({ eventId }: CertificatesListProps) {
           pdf.setFontSize(12);
           pdf.text("Maabara Online", pageWidth / 2, y, { align: "center" });
         }
-        // Regular text
         else {
           pdf.setFont("helvetica", "normal");
           pdf.setFontSize(fontSize);
           pdf.text(line, pageWidth / 2, y, { align: "center" });
         }
         
-        // Increase vertical position
         y += 10;
       });
       
-      // Save the PDF
       pdf.save(`Certificate-${userName.replace(/\s+/g, '-')}.pdf`);
     } catch (error) {
       console.error("Error generating PDF:", error);
@@ -230,7 +190,6 @@ export function CertificatesList({ eventId }: CertificatesListProps) {
 
   const handleSendEmail = (certificateId: string, email: string) => {
     try {
-      // In a real app, this would send an email with the certificate
       console.log("Sending certificate to:", email);
       toast.success(`Certificate would be emailed to ${email} in production`);
     } catch (error) {
