@@ -1,69 +1,130 @@
-# Welcome to your Lovable project
 
-## Project info
+# Maabara Events Platform
 
-**URL**: https://lovable.dev/projects/de5d70b5-a77b-44cd-9555-a320b0e4ea36
+A comprehensive event management platform for scientific and educational events with M-Pesa payment integration and certificate generation capabilities.
 
-## How can I edit this code?
+## Features
 
-There are several ways of editing your application.
+- Event browsing and registration
+- M-Pesa payment integration
+- PDF certificate generation
+- Admin dashboard
+- User management
+- Event management
+- Bookings and payments tracking
+- Activity logging
 
-**Use Lovable**
+## Setup Instructions for Live Server
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/de5d70b5-a77b-44cd-9555-a320b0e4ea36) and start prompting.
+### Prerequisites
 
-Changes made via Lovable will be committed automatically to this repo.
+- Web server (Apache/Nginx)
+- PHP 7.4 or higher
+- MySQL 5.7 or higher
+- Node.js (for development)
 
-**Use your preferred IDE**
+### Database Setup
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+1. **Import the database**:
+   - Upload the `api/database-with-mock-data.sql` file to your server
+   - Create a new MySQL database named `maabara_events`
+   - Import the SQL file into your database
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+   OR
 
-Follow these steps:
+   - Upload all files to your server
+   - Navigate to `https://your-domain.com/api/import-database.php`
+   - Follow the on-screen instructions to automatically set up the database
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+2. **Update database connection settings**:
+   - Edit `api/db-connect.php` and update the database credentials:
+   ```php
+   $host = 'your-database-host';
+   $user = 'your-database-username';
+   $password = 'your-database-password';
+   $dbname = 'maabara_events';
+   ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Backend Setup
 
-# Step 3: Install the necessary dependencies.
-npm i
+1. **Configure PHP**:
+   - Make sure PHP is properly configured on your server
+   - Required extensions: mysqli, json, gd
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+2. **Set up API endpoints**:
+   - All API files are in the `api/` directory
+   - Ensure these files are accessible via HTTP
 
-**Edit a file directly in GitHub**
+### Frontend Setup
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1. **Build the React application**:
+   ```
+   npm run build
+   ```
 
-**Use GitHub Codespaces**
+2. **Deploy the built files**:
+   - Upload the contents of the `dist/` directory to your web server
+   - Configure your web server to serve the application correctly
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+3. **Update API base URL** (if needed):
+   - If your API endpoints are on a different domain, update the API_BASE_URL in `src/utils/db-connection.ts`
 
-## What technologies are used for this project?
+### Test Credentials
 
-This project is built with .
+- **Admin Login**:
+  - Email: `admin@maabara.co.ke`
+  - Password: `admin123`
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- **Test User**:
+  - Email: `john@example.com`
+  - Password: `password123`
 
-## How can I deploy this project?
+- **M-Pesa Sandbox Test**:
+  - Phone: `254708374149`
+  - PIN: `12345`
+  - These are Safaricom's test credentials and won't work in production
 
-Simply open [Lovable](https://lovable.dev/projects/de5d70b5-a77b-44cd-9555-a320b0e4ea36) and click on Share -> Publish.
+## Development Setup
 
-## I want to use a custom domain - is that possible?
+1. **Install dependencies**:
+   ```
+   npm install
+   ```
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+2. **Start the development server**:
+   ```
+   npm run dev
+   ```
+
+3. **Access the application**:
+   Open [http://localhost:5173](http://localhost:5173) in your browser
+
+## Project Structure
+
+- `/api` - PHP backend files
+- `/backend` - Node.js alternative backend (if used)
+- `/src` - React frontend source code
+  - `/components` - UI components
+  - `/pages` - Page components
+  - `/utils` - Utility functions and API clients
+  - `/hooks` - Custom React hooks
+
+## Troubleshooting
+
+- **Database Connection Issues**:
+  - Check your database credentials in `api/db-connect.php`
+  - Ensure your MySQL server is running and accessible
+
+- **API Endpoint Errors**:
+  - Check PHP error logs for detailed information
+  - Ensure all API files have correct permissions
+
+- **Certificate Generation Issues**:
+  - Make sure the GD library is enabled in PHP
+  - Check that temp directories are writable
+
+## License
+
+This project is proprietary and confidential. Unauthorized copying, distribution, or use is strictly prohibited.
+
+© 2024 Maabara Online Limited
