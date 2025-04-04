@@ -10,14 +10,15 @@ import { toast } from "sonner";
 import { LockKeyhole, Shield } from "lucide-react";
 
 const AdminLogin = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("admin@maabara.co.ke");
+  const [password, setPassword] = useState("admin123");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    toast.info("Attempting to login...");
 
     try {
       const result = await authenticateUser(email, password);
@@ -94,6 +95,12 @@ const AdminLogin = () => {
                 {isLoading ? "Authenticating..." : "Sign in to Admin"}
               </Button>
             </form>
+            
+            <div className="mt-4 text-center">
+              <p className="text-sm text-gray-500">
+                Demo credentials are pre-filled for you
+              </p>
+            </div>
           </div>
         </div>
       </div>

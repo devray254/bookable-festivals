@@ -4,8 +4,8 @@
  * This file handles communication with the PHP backend
  */
 
-// Base URL for PHP backend
-const API_BASE_URL = './api';
+// Base URL for PHP backend - updated to use absolute path
+const API_BASE_URL = '/api';
 
 // Test database connection
 export const testConnection = async () => {
@@ -22,6 +22,8 @@ export const testConnection = async () => {
 // Execute query via PHP backend
 export const query = async (sql: string, params?: any[]) => {
   try {
+    console.log('Sending query to API:', `${API_BASE_URL}/query.php`);
+    
     const response = await fetch(`${API_BASE_URL}/query.php`, {
       method: 'POST',
       headers: {
@@ -32,6 +34,13 @@ export const query = async (sql: string, params?: any[]) => {
         params: params || []
       }),
     });
+    
+    // Check if response is JSON
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      console.error('Non-JSON response received:', await response.text());
+      throw new Error('Server returned non-JSON response');
+    }
     
     const data = await response.json();
     
