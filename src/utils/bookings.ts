@@ -14,6 +14,7 @@ export interface Booking {
   total: string;
   status: string;
   webinar_link?: string;
+  user_id?: number; // Add user_id to associate with users
 }
 
 // Mock data for bookings
@@ -29,7 +30,8 @@ const mockBookings: Booking[] = [
     tickets: 2,
     total: "1000",
     status: "confirmed",
-    webinar_link: "https://zoom.us/j/1234567890"
+    webinar_link: "https://zoom.us/j/1234567890",
+    user_id: 101
   },
   {
     id: 2,
@@ -42,7 +44,47 @@ const mockBookings: Booking[] = [
     tickets: 1,
     total: "750",
     status: "confirmed",
-    webinar_link: "https://meet.google.com/abc-defg-hij"
+    webinar_link: "https://meet.google.com/abc-defg-hij",
+    user_id: 102
+  },
+  {
+    id: 3,
+    event: "Science Exhibition",
+    event_id: 1,
+    customer: "Michael Johnson",
+    email: "michael@example.com",
+    phone: "0734567890",
+    date: "2023-08-15",
+    tickets: 1,
+    total: "500",
+    status: "confirmed",
+    user_id: 103
+  },
+  {
+    id: 4,
+    event: "Tech Workshop",
+    event_id: 2,
+    customer: "Sarah Williams",
+    email: "sarah@example.com",
+    phone: "0745678901",
+    date: "2023-08-20",
+    tickets: 2,
+    total: "1500",
+    status: "confirmed",
+    user_id: 104
+  },
+  {
+    id: 5,
+    event: "Chemistry Seminar",
+    event_id: 3,
+    customer: "David Brown",
+    email: "david@example.com",
+    phone: "0756789012",
+    date: "2023-08-25",
+    tickets: 1,
+    total: "300",
+    status: "confirmed",
+    user_id: 105
   }
 ];
 
@@ -62,3 +104,9 @@ export const getBookingByPhone = async (phone: string, eventId: number) => {
   const booking = mockBookings.find(b => b.phone === phone && b.event_id === eventId);
   return booking || null;
 };
+
+// Get all bookings for an event
+export const getBookingsByEventId = async (eventId: number) => {
+  return mockBookings.filter(b => b.event_id === eventId);
+};
+
