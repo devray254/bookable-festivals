@@ -25,7 +25,7 @@ export { fetchCategories, createCategory } from './categories';
 export { fetchBookings } from './bookings';
 
 // Re-export payments utilities
-export { fetchPayments } from './payments';
+export { fetchPayments } from './payments/core';
 
 // Re-export logs utilities
 export { fetchActivityLogs, logActivity } from './logs';
