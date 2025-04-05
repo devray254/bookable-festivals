@@ -4,14 +4,16 @@ import { testOnlineConnection } from '@/utils/db-connection';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Bug } from 'lucide-react';
+import { Loader2, Bug, Server, Info } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export function DbConnectionTester() {
   const [testResult, setTestResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [rawResponse, setRawResponse] = useState<string | null>(null);
+  const [serverInfo, setServerInfo] = useState<string | null>(null);
 
   const handleTestConnection = async () => {
     setLoading(true);
@@ -38,6 +40,11 @@ export function DbConnectionTester() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const checkPhpInfo = () => {
+    // Open the phpinfo.php file in a new tab
+    window.open('/api/phpinfo.php', '_blank');
   };
 
   return (
@@ -121,6 +128,7 @@ export function DbConnectionTester() {
             <TabsList className="mb-4">
               <TabsTrigger value="error">Error</TabsTrigger>
               <TabsTrigger value="raw">Raw Response</TabsTrigger>
+              <TabsTrigger value="help">Troubleshooting</TabsTrigger>
             </TabsList>
             
             <TabsContent value="error">
@@ -130,15 +138,6 @@ export function DbConnectionTester() {
                   <Badge variant="destructive">Failed</Badge>
                 </div>
                 <p>Error: {error}</p>
-                <div className="bg-amber-100 border-l-4 border-amber-500 text-amber-700 p-4 rounded">
-                  <p className="font-bold">Troubleshooting Tips:</p>
-                  <ul className="list-disc list-inside mt-2">
-                    <li>Ensure your server is configured to execute PHP files</li>
-                    <li>Check that the PHP module is installed and enabled</li>
-                    <li>Verify that the .htaccess file is properly configured</li>
-                    <li>Use the Raw Response tab to see what the server is returning</li>
-                  </ul>
-                </div>
               </div>
             </TabsContent>
             
@@ -150,6 +149,27 @@ export function DbConnectionTester() {
                 <div className="bg-gray-100 p-4 rounded text-xs overflow-auto max-h-[300px]">
                   <pre>{rawResponse || 'No raw response available'}</pre>
                 </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="help">
+              <Alert className="mb-4">
+                <Info className="h-4 w-4" />
+                <AlertTitle>Important Information</AlertTitle>
+                <AlertDescription>
+                  This appears to be a PHP execution issue, not a database connection issue.
+                  The server is returning PHP code as text instead of executing it.
+                </AlertDescription>
+              </Alert>
+              
+              <div className="bg-amber-100 border-l-4 border-amber-500 text-amber-700 p-4 rounded">
+                <p className="font-bold">Troubleshooting Tips:</p>
+                <ul className="list-disc list-inside mt-2">
+                  <li>This is likely a Lovable platform limitation - it may not support PHP execution</li>
+                  <li>Lovable appears to be hosting this as a static site that cannot process PHP</li>
+                  <li>You may need to use a serverless function or a different backend approach</li>
+                  <li>Consider using API routes with Node.js instead of PHP</li>
+                </ul>
               </div>
             </TabsContent>
           </Tabs>
@@ -178,14 +198,24 @@ export function DbConnectionTester() {
             'Test Database Connection'
           )}
         </Button>
-        <Button
-          variant="outline"
-          className="w-full sm:w-auto"
-          onClick={() => window.open('/api/test-db-connection.php', '_blank')}
-        >
-          <Bug className="mr-2 h-4 w-4" />
-          Debug API Endpoint
-        </Button>
+        <div className="flex gap-2 w-full sm:w-auto">
+          <Button
+            variant="outline"
+            className="flex-1 sm:flex-none"
+            onClick={() => window.open('/api/test-db-connection.php', '_blank')}
+          >
+            <Bug className="mr-2 h-4 w-4" />
+            Debug API
+          </Button>
+          <Button
+            variant="outline"
+            className="flex-1 sm:flex-none"
+            onClick={checkPhpInfo}
+          >
+            <Server className="mr-2 h-4 w-4" />
+            PHP Info
+          </Button>
+        </div>
       </CardFooter>
     </Card>
   );
