@@ -31,15 +31,27 @@ export function DbConnectionTester() {
       }
     } catch (err) {
       console.error('Connection test error:', err);
-      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      
+      // Use a safer approach to get error details without using the cause property
+      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+      setError(errorMessage);
       setTestResult(null);
       
       // Try to capture raw response if available
-      if (err instanceof Error && err.cause) {
+      if (err instanceof Error) {
+        // Store the error message and any additional details as raw response
         try {
-          setRawResponse(JSON.stringify(err.cause, null, 2));
+          // We can't use err.cause directly as it's ES2022+, so use a different approach
+          const errorDetails = {
+            message: err.message,
+            stack: err.stack,
+            // Include any additional properties as needed
+            toString: err.toString()
+          };
+          setRawResponse(JSON.stringify(errorDetails, null, 2));
         } catch (e) {
           // Ignore stringify errors
+          setRawResponse(JSON.stringify({ message: 'Error details unavailable' }));
         }
       }
     } finally {
