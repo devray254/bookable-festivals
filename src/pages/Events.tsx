@@ -9,109 +9,117 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { CalendarIcon, MapPinIcon, Search, SlidersHorizontal } from "lucide-react";
+import { toast } from "sonner";
+import { CalendarIcon, MapPinIcon, Search, SlidersHorizontal, RefreshCw } from "lucide-react";
+import { fetchEvents } from "@/utils/events";
+import { checkInactivity } from "@/utils/db-connection";
+import { mockCategories } from "@/utils/mock-data";
 
-// Mock event data
-const allEvents = [
-  {
-    id: 1,
-    title: "Tech Conference 2023",
-    image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=80",
-    date: "Oct 15, 2023",
-    time: "09:00 AM - 05:00 PM",
-    location: "Nairobi Convention Center",
-    price: 2500,
-    category: "Technology"
-  },
-  {
-    id: 2,
-    title: "Music Festival",
-    image: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=80",
-    date: "Nov 5, 2023",
-    time: "04:00 PM - 11:00 PM",
-    location: "Uhuru Gardens",
-    price: 1500,
-    category: "Music"
-  },
-  {
-    id: 3,
-    title: "Food & Wine Expo",
-    image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=80",
-    date: "Dec 10, 2023",
-    time: "11:00 AM - 07:00 PM",
-    location: "Westlands Food Court",
-    price: 1000,
-    category: "Food & Drink"
-  },
-  {
-    id: 4,
-    title: "Art Exhibition",
-    image: "https://images.unsplash.com/photo-1531058020387-3be344556be6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=80",
-    date: "Oct 22, 2023",
-    time: "10:00 AM - 06:00 PM",
-    location: "National Museum",
-    price: 500,
-    category: "Arts"
-  },
-  {
-    id: 5,
-    title: "Business Networking",
-    image: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=80",
-    date: "Nov 15, 2023",
-    time: "06:00 PM - 09:00 PM",
-    location: "Kempinski Hotel",
-    price: 2000,
-    category: "Business"
-  },
-  {
-    id: 6,
-    title: "Marathon 2023",
-    image: "https://images.unsplash.com/photo-1530549387789-4c1017266635?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=80",
-    date: "Dec 3, 2023",
-    time: "06:00 AM - 12:00 PM",
-    location: "City Stadium",
-    price: 1000,
-    category: "Sports"
-  }
-];
-
-// Available categories for filtering
-const categories = [
-  "Music", 
-  "Business", 
-  "Food & Drink", 
-  "Arts", 
-  "Sports", 
-  "Technology"
-];
+// Define Event type
+interface Event {
+  id: number;
+  title: string;
+  description?: string;
+  date: string;
+  time?: string;
+  location: string;
+  price: number;
+  is_free?: number;
+  category_id: number;
+  category_name?: string;
+  image_url?: string;
+}
 
 const Events = () => {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   
+  // State variables
+  const [events, setEvents] = useState<Event[]>([]);
   const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "");
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get("category") || "");
   const [priceRange, setPriceRange] = useState([0, 5000]);
   const [showFilters, setShowFilters] = useState(false);
-  const [filteredEvents, setFilteredEvents] = useState(allEvents);
+  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [categories, setCategories] = useState(mockCategories);
+  
+  // Restore session state from sessionStorage
+  useEffect(() => {
+    const restoreSessionState = () => {
+      const savedSearch = sessionStorage.getItem('events_searchTerm');
+      const savedCategory = sessionStorage.getItem('events_selectedCategory');
+      const savedPriceRange = sessionStorage.getItem('events_priceRange');
+      const savedShowFilters = sessionStorage.getItem('events_showFilters');
+      
+      if (savedSearch) setSearchTerm(savedSearch);
+      if (savedCategory) setSelectedCategory(savedCategory);
+      if (savedPriceRange) setPriceRange(JSON.parse(savedPriceRange));
+      if (savedShowFilters) setShowFilters(savedShowFilters === 'true');
+    };
+    
+    // Check if user has been inactive for more than 5 minutes
+    if (checkInactivity()) {
+      // Reset state if inactive
+      console.log('User was inactive for 5+ minutes, resetting state');
+      sessionStorage.removeItem('events_searchTerm');
+      sessionStorage.removeItem('events_selectedCategory');
+      sessionStorage.removeItem('events_priceRange');
+      sessionStorage.removeItem('events_showFilters');
+    } else {
+      // Restore state if not inactive
+      restoreSessionState();
+    }
+  }, []);
+  
+  // Save state to sessionStorage whenever it changes
+  useEffect(() => {
+    sessionStorage.setItem('events_searchTerm', searchTerm);
+    sessionStorage.setItem('events_selectedCategory', selectedCategory);
+    sessionStorage.setItem('events_priceRange', JSON.stringify(priceRange));
+    sessionStorage.setItem('events_showFilters', showFilters.toString());
+  }, [searchTerm, selectedCategory, priceRange, showFilters]);
+  
+  // Load events from database
+  const loadEvents = async () => {
+    setIsLoading(true);
+    try {
+      const eventsData = await fetchEvents();
+      setEvents(eventsData);
+      console.log('Events loaded:', eventsData);
+    } catch (error) {
+      console.error("Error loading events:", error);
+      toast.error("Failed to load events. Using fallback data.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Load events on component mount
+  useEffect(() => {
+    loadEvents();
+  }, []);
   
   // Filter events based on search, category and price
   useEffect(() => {
-    let result = allEvents;
+    if (events.length === 0) return;
+    
+    let result = [...events];
     
     // Filter by search term
     if (searchTerm) {
       result = result.filter(event => 
         event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         event.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        event.category.toLowerCase().includes(searchTerm.toLowerCase())
+        (event.category_name && event.category_name.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
     
     // Filter by category
     if (selectedCategory) {
       result = result.filter(event => 
-        event.category === selectedCategory
+        (event.category_name && event.category_name === selectedCategory) ||
+        event.category_id === parseInt(selectedCategory)
       );
     }
     
@@ -121,7 +129,7 @@ const Events = () => {
     );
     
     setFilteredEvents(result);
-  }, [searchTerm, selectedCategory, priceRange]);
+  }, [events, searchTerm, selectedCategory, priceRange]);
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -175,14 +183,14 @@ const Events = () => {
                   </div>
                   
                   {categories.map(category => (
-                    <div key={category} className="flex items-center">
+                    <div key={category.id} className="flex items-center">
                       <Checkbox 
-                        id={category} 
-                        checked={selectedCategory === category} 
-                        onCheckedChange={() => setSelectedCategory(selectedCategory === category ? "" : category)} 
+                        id={category.name} 
+                        checked={selectedCategory === category.name} 
+                        onCheckedChange={() => setSelectedCategory(selectedCategory === category.name ? "" : category.name)} 
                       />
-                      <Label htmlFor={category} className="ml-2">
-                        {category}
+                      <Label htmlFor={category.name} className="ml-2">
+                        {category.name}
                       </Label>
                     </div>
                   ))}
@@ -219,20 +227,47 @@ const Events = () => {
             </div>
           )}
           
-          {/* Display filtered results count */}
-          <div className="mb-6">
+          {/* Display filtered results count with refresh button */}
+          <div className="mb-6 flex justify-between items-center">
             <p className="text-gray-600">
               Showing {filteredEvents.length} events
               {selectedCategory && ` in ${selectedCategory}`}
               {searchTerm && ` matching "${searchTerm}"`}
             </p>
+            
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={loadEvents} 
+              disabled={isLoading}
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+              {isLoading ? 'Loading...' : 'Refresh'}
+            </Button>
           </div>
           
           {/* Events Grid */}
-          {filteredEvents.length > 0 ? (
+          {isLoading ? (
+            <div className="py-10 text-center">
+              <RefreshCw className="h-10 w-10 animate-spin mx-auto mb-4 text-eventPurple-600" />
+              <p className="text-gray-600">Loading events...</p>
+            </div>
+          ) : filteredEvents.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredEvents.map(event => (
-                <EventCard key={event.id} {...event} />
+                <EventCard 
+                  key={event.id} 
+                  id={event.id}
+                  title={event.title} 
+                  image={event.image_url || '/placeholder.svg'} 
+                  date={new Date(event.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} 
+                  time={event.time || '00:00'} 
+                  location={event.location} 
+                  price={event.price} 
+                  category={event.category_name || `Category ${event.category_id}`}
+                  is_free={event.is_free === 1}
+                />
               ))}
             </div>
           ) : (
