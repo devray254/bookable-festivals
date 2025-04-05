@@ -1,9 +1,9 @@
 
 <?php
 // Database configuration
-$host = 'localhost';
-$user = 'root';
-$password = '';
+$host = 'localhost'; // Change this to your database server hostname
+$user = 'root';      // Change this to your database username
+$password = '';      // Change this to your database password
 $dbname = 'maabara_events';
 
 // Create connection
