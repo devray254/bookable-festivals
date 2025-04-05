@@ -1,9 +1,8 @@
-
 import { Navbar } from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Play, Calendar, Users, Certificate } from "lucide-react";
+import { BookOpen, Play, Calendar, Users, Award } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const VirtualAcademy = () => {
@@ -99,7 +98,7 @@ const VirtualAcademy = () => {
               
               <div className="text-center p-6 bg-white rounded-lg shadow-sm">
                 <div className="w-16 h-16 bg-eventPurple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Certificate className="h-8 w-8 text-eventPurple-700" />
+                  <Award className="h-8 w-8 text-eventPurple-700" />
                 </div>
                 <h3 className="text-xl font-bold mb-2">Certificates</h3>
                 <p className="text-gray-600">Earn certificates upon course completion to showcase your skills</p>
