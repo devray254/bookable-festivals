@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
-import { Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, MapPin, Clock } from "lucide-react";
 
 const ContactUs = () => {
   const [name, setName] = useState("");
@@ -58,11 +58,7 @@ const ContactUs = () => {
                   <MapPin className="w-6 h-6 text-eventPurple-600 mt-1" />
                   <div>
                     <h3 className="font-medium text-gray-800">Address</h3>
-                    <p className="text-gray-600">
-                      Maabara Building, 3rd Floor<br />
-                      Kimathi Street<br />
-                      Nairobi, Kenya
-                    </p>
+                    <p className="text-gray-600">Nairobi, Kenya</p>
                   </div>
                 </div>
                 
@@ -70,8 +66,7 @@ const ContactUs = () => {
                   <Phone className="w-6 h-6 text-eventPurple-600 mt-1" />
                   <div>
                     <h3 className="font-medium text-gray-800">Phone</h3>
-                    <p className="text-gray-600">+254 712 345 678</p>
-                    <p className="text-gray-600">+254 723 456 789</p>
+                    <p className="text-gray-600">+254 758 978 931</p>
                   </div>
                 </div>
                 
@@ -79,17 +74,47 @@ const ContactUs = () => {
                   <Mail className="w-6 h-6 text-eventPurple-600 mt-1" />
                   <div>
                     <h3 className="font-medium text-gray-800">Email</h3>
-                    <p className="text-gray-600">info@maabaraonline.co.ke</p>
-                    <p className="text-gray-600">support@maabaraonline.co.ke</p>
+                    <p className="text-gray-600">maabarahub@gmail.com</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start space-x-4">
+                  <Clock className="w-6 h-6 text-eventPurple-600 mt-1" />
+                  <div>
+                    <h3 className="font-medium text-gray-800">Office Hours</h3>
+                    <p className="text-gray-600">Mon – Fri: 8:00 – 5:00</p>
                   </div>
                 </div>
               </div>
               
-              <div className="mt-10">
-                <h3 className="font-medium text-gray-800 mb-4">Office Hours</h3>
-                <p className="text-gray-600">Monday - Friday: 8:00 AM - 6:00 PM</p>
-                <p className="text-gray-600">Saturday: 9:00 AM - 1:00 PM</p>
-                <p className="text-gray-600">Sunday: Closed</p>
+              <div className="mt-10 bg-eventPurple-50 rounded-lg p-6">
+                <h3 className="font-semibold text-lg mb-4 text-eventPurple-700">Follow Us</h3>
+                <div className="flex space-x-4">
+                  <a href="#" className="w-10 h-10 bg-eventPurple-100 rounded-full flex items-center justify-center text-eventPurple-700 hover:bg-eventPurple-200 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+                      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                    </svg>
+                  </a>
+                  <a href="#" className="w-10 h-10 bg-eventPurple-100 rounded-full flex items-center justify-center text-eventPurple-700 hover:bg-eventPurple-200 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+                      <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+                    </svg>
+                  </a>
+                  <a href="#" className="w-10 h-10 bg-eventPurple-100 rounded-full flex items-center justify-center text-eventPurple-700 hover:bg-eventPurple-200 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+                      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                    </svg>
+                  </a>
+                  <a href="#" className="w-10 h-10 bg-eventPurple-100 rounded-full flex items-center justify-center text-eventPurple-700 hover:bg-eventPurple-200 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+                      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                      <rect x="2" y="9" width="4" height="12"></rect>
+                      <circle cx="4" cy="4" r="2"></circle>
+                    </svg>
+                  </a>
+                </div>
               </div>
             </div>
             
