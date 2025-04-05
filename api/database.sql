@@ -124,6 +124,21 @@ CREATE TABLE IF NOT EXISTS mpesa_settings (
     updated_by VARCHAR(100) NOT NULL
 );
 
+-- Certificates table
+CREATE TABLE IF NOT EXISTS certificates (
+    id VARCHAR(36) PRIMARY KEY,
+    event_id INT NOT NULL,
+    user_id INT NOT NULL,
+    issued_date DATETIME NOT NULL,
+    downloaded BOOLEAN DEFAULT FALSE,
+    emailed BOOLEAN DEFAULT FALSE,
+    created_by VARCHAR(100) NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (event_id) REFERENCES events(id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
 -- Insert default categories if none exist
 INSERT INTO categories (name, description)
 SELECT 'Workshop', 'Technical hands-on workshops and training sessions'
@@ -131,12 +146,63 @@ WHERE NOT EXISTS (SELECT 1 FROM categories LIMIT 1);
 
 INSERT INTO categories (name, description)
 SELECT 'Seminar', 'Educational seminars and presentations'
-WHERE NOT EXISTS (SELECT 2 FROM categories WHERE id = 2);
+WHERE NOT EXISTS (SELECT 1 FROM categories WHERE id = 2);
 
 INSERT INTO categories (name, description)
 SELECT 'Conference', 'Industry conferences and multi-day events'
-WHERE NOT EXISTS (SELECT 3 FROM categories WHERE id = 3);
+WHERE NOT EXISTS (SELECT 1 FROM categories WHERE id = 3);
+
+INSERT INTO categories (name, description)
+SELECT 'Exhibition', 'Showcases and demonstrations of products and services'
+WHERE NOT EXISTS (SELECT 1 FROM categories WHERE id = 4);
+
+INSERT INTO categories (name, description)
+SELECT 'Hackathon', 'Competitive coding and problem solving events'
+WHERE NOT EXISTS (SELECT 1 FROM categories WHERE id = 5);
 
 -- Insert default admin user if not exists
 INSERT IGNORE INTO users (id, name, email, phone, password, role) 
 VALUES (1, 'Admin User', 'admin@maabara.co.ke', '0700000000', 'admin123', 'admin');
+
+-- Insert sample events
+INSERT INTO events (title, description, date, time, location, price, is_free, category_id, image_url, created_by)
+SELECT 
+    'Tech Workshop 2023', 
+    'A comprehensive hands-on workshop on the latest technologies', 
+    '2023-12-10', 
+    '09:00:00', 
+    'Maabara Labs, Nairobi', 
+    1500, 
+    0, 
+    1, 
+    '/placeholder.svg', 
+    'admin@maabara.co.ke'
+WHERE NOT EXISTS (SELECT 1 FROM events WHERE id = 1);
+
+INSERT INTO events (title, description, date, time, location, price, is_free, category_id, image_url, created_by)
+SELECT 
+    'Free AI Seminar', 
+    'Learn about the latest advancements in artificial intelligence', 
+    '2023-11-15', 
+    '14:00:00', 
+    'Virtual Event', 
+    0, 
+    1, 
+    2, 
+    '/placeholder.svg', 
+    'admin@maabara.co.ke'
+WHERE NOT EXISTS (SELECT 1 FROM events WHERE id = 2);
+
+INSERT INTO events (title, description, date, time, location, price, is_free, category_id, image_url, created_by)
+SELECT 
+    'Annual Tech Conference', 
+    'The largest technology conference in East Africa', 
+    '2023-12-01', 
+    '08:00:00', 
+    'KICC, Nairobi', 
+    3000, 
+    0, 
+    3, 
+    '/placeholder.svg', 
+    'admin@maabara.co.ke'
+WHERE NOT EXISTS (SELECT 1 FROM events WHERE id = 3);

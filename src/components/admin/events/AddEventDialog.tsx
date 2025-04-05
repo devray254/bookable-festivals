@@ -58,10 +58,10 @@ type EventFormData = z.infer<typeof eventFormSchema>;
 
 interface AddEventDialogProps {
   onEventAdded: (event: any) => void;
-  adminEmail?: string; // Make adminEmail optional
+  adminEmail?: string;
 }
 
-export function AddEventDialog({ onEventAdded, adminEmail }: AddEventDialogProps) {
+export function AddEventDialog({ onEventAdded, adminEmail = 'admin@maabara.co.ke' }: AddEventDialogProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -85,7 +85,7 @@ export function AddEventDialog({ onEventAdded, adminEmail }: AddEventDialogProps
 
   const onSubmit = async (data: EventFormData) => {
     console.log("Form submitted:", data);
-    console.log("Admin email:", adminEmail); // Log the admin email
+    console.log("Admin email:", adminEmail);
     
     setIsSubmitting(true);
     
@@ -100,15 +100,17 @@ export function AddEventDialog({ onEventAdded, adminEmail }: AddEventDialogProps
       const eventData = {
         title: data.title,
         description: data.description,
-        date: dateTime.toISOString().split('T')[0], // YYYY-MM-DD
+        date: data.date,
+        time: data.time,
         location: data.location,
+        priceType: data.priceType,
         category_id: parseInt(data.category),
         price: price,
         image_url: data.image || '/placeholder.svg'
       };
       
       // Send to server
-      const result = await createEvent(eventData, adminEmail || 'admin@maabara.co.ke');
+      const result = await createEvent(eventData, adminEmail);
       
       if (result.success) {
         toast.success(`Successfully created ${data.title}`);
@@ -116,7 +118,8 @@ export function AddEventDialog({ onEventAdded, adminEmail }: AddEventDialogProps
         // Add event to the list with the new ID
         onEventAdded({
           id: result.id,
-          ...eventData
+          ...eventData,
+          is_free: data.priceType === "free" ? 1 : 0
         });
         
         // Reset form and dialog state
