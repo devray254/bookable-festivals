@@ -2,7 +2,7 @@
 // Main auth entry point that re-exports all auth-related functions
 import { authenticateUser, createUser } from './user-authentication';
 import { createAdminUser, updateUser, resetUserPassword } from './admin-functions';
-import { getAllUsers } from './user-management';
+import { getAllUsers, addUser } from './user-management';
 
 // Export all auth functions
 export {
@@ -16,5 +16,6 @@ export {
   resetUserPassword,
   
   // User management
-  getAllUsers
+  getAllUsers,
+  addUser
 };

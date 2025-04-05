@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -32,6 +31,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Drawer, DrawerContent, DrawerTrigger, DrawerClose, DrawerHeader, DrawerTitle, DrawerFooter } from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { addUser } from "@/utils/auth/user-management";
 
 // Form schema
 const formSchema = z.object({
@@ -69,41 +69,27 @@ export function AddUserDialog({ open, onOpenChange, onSuccess, adminEmail }: Add
   const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
     
-    // In a real app, this would call an API endpoint to create a user
-    // For now, we'll simulate a successful creation
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Mock users from the user-management.ts file
-      const mockUsers = [
-        {
-          id: 1,
-          name: 'Admin User',
-          email: 'admin@maabara.co.ke',
-          phone: '0700000000',
-          role: 'admin',
-          organization_type: null
-        }
-      ];
-
-      // Simulate adding a new user
-      const newUser = {
-        id: mockUsers.length + 1,
+      // Call the addUser function from utils to create a new user
+      const response = await addUser({
         name: values.name,
         email: values.email,
         phone: values.phone,
-        role: values.role,
-        organization_type: null
-      };
+        password: values.password,
+        role: values.role
+      });
 
-      // Success toast
-      toast.success(`${values.role === 'admin' ? 'Admin' : 'User'} created successfully`);
-      
-      // Reset form and close dialog
-      form.reset();
-      onOpenChange(false);
-      onSuccess();
+      if (response.success) {
+        // Success toast
+        toast.success(`${values.role === 'admin' ? 'Admin' : 'User'} created successfully`);
+        
+        // Reset form and close dialog
+        form.reset();
+        onOpenChange(false);
+        onSuccess();
+      } else {
+        toast.error(response.message || "Failed to create user");
+      }
     } catch (error) {
       console.error("Error creating user:", error);
       toast.error("An error occurred while creating user");
@@ -197,7 +183,6 @@ export function AddUserDialog({ open, onOpenChange, onSuccess, adminEmail }: Add
     </Form>
   );
 
-  // Use Drawer for mobile and Dialog for desktop
   if (isMobile) {
     return (
       <Drawer open={open} onOpenChange={onOpenChange}>
