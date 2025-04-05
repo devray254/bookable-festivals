@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { EventsList } from "@/components/admin/events/EventsList";
 import { AddEventDialog } from "@/components/admin/events/AddEventDialog";
+import { DbConnectionTester } from "@/components/admin/DbConnectionTester";
 import { fetchEvents } from "@/utils/events";
 import { toast } from "sonner";
 import { RefreshCw, Search } from "lucide-react";
@@ -26,6 +27,7 @@ export default function AdminEvents() {
   const [loading, setLoading] = useState(true);
   const [adminEmail, setAdminEmail] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showDbTester, setShowDbTester] = useState(true);
   
   // Get admin email from localStorage
   useEffect(() => {
@@ -73,6 +75,20 @@ export default function AdminEvents() {
           <h1 className="text-3xl font-bold tracking-tight">Events</h1>
           <p className="text-muted-foreground">Manage your events here</p>
         </div>
+        
+        {showDbTester && (
+          <div className="mb-6">
+            <DbConnectionTester />
+            <div className="mt-2 text-right">
+              <button 
+                className="text-sm text-blue-500 hover:underline" 
+                onClick={() => setShowDbTester(false)}
+              >
+                Hide connection tester
+              </button>
+            </div>
+          </div>
+        )}
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card>

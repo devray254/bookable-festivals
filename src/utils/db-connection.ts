@@ -29,6 +29,30 @@ export const testConnection = async () => {
   }
 };
 
+// Test connection to online MySQL database
+export const testOnlineConnection = async () => {
+  try {
+    console.log('Testing online MySQL database connection to:', `${API_BASE_URL}/test-db-connection.php`);
+    const response = await fetch(`${API_BASE_URL}/test-db-connection.php`);
+    
+    // Check if response is JSON
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      console.error('PHP execution issue: Server returned PHP code instead of executing it');
+      const text = await response.text();
+      console.error('Response:', text);
+      return { success: false, message: 'PHP execution failed - check server configuration', response: text };
+    }
+    
+    const data = await response.json();
+    console.log('Online MySQL connection test result:', data);
+    return data;
+  } catch (error) {
+    console.error('Online MySQL database connection test failed:', error);
+    return { success: false, message: error.message };
+  }
+};
+
 // Execute query via PHP backend
 export const query = async (sql: string, params?: any[]) => {
   try {
@@ -71,5 +95,6 @@ export const query = async (sql: string, params?: any[]) => {
 
 export default {
   query,
-  testConnection
+  testConnection,
+  testOnlineConnection
 };
