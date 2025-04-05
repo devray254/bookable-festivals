@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CertificateGenerator } from "@/components/admin/certificates/CertificateGenerator";
 import { CertificatesList } from "@/components/admin/certificates/CertificatesList";
+import { AttendanceManager } from "@/components/admin/bookings/AttendanceManager";
 import { fetchEvents } from "@/utils/events";
 
 export default function AdminCertificates() {
@@ -34,6 +35,7 @@ export default function AdminCertificates() {
           <TabsList>
             <TabsTrigger value="generate">Generate Certificates</TabsTrigger>
             <TabsTrigger value="view">View Certificates</TabsTrigger>
+            <TabsTrigger value="attendance">Manage Attendance</TabsTrigger>
           </TabsList>
           
           <TabsContent value="generate" className="space-y-4">
@@ -121,6 +123,50 @@ export default function AdminCertificates() {
             
             {selectedEvent && (
               <CertificatesList eventId={selectedEvent} />
+            )}
+          </TabsContent>
+          
+          <TabsContent value="attendance" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Manage Attendance & Certificate Access</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <Input 
+                    placeholder="Search events..." 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                  
+                  {isLoading ? (
+                    <div className="flex justify-center p-4">
+                      <div className="animate-spin h-8 w-8 border-4 border-eventPurple-700 rounded-full border-t-transparent"></div>
+                    </div>
+                  ) : (
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                      {filteredEvents.map((event) => (
+                        <div 
+                          key={event.id}
+                          className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                            selectedEvent === event.id 
+                              ? 'border-eventPurple-700 bg-eventPurple-50' 
+                              : 'hover:border-gray-400'
+                          }`}
+                          onClick={() => setSelectedEvent(event.id)}
+                        >
+                          <h3 className="font-medium">{event.title}</h3>
+                          <p className="text-sm text-gray-500">{new Date(event.date).toLocaleDateString()}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+            
+            {selectedEvent && (
+              <AttendanceManager eventId={selectedEvent} />
             )}
           </TabsContent>
         </Tabs>

@@ -14,7 +14,9 @@ export interface Booking {
   total: string;
   status: string;
   webinar_link?: string;
-  user_id?: number; // Add user_id to associate with users
+  user_id?: number;
+  attendance_status?: "attended" | "partial" | "absent" | "unverified"; // Tracking attendance status
+  certificate_enabled?: boolean; // Flag to enable/disable certificate download
 }
 
 // Mock data for bookings
@@ -31,7 +33,9 @@ const mockBookings: Booking[] = [
     total: "1000",
     status: "confirmed",
     webinar_link: "https://zoom.us/j/1234567890",
-    user_id: 101
+    user_id: 101,
+    attendance_status: "attended",
+    certificate_enabled: true
   },
   {
     id: 2,
@@ -45,7 +49,9 @@ const mockBookings: Booking[] = [
     total: "750",
     status: "confirmed",
     webinar_link: "https://meet.google.com/abc-defg-hij",
-    user_id: 102
+    user_id: 102,
+    attendance_status: "partial",
+    certificate_enabled: false
   },
   {
     id: 3,
@@ -58,7 +64,9 @@ const mockBookings: Booking[] = [
     tickets: 1,
     total: "500",
     status: "confirmed",
-    user_id: 103
+    user_id: 103,
+    attendance_status: "attended",
+    certificate_enabled: true
   },
   {
     id: 4,
@@ -71,7 +79,9 @@ const mockBookings: Booking[] = [
     tickets: 2,
     total: "1500",
     status: "confirmed",
-    user_id: 104
+    user_id: 104,
+    attendance_status: "absent",
+    certificate_enabled: false
   },
   {
     id: 5,
@@ -84,7 +94,9 @@ const mockBookings: Booking[] = [
     tickets: 1,
     total: "300",
     status: "confirmed",
-    user_id: 105
+    user_id: 105,
+    attendance_status: "unverified",
+    certificate_enabled: false
   }
 ];
 
@@ -110,3 +122,31 @@ export const getBookingsByEventId = async (eventId: number) => {
   return mockBookings.filter(b => b.event_id === eventId);
 };
 
+// Update attendance status for a booking
+export const updateAttendanceStatus = async (
+  bookingId: number, 
+  status: "attended" | "partial" | "absent" | "unverified",
+  certificateEnabled: boolean
+) => {
+  const bookingIndex = mockBookings.findIndex(b => b.id === bookingId);
+  
+  if (bookingIndex === -1) {
+    return { success: false, message: "Booking not found" };
+  }
+  
+  mockBookings[bookingIndex] = {
+    ...mockBookings[bookingIndex],
+    attendance_status: status,
+    certificate_enabled: certificateEnabled
+  };
+  
+  return { 
+    success: true, 
+    booking: mockBookings[bookingIndex] 
+  };
+};
+
+// Get bookings for a specific user
+export const getBookingsByUserId = async (userId: number) => {
+  return mockBookings.filter(b => b.user_id === userId);
+};

@@ -11,11 +11,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
-import { Calendar, Check, Download, KeyRound, LogOut, User } from "lucide-react";
+import { Calendar, Check, Download, KeyRound, LogOut, User, XCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import EventCard from "@/components/events/EventCard";
 import { Navbar } from "@/components/layout/Navbar";
 import { resetUserPassword } from "@/utils/database";
+import { getBookingsByUserId } from "@/utils/bookings";
 
 // Define types for user bookings
 interface Booking {
@@ -28,6 +29,8 @@ interface Booking {
   status: string;
   event_image?: string;
   certificate_id?: string;
+  attendance_status?: "attended" | "partial" | "absent" | "unverified";
+  certificate_enabled?: boolean;
 }
 
 // Define password change form schema
@@ -82,33 +85,9 @@ export default function UserProfile() {
   const fetchUserData = async (userId: number) => {
     setIsLoading(true);
     try {
-      // Simulate fetching user bookings from API
-      // In a real app, you would fetch from your backend
-      const mockBookings: Booking[] = [
-        {
-          id: 1,
-          event: "Science Exhibition",
-          event_id: 1,
-          date: "2023-08-15",
-          tickets: 2,
-          total: "1000",
-          status: "confirmed",
-          event_image: "/placeholder.svg",
-          certificate_id: "cert-123"
-        },
-        {
-          id: 2,
-          event: "Tech Workshop",
-          event_id: 2,
-          date: "2023-08-20",
-          tickets: 1,
-          total: "750",
-          status: "confirmed",
-          event_image: "/placeholder.svg"
-        }
-      ];
-      
-      setBookings(mockBookings);
+      // Fetch user's bookings from API
+      const userBookings = await getBookingsByUserId(userId);
+      setBookings(userBookings);
       
       // Simulate upcoming and past events
       // In production, this would come from your API
@@ -204,6 +183,36 @@ export default function UserProfile() {
   const handleLogout = () => {
     localStorage.removeItem('user');
     navigate('/');
+  };
+
+  // Helper function to render attendance badge
+  const renderAttendanceBadge = (status?: string) => {
+    switch (status) {
+      case "attended":
+        return (
+          <Badge className="bg-green-500">
+            <Check className="mr-1 h-4 w-4" /> Fully Attended
+          </Badge>
+        );
+      case "partial":
+        return (
+          <Badge className="bg-yellow-500">
+            <Check className="mr-1 h-4 w-4" /> Partially Attended
+          </Badge>
+        );
+      case "absent":
+        return (
+          <Badge className="bg-red-500">
+            <XCircle className="mr-1 h-4 w-4" /> Absent
+          </Badge>
+        );
+      default:
+        return (
+          <Badge variant="outline">
+            <Calendar className="mr-1 h-4 w-4" /> Attendance Unverified
+          </Badge>
+        );
+    }
   };
 
   if (!user) return null; // Will redirect to login due to the useEffect
@@ -310,12 +319,17 @@ export default function UserProfile() {
                                       <p className="text-sm font-medium mt-1">
                                         KES {booking.total}
                                       </p>
-                                      <Badge className="mt-2" variant={
-                                        booking.status === 'confirmed' ? 'default' : 
-                                        booking.status === 'pending' ? 'outline' : 'secondary'
-                                      }>
-                                        {booking.status}
-                                      </Badge>
+                                      <div className="flex flex-wrap gap-2 mt-2">
+                                        <Badge className="mt-2" variant={
+                                          booking.status === 'confirmed' ? 'default' : 
+                                          booking.status === 'pending' ? 'outline' : 'secondary'
+                                        }>
+                                          {booking.status}
+                                        </Badge>
+                                        
+                                        {/* Show attendance status badge */}
+                                        {renderAttendanceBadge(booking.attendance_status)}
+                                      </div>
                                     </div>
                                     <div className="flex mt-2 gap-2">
                                       <Button 
@@ -326,8 +340,10 @@ export default function UserProfile() {
                                         View Event
                                       </Button>
                                       
-                                      {/* Show certificate download button for past events with certificates */}
-                                      {booking.certificate_id && new Date(booking.date) < new Date() && (
+                                      {/* Show certificate download button only if enabled */}
+                                      {booking.certificate_id && 
+                                       new Date(booking.date) < new Date() && 
+                                       booking.certificate_enabled ? (
                                         <Button 
                                           variant="secondary" 
                                           size="sm"
@@ -336,7 +352,17 @@ export default function UserProfile() {
                                           <Download className="mr-1 h-4 w-4" />
                                           Certificate
                                         </Button>
-                                      )}
+                                      ) : booking.certificate_id && new Date(booking.date) < new Date() ? (
+                                        <Button 
+                                          variant="outline" 
+                                          size="sm"
+                                          disabled
+                                          title="Certificate download has been disabled by the admin"
+                                        >
+                                          <XCircle className="mr-1 h-4 w-4" />
+                                          Certificate Unavailable
+                                        </Button>
+                                      ) : null}
                                     </div>
                                   </div>
                                 </div>
