@@ -27,17 +27,23 @@ export const createEvent = async (eventData: any, adminEmail: string) => {
     console.log('Creating event:', eventData);
     
     const sql = `
-      INSERT INTO events (title, description, date, location, price, category_id, image_url, created_by)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO events (title, description, date, time, location, price, is_free, category_id, image_url, created_by)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
+    
+    // Set price to 0 for free events
+    const isFree = eventData.priceType === 'free' || Number(eventData.price) === 0;
+    const price = isFree ? 0 : eventData.price;
     
     const params = [
       eventData.title,
       eventData.description || '',
       eventData.date,
+      eventData.time || '00:00:00',
       eventData.location,
-      eventData.price,
-      eventData.category_id || 1, // Default to first category if not specified
+      price,
+      isFree ? 1 : 0,
+      eventData.category_id,
       eventData.image_url || '/placeholder.svg',
       adminEmail
     ];
@@ -49,7 +55,7 @@ export const createEvent = async (eventData: any, adminEmail: string) => {
       await logActivity({
         action: 'Event Created',
         user: adminEmail,
-        details: `Created new event: ${eventData.title}`,
+        details: `Created new event: ${eventData.title} (${isFree ? 'Free' : 'Paid: KES ' + price})`,
         level: 'info'
       });
       
@@ -70,18 +76,24 @@ export const updateEvent = async (eventId: number, eventData: any, adminEmail: s
     
     const sql = `
       UPDATE events 
-      SET title = ?, description = ?, date = ?, location = ?, price = ?, 
-          category_id = ?, image_url = ?, updated_at = NOW()
+      SET title = ?, description = ?, date = ?, time = ?, location = ?, price = ?, 
+          is_free = ?, category_id = ?, image_url = ?, updated_at = NOW()
       WHERE id = ?
     `;
+    
+    // Set price to 0 for free events
+    const isFree = eventData.priceType === 'free' || Number(eventData.price) === 0;
+    const price = isFree ? 0 : eventData.price;
     
     const params = [
       eventData.title,
       eventData.description || '',
       eventData.date,
+      eventData.time || '00:00:00',
       eventData.location,
-      eventData.price,
-      eventData.category_id || 1,
+      price,
+      isFree ? 1 : 0,
+      eventData.category_id,
       eventData.image_url || '/placeholder.svg',
       eventId
     ];
@@ -93,7 +105,7 @@ export const updateEvent = async (eventId: number, eventData: any, adminEmail: s
       await logActivity({
         action: 'Event Updated',
         user: adminEmail,
-        details: `Updated event: ${eventData.title}`,
+        details: `Updated event: ${eventData.title} (${isFree ? 'Free' : 'Paid: KES ' + price})`,
         level: 'info'
       });
       

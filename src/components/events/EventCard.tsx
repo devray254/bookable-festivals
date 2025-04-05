@@ -1,6 +1,6 @@
 
 import { Link } from "react-router-dom";
-import { CalendarIcon, MapPinIcon, ClockIcon, BanknoteIcon, Tag } from "lucide-react";
+import { CalendarIcon, MapPinIcon, ClockIcon, BanknoteIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -12,10 +12,11 @@ export interface EventCardProps {
   time: string;
   location: string;
   price: number;
+  is_free?: boolean;
   category: string;
 }
 
-const EventCard = ({ id, title, image, date, time, location, price, category }: EventCardProps) => {
+const EventCard = ({ id, title, image, date, time, location, price, is_free, category }: EventCardProps) => {
   // Check if the event date is in the past
   const isPastEvent = () => {
     // Parse the date string and compare with current date
@@ -30,7 +31,7 @@ const EventCard = ({ id, title, image, date, time, location, price, category }: 
   };
   
   const pastEvent = isPastEvent();
-  const isFree = price === 0;
+  const isFree = is_free === true || price === 0;
 
   return (
     <div className="event-card bg-white rounded-lg overflow-hidden shadow border border-gray-100">

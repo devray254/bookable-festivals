@@ -45,8 +45,10 @@ CREATE TABLE IF NOT EXISTS events (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(100) NOT NULL,
     date DATE NOT NULL,
+    time TIME NOT NULL,
     location VARCHAR(100) NOT NULL,
     price DECIMAL(10,2) NOT NULL,
+    is_free BOOLEAN DEFAULT FALSE,
     description TEXT NOT NULL,
     category_id INT NOT NULL,
     image_url VARCHAR(255) DEFAULT '/placeholder.svg',
@@ -63,6 +65,7 @@ CREATE TABLE IF NOT EXISTS events (
 CREATE TABLE IF NOT EXISTS bookings (
     id INT AUTO_INCREMENT PRIMARY KEY,
     event_id INT NOT NULL,
+    user_id INT NOT NULL,
     customer_name VARCHAR(100) NOT NULL,
     customer_email VARCHAR(100) NOT NULL,
     customer_phone VARCHAR(20) NOT NULL,
@@ -71,7 +74,6 @@ CREATE TABLE IF NOT EXISTS bookings (
     total_amount DECIMAL(10,2) NOT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'pending',
     webinar_access BOOLEAN DEFAULT FALSE,
-    user_id INT NULL,
     attendance_status ENUM('attended', 'partial', 'absent', 'unverified') DEFAULT 'unverified',
     certificate_enabled BOOLEAN DEFAULT FALSE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -144,19 +146,83 @@ CREATE INDEX IF NOT EXISTS idx_bookings_event_id ON bookings(event_id);
 CREATE INDEX IF NOT EXISTS idx_payments_user_id ON payments(user_id);
 CREATE INDEX IF NOT EXISTS idx_payments_event_id ON payments(event_id);
 
--- Insert default categories if none exist
-INSERT INTO categories (name, description)
-SELECT 'Workshop', 'Technical hands-on workshops and training sessions'
-WHERE NOT EXISTS (SELECT 1 FROM categories LIMIT 1);
+-- Insert default categories
+INSERT INTO categories (id, name, description)
+VALUES 
+(1, 'Workshop', 'Technical hands-on workshops and training sessions'),
+(2, 'Seminar', 'Educational seminars and presentations'),
+(3, 'Conference', 'Industry conferences and multi-day events'),
+(4, 'Exhibition', 'Science and technology exhibitions'),
+(5, 'Hackathon', 'Coding and technology competitions');
 
-INSERT INTO categories (name, description)
-SELECT 'Seminar', 'Educational seminars and presentations'
-WHERE NOT EXISTS (SELECT 2 FROM categories WHERE id = 2);
-
-INSERT INTO categories (name, description)
-SELECT 'Conference', 'Industry conferences and multi-day events'
-WHERE NOT EXISTS (SELECT 3 FROM categories WHERE id = 3);
-
--- Insert default admin user if not exists
-INSERT IGNORE INTO users (id, name, email, phone, password, role) 
+-- Insert default admin user
+INSERT INTO users (id, name, email, phone, password, role) 
 VALUES (1, 'Admin User', 'admin@maabara.co.ke', '0700000000', 'admin123', 'admin');
+
+-- Insert mock users
+INSERT INTO users (id, name, email, phone, password, role) 
+VALUES 
+(2, 'John Doe', 'john@example.com', '0712345678', 'password123', 'attendee'),
+(3, 'Jane Smith', 'jane@example.com', '0723456789', 'password123', 'attendee'),
+(4, 'Michael Johnson', 'michael@example.com', '0734567890', 'password123', 'attendee'),
+(5, 'Sarah Williams', 'sarah@example.com', '0745678901', 'password123', 'attendee'),
+(6, 'David Brown', 'david@example.com', '0756789012', 'password123', 'attendee'),
+(7, 'Emily Davis', 'emily@example.com', '0767890123', 'password123', 'attendee');
+
+-- Insert mock events with both free and paid options
+INSERT INTO events (id, title, date, time, location, price, is_free, description, category_id, image_url, has_webinar, created_by) 
+VALUES 
+(1, 'Science Exhibition', '2025-07-15', '09:00:00', 'Nairobi Science Center', 750.00, FALSE, 'A comprehensive exhibition showcasing scientific innovations from across the country.', 4, '/placeholder.svg', TRUE, 'admin@maabara.co.ke'),
+(2, 'Tech Workshop', '2025-08-20', '10:00:00', 'Kenyatta University', 500.00, FALSE, 'Hands-on workshop on the latest technologies.', 1, '/placeholder.svg', TRUE, 'admin@maabara.co.ke'),
+(3, 'Chemistry Seminar', '2025-09-05', '14:00:00', 'University of Nairobi', 300.00, FALSE, 'Seminar on recent advancements in chemical sciences.', 2, '/placeholder.svg', FALSE, 'admin@maabara.co.ke'),
+(4, 'Data Science Bootcamp', '2025-10-10', '09:00:00', 'iHub, Nairobi', 1000.00, FALSE, 'Intensive bootcamp on data science fundamentals.', 1, '/placeholder.svg', TRUE, 'admin@maabara.co.ke'),
+(5, 'Free Coding Workshop', '2025-11-15', '13:00:00', 'JKUAT, Juja', 0.00, TRUE, 'Free workshop on coding basics for beginners.', 1, '/placeholder.svg', FALSE, 'admin@maabara.co.ke'),
+(6, 'Open Science Fair', '2025-12-01', '10:00:00', 'Sarit Center', 0.00, TRUE, 'Open science fair with demos and hands-on activities.', 4, '/placeholder.svg', FALSE, 'admin@maabara.co.ke');
+
+-- Insert mock bookings
+INSERT INTO bookings (id, event_id, user_id, customer_name, customer_email, customer_phone, booking_date, tickets, total_amount, status, webinar_access, attendance_status) 
+VALUES 
+(1, 1, 2, 'John Doe', 'john@example.com', '0712345678', '2025-06-15 10:24:36', 1, 750.00, 'confirmed', TRUE, 'attended'),
+(2, 1, 3, 'Jane Smith', 'jane@example.com', '0723456789', '2025-06-17 14:15:22', 1, 750.00, 'confirmed', TRUE, 'attended'),
+(3, 1, 4, 'Michael Johnson', 'michael@example.com', '0734567890', '2025-06-18 09:45:12', 1, 750.00, 'confirmed', TRUE, 'partial'),
+(4, 2, 5, 'Sarah Williams', 'sarah@example.com', '0745678901', '2025-07-05 16:30:45', 1, 500.00, 'confirmed', TRUE, 'unverified'),
+(5, 2, 6, 'David Brown', 'david@example.com', '0756789012', '2025-07-10 11:20:18', 1, 500.00, 'confirmed', TRUE, 'unverified'),
+(6, 3, 7, 'Emily Davis', 'emily@example.com', '0767890123', '2025-08-01 08:15:30', 1, 300.00, 'confirmed', FALSE, 'unverified'),
+(7, 5, 2, 'John Doe', 'john@example.com', '0712345678', '2025-10-10 08:30:00', 1, 0.00, 'confirmed', FALSE, 'unverified'),
+(8, 6, 3, 'Jane Smith', 'jane@example.com', '0723456789', '2025-11-15 09:45:00', 2, 0.00, 'confirmed', FALSE, 'unverified');
+
+-- Insert mock payments (only for paid events)
+INSERT INTO payments (id, booking_id, user_id, event_id, amount, payment_date, method, status, transaction_code) 
+VALUES 
+('PAY001', 1, 2, 1, 750.00, '2025-06-15 10:30:00', 'M-Pesa', 'completed', 'MPE123456789'),
+('PAY002', 2, 3, 1, 750.00, '2025-06-17 14:20:00', 'M-Pesa', 'completed', 'MPE987654321'),
+('PAY003', 3, 4, 1, 750.00, '2025-06-18 09:50:00', 'M-Pesa', 'completed', 'MPE456789123'),
+('PAY004', 4, 5, 2, 500.00, '2025-07-05 16:35:00', 'M-Pesa', 'completed', 'MPE789123456'),
+('PAY005', 5, 6, 2, 500.00, '2025-07-10 11:25:00', 'Cash', 'completed', 'CASH001'),
+('PAY006', 6, 7, 3, 300.00, '2025-08-01 08:20:00', 'M-Pesa', 'completed', 'MPE321654987');
+
+-- Insert mock certificates
+INSERT INTO certificates (id, event_id, user_id, issued_date, issued_by, sent_email, downloaded) 
+VALUES 
+('CERT-1-2-1695302400000', 1, 2, '2025-09-21 15:00:00', 'admin@maabara.co.ke', TRUE, TRUE),
+('CERT-1-3-1695302400001', 1, 3, '2025-09-21 15:05:00', 'admin@maabara.co.ke', TRUE, FALSE),
+('CERT-1-4-1695302400002', 1, 4, '2025-09-21 15:10:00', 'admin@maabara.co.ke', FALSE, FALSE);
+
+-- Insert M-Pesa settings (sandbox test credentials)
+INSERT INTO mpesa_settings (id, consumer_key, consumer_secret, passkey, shortcode, environment, callback_url, last_updated, updated_by)
+VALUES 
+(1, '2sh7EgkM79EYKcAYsGZ9OAZlxgzXvDrG', 'F7jG9MnI3FppN8lY', 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919', '174379', 'sandbox', 'https://example.com/callback', NOW(), 'admin@maabara.co.ke');
+
+-- Insert activity logs
+INSERT INTO activity_logs (id, timestamp, action, user, details, ip, level)
+VALUES 
+(1, '2025-06-15 10:35:00', 'Payment Received', 'system', 'Payment of KES 750.00 received for booking #1', '127.0.0.1', 'info'),
+(2, '2025-06-17 14:25:00', 'Payment Received', 'system', 'Payment of KES 750.00 received for booking #2', '127.0.0.1', 'info'),
+(3, '2025-06-18 09:55:00', 'Payment Received', 'system', 'Payment of KES 750.00 received for booking #3', '127.0.0.1', 'info'),
+(4, '2025-07-05 16:40:00', 'Payment Received', 'system', 'Payment of KES 500.00 received for booking #4', '127.0.0.1', 'info'),
+(5, '2025-07-10 11:30:00', 'Payment Received', 'system', 'Payment of KES 500.00 received for booking #5', '127.0.0.1', 'info'),
+(6, '2025-08-01 08:25:00', 'Payment Received', 'system', 'Payment of KES 300.00 received for booking #6', '127.0.0.1', 'info'),
+(7, '2025-06-01 15:30:00', 'User Login', 'admin@maabara.co.ke', 'Admin user logged in', '127.0.0.1', 'info'),
+(8, '2025-06-01 15:45:00', 'Event Created', 'admin@maabara.co.ke', 'Created new event: Science Exhibition', '127.0.0.1', 'important'),
+(9, '2025-06-01 16:00:00', 'Event Created', 'admin@maabara.co.ke', 'Created new event: Tech Workshop', '127.0.0.1', 'important'),
+(10, '2025-06-01 16:15:00', 'Event Created', 'admin@maabara.co.ke', 'Created new event: Chemistry Seminar', '127.0.0.1', 'important');
