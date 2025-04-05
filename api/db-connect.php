@@ -12,10 +12,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 // Database connection parameters - update these to match your online server
-$host = 'your-online-mysql-host.com'; // Change this to your online database server hostname
-$user = 'your_db_username';           // Change this to your online database username
-$password = 'your_db_password';       // Change this to your online database password
-$dbname = 'maabara_events';
+$host = '92.113.28.141'; // Change this to your online database server hostname
+$user = 'u944702148_baraportal';           // Change this to your online database username
+$password = 'K@m1kaze.12.12!';       // Change this to your online database password
+$dbname = 'u944702148_maabaraonline';
 
 // Create connection
 $conn = new mysqli($host, $user, $password, $dbname);
