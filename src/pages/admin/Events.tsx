@@ -68,6 +68,12 @@ export default function AdminEvents() {
     (event.category_name && event.category_name.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
+  // Count free events
+  const freeEvents = events.filter(e => Number(e.price) === 0).length;
+
+  // Count paid events
+  const paidEvents = events.filter(e => Number(e.price) > 0).length;
+
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -90,7 +96,7 @@ export default function AdminEvents() {
           </div>
         )}
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
@@ -125,13 +131,25 @@ export default function AdminEvents() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Past</p>
-                  <h3 className="text-2xl font-bold">
-                    {events.filter(e => new Date(e.date) <= new Date()).length}
-                  </h3>
+                  <p className="text-sm font-medium text-muted-foreground">Free Events</p>
+                  <h3 className="text-2xl font-bold">{freeEvents}</h3>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-600">
-                  {events.filter(e => new Date(e.date) <= new Date()).length}
+                <div className="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+                  {freeEvents}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Paid Events</p>
+                  <h3 className="text-2xl font-bold">{paidEvents}</h3>
+                </div>
+                <div className="h-12 w-12 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+                  {paidEvents}
                 </div>
               </div>
             </CardContent>

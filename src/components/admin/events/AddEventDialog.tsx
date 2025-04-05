@@ -28,9 +28,29 @@ const eventFormSchema = z.object({
   date: z.string().min(1, { message: "Date is required" }),
   time: z.string().min(1, { message: "Time is required" }),
   location: z.string().min(3, { message: "Location must be at least 3 characters" }),
-  price: z.string().min(1, { message: "Price is required" }),
+  priceType: z.enum(["free", "paid"]),
+  price: z.union([
+    z.string().optional(),
+    z.number().optional()
+  ]).optional().refine(val => {
+    // Price is required only if priceType is 'paid'
+    if (val === undefined || val === "") {
+      return true; // Will be validated by the custom validation below
+    }
+    const numVal = Number(val);
+    return !isNaN(numVal) && numVal >= 0;
+  }, { message: "Price must be a positive number" }),
   category: z.string().min(1, { message: "Please select a category" }),
   image: z.string().optional(),
+}).refine(data => {
+  // Custom validation for price based on priceType
+  if (data.priceType === "paid") {
+    return data.price !== undefined && data.price !== "";
+  }
+  return true;
+}, {
+  message: "Price is required for paid events",
+  path: ["price"]
 });
 
 // Infer the type from the schema
@@ -53,6 +73,7 @@ export function AddEventDialog({ onEventAdded, adminEmail }: AddEventDialogProps
       date: "",
       time: "",
       location: "",
+      priceType: "paid",
       price: "",
       category: "",
       image: ""
@@ -72,6 +93,9 @@ export function AddEventDialog({ onEventAdded, adminEmail }: AddEventDialogProps
       // Create full date with time
       const dateTime = new Date(`${data.date}T${data.time}`);
       
+      // Set price to 0 if it's a free event
+      const price = data.priceType === "free" ? 0 : data.price;
+      
       // Format event data for the API
       const eventData = {
         title: data.title,
@@ -79,7 +103,7 @@ export function AddEventDialog({ onEventAdded, adminEmail }: AddEventDialogProps
         date: dateTime.toISOString().split('T')[0], // YYYY-MM-DD
         location: data.location,
         category_id: parseInt(data.category),
-        price: data.price,
+        price: price,
         image_url: data.image || '/placeholder.svg'
       };
       
@@ -117,7 +141,7 @@ export function AddEventDialog({ onEventAdded, adminEmail }: AddEventDialogProps
           Add Event
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[625px] max-h-[90vh]">
+      <DialogContent className="sm:max-w-[750px] max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>Add New Event</DialogTitle>
           <DialogDescription>
@@ -126,11 +150,11 @@ export function AddEventDialog({ onEventAdded, adminEmail }: AddEventDialogProps
         </DialogHeader>
         <ScrollArea className="max-h-[calc(90vh-180px)] pr-4">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <EventFormFields form={form} />
               <EventImageUpload form={form} />
               
-              <DialogFooter className="pt-4 sticky bottom-0">
+              <DialogFooter className="pt-4 sticky bottom-0 bg-white">
                 <Button type="submit" disabled={isSubmitting}>
                   {isSubmitting ? (
                     <>

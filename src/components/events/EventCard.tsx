@@ -1,7 +1,8 @@
 
 import { Link } from "react-router-dom";
-import { CalendarIcon, MapPinIcon, ClockIcon, BanknoteIcon } from "lucide-react";
+import { CalendarIcon, MapPinIcon, ClockIcon, BanknoteIcon, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 export interface EventCardProps {
   id: number;
@@ -29,19 +30,25 @@ const EventCard = ({ id, title, image, date, time, location, price, category }: 
   };
   
   const pastEvent = isPastEvent();
+  const isFree = price === 0;
 
   return (
     <div className="event-card bg-white rounded-lg overflow-hidden shadow border border-gray-100">
-      <div className="h-48 overflow-hidden">
+      <div className="h-48 overflow-hidden relative">
         <img 
           src={image} 
           alt={title} 
           className="w-full h-full object-cover" 
         />
+        {isFree && (
+          <div className="absolute top-2 right-2">
+            <Badge className="bg-green-500 hover:bg-green-600">Free</Badge>
+          </div>
+        )}
       </div>
       
       <div className="p-5">
-        <div className="mb-3">
+        <div className="mb-3 flex gap-2 flex-wrap">
           <span className="inline-block px-3 py-1 text-xs font-medium bg-eventPurple-100 text-eventPurple-700 rounded-full">
             {category}
           </span>
@@ -68,7 +75,7 @@ const EventCard = ({ id, title, image, date, time, location, price, category }: 
           <div className="flex items-center text-gray-800 font-medium">
             <BanknoteIcon className="h-4 w-4 mr-2" />
             <span className="text-sm">
-              {price === 0 ? "Free" : `KES ${price.toLocaleString()}`}
+              {isFree ? "Free Event" : `KES ${price.toLocaleString()}`}
             </span>
           </div>
         </div>
@@ -87,6 +94,6 @@ const EventCard = ({ id, title, image, date, time, location, price, category }: 
       </div>
     </div>
   );
-};
+}
 
 export default EventCard;
