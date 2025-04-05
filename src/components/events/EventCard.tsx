@@ -15,6 +15,21 @@ export interface EventCardProps {
 }
 
 const EventCard = ({ id, title, image, date, time, location, price, category }: EventCardProps) => {
+  // Check if the event date is in the past
+  const isPastEvent = () => {
+    // Parse the date string and compare with current date
+    const eventDate = new Date(date);
+    const today = new Date();
+    
+    // Remove time part for accurate date comparison
+    eventDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    
+    return eventDate < today;
+  };
+  
+  const pastEvent = isPastEvent();
+
   return (
     <div className="event-card bg-white rounded-lg overflow-hidden shadow border border-gray-100">
       <div className="h-48 overflow-hidden">
@@ -59,9 +74,15 @@ const EventCard = ({ id, title, image, date, time, location, price, category }: 
         </div>
         
         <Link to={`/events/${id}`}>
-          <Button className="w-full bg-eventPurple-700 hover:bg-eventPurple-800">
-            Book Now
-          </Button>
+          {pastEvent ? (
+            <Button className="w-full bg-gray-400 hover:bg-gray-500 cursor-not-allowed" disabled>
+              Event Completed
+            </Button>
+          ) : (
+            <Button className="w-full bg-eventPurple-700 hover:bg-eventPurple-800">
+              Book Now
+            </Button>
+          )}
         </Link>
       </div>
     </div>

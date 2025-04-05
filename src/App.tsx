@@ -11,6 +11,7 @@ import EventDetail from "./pages/EventDetail";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Organizers from "./pages/Organizers";
+import UserProfile from "./pages/UserProfile";
 import NotFound from "./pages/NotFound";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/admin/Dashboard";
@@ -46,6 +47,7 @@ const App: React.FC = () => {
               <Route path="/events/:id" element={<EventDetail />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/profile" element={<UserProfile />} />
               <Route path="/organizers" element={<Organizers />} />
               <Route path="/about" element={<AboutUs />} />
               <Route path="/contact" element={<ContactUs />} />
