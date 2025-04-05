@@ -14,12 +14,12 @@ app.use(cors());
 // Parse JSON request bodies
 app.use(express.json());
 
-// Routes
-app.use('/test-db-connection', testDbConnection);
-app.use('/query', query);
+// Routes - Mount API routes with correct paths
+app.use('/api/test-db-connection', testDbConnection);
+app.use('/api/query', query);
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 

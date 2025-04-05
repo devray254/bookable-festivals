@@ -13,26 +13,24 @@ export function DbConnectionTester() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [rawResponse, setRawResponse] = useState<string | null>(null);
-  const [serverInfo, setServerInfo] = useState<string | null>(null);
 
   const handleTestConnection = async () => {
     setLoading(true);
     setError(null);
     setRawResponse(null);
     try {
+      // Try to connect to the database using the Node.js API
       const result = await testOnlineConnection();
+      setTestResult(result);
       
-      // If we got a text response instead of JSON, it means PHP isn't executing
-      if (typeof result === 'string' && result.trim().startsWith('<?php')) {
-        setRawResponse(result);
-        setError('Server returned PHP code instead of executing it. This usually means PHP is not configured correctly on the server.');
-        setTestResult(null);
-      } else {
-        setTestResult(result);
+      if (!result.success) {
+        setError(result.message || 'Failed to connect to the database');
+        if (result.response) {
+          setRawResponse(result.response);
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unknown error occurred');
-      // If the error contains a response property, it might be the raw PHP
       if (err instanceof Error && 'response' in err) {
         setRawResponse((err as any).response);
       }
@@ -40,11 +38,6 @@ export function DbConnectionTester() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const checkPhpInfo = () => {
-    // Open the phpinfo.php file in a new tab
-    window.open('/api/phpinfo.php', '_blank');
   };
 
   return (
@@ -58,7 +51,7 @@ export function DbConnectionTester() {
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
             <span className="ml-2">Testing connection...</span>
           </div>
-        ) : testResult ? (
+        ) : testResult && testResult.success ? (
           <Tabs defaultValue="results">
             <TabsList className="mb-4">
               <TabsTrigger value="results">Results</TabsTrigger>
@@ -69,11 +62,7 @@ export function DbConnectionTester() {
               <div className="space-y-4">
                 <div className="flex items-center">
                   <span className="font-semibold mr-2">Status:</span>
-                  {testResult.success ? (
-                    <Badge variant="default" className="bg-green-500 hover:bg-green-600">Connected</Badge>
-                  ) : (
-                    <Badge variant="destructive">Failed</Badge>
-                  )}
+                  <Badge variant="default" className="bg-green-500 hover:bg-green-600">Connected</Badge>
                 </div>
                 
                 <div>
@@ -157,18 +146,18 @@ export function DbConnectionTester() {
                 <Info className="h-4 w-4" />
                 <AlertTitle>Important Information</AlertTitle>
                 <AlertDescription>
-                  This appears to be a PHP execution issue, not a database connection issue.
-                  The server is returning PHP code as text instead of executing it.
+                  There appears to be an issue connecting to the database or Node.js API.
                 </AlertDescription>
               </Alert>
               
               <div className="bg-amber-100 border-l-4 border-amber-500 text-amber-700 p-4 rounded">
                 <p className="font-bold">Troubleshooting Tips:</p>
                 <ul className="list-disc list-inside mt-2">
-                  <li>This is likely a Lovable platform limitation - it may not support PHP execution</li>
-                  <li>Lovable appears to be hosting this as a static site that cannot process PHP</li>
-                  <li>You may need to use a serverless function or a different backend approach</li>
-                  <li>Consider using API routes with Node.js instead of PHP</li>
+                  <li>Check that the Node.js API server is running</li>
+                  <li>Verify the database credentials in the connection configuration</li>
+                  <li>Make sure your database allows connections from your API server's IP</li>
+                  <li>Check the network connectivity between your API server and the database</li>
+                  <li>Look at the raw response for more detailed error information</li>
                 </ul>
               </div>
             </TabsContent>
@@ -178,7 +167,7 @@ export function DbConnectionTester() {
             <p>Click the button below to test connection to the online MySQL database.</p>
             <div className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mt-4 rounded">
               <p className="font-bold">Environment Information:</p>
-              <p className="mt-1">This test will check if your PHP environment is properly configured to connect to the database.</p>
+              <p className="mt-1">This test will check if your Node.js API can properly connect to the MySQL database.</p>
             </div>
           </div>
         )}
@@ -202,7 +191,7 @@ export function DbConnectionTester() {
           <Button
             variant="outline"
             className="flex-1 sm:flex-none"
-            onClick={() => window.open('/api/test-db-connection.php', '_blank')}
+            onClick={() => window.open('/api/test-db-connection', '_blank')}
           >
             <Bug className="mr-2 h-4 w-4" />
             Debug API
@@ -210,10 +199,10 @@ export function DbConnectionTester() {
           <Button
             variant="outline"
             className="flex-1 sm:flex-none"
-            onClick={checkPhpInfo}
+            onClick={() => window.open('/api/health', '_blank')}
           >
             <Server className="mr-2 h-4 w-4" />
-            PHP Info
+            API Status
           </Button>
         </div>
       </CardFooter>

@@ -5,13 +5,13 @@
  */
 
 // Base URL for Node.js backend - changed to relative path for universal deployment
-const API_BASE_URL = '/api';
+const API_BASE_URL = '';
 
 // Test database connection
 export const testConnection = async () => {
   try {
-    console.log('Testing database connection to:', `${API_BASE_URL}/health`);
-    const response = await fetch(`${API_BASE_URL}/health`);
+    console.log('Testing database connection to:', `${API_BASE_URL}/api/health`);
+    const response = await fetch(`${API_BASE_URL}/api/health`);
     
     if (!response.ok) {
       console.error('Node.js API health check failed');
@@ -31,7 +31,7 @@ export const testConnection = async () => {
 export const testOnlineConnection = async () => {
   try {
     console.log('Testing online MySQL database connection via Node.js API');
-    const response = await fetch(`${API_BASE_URL}/test-db-connection`);
+    const response = await fetch(`${API_BASE_URL}/api/test-db-connection`);
     
     if (!response.ok) {
       console.error('Node.js API database test failed with status:', response.status);
@@ -64,15 +64,15 @@ export const testOnlineConnection = async () => {
   }
 };
 
-// Execute query via Node.js backend (this would need to be implemented in the Node.js API)
+// Execute query via Node.js backend
 export const query = async (sql: string, params?: any[]) => {
   try {
-    console.log('Sending query to API:', `${API_BASE_URL}/query`);
+    console.log('Sending query to API:', `${API_BASE_URL}/api/query`);
     console.log('SQL:', sql);
     console.log('Params:', params || []);
     
     // Send request to Node.js endpoint
-    const response = await fetch(`${API_BASE_URL}/query`, {
+    const response = await fetch(`${API_BASE_URL}/api/query`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
