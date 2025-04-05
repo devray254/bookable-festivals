@@ -2,9 +2,13 @@
 import { useState } from "react";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Pencil, RefreshCw } from "lucide-react";
-import { toast } from "sonner";
-import { resetUserPassword } from "@/utils/auth";
+import { Pencil, Eye, MoreHorizontal } from "lucide-react";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
 
 interface UserRowProps {
   user: {
@@ -16,32 +20,13 @@ interface UserRowProps {
   };
   adminEmail: string;
   onEditUser: (user: any) => void;
+  onViewUser: (user: any) => void;
 }
 
-export function UserRow({ user, adminEmail, onEditUser }: UserRowProps) {
-  const [isResetting, setIsResetting] = useState(false);
-
-  // Handle password reset
-  const handleResetPassword = async (email: string) => {
-    setIsResetting(true);
-    try {
-      const result = await resetUserPassword(email, adminEmail);
-      if (result.success) {
-        toast.success(result.message);
-      } else {
-        toast.error(result.message);
-      }
-    } catch (error) {
-      console.error("Password reset error:", error);
-      toast.error("Failed to reset password");
-    } finally {
-      setIsResetting(false);
-    }
-  };
-
+export function UserRow({ user, adminEmail, onEditUser, onViewUser }: UserRowProps) {
   return (
-    <TableRow key={user.id}>
-      <TableCell>{user.name}</TableCell>
+    <TableRow key={user.id} className="cursor-pointer hover:bg-muted/50" onClick={() => onViewUser(user)}>
+      <TableCell className="font-medium">{user.name}</TableCell>
       <TableCell>{user.email}</TableCell>
       <TableCell>{user.phone}</TableCell>
       <TableCell>
@@ -54,22 +39,42 @@ export function UserRow({ user, adminEmail, onEditUser }: UserRowProps) {
       <TableCell>
         <div className="flex space-x-2">
           <Button 
-            variant="outline" 
+            variant="ghost" 
             size="sm" 
-            onClick={() => onEditUser(user)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onViewUser(user);
+            }}
           >
-            <Pencil className="h-4 w-4 mr-1" />
-            Edit
+            <Eye className="h-4 w-4" />
           </Button>
           <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => handleResetPassword(user.email)}
-            disabled={isResetting}
+            variant="ghost" 
+            size="sm" 
+            onClick={(e) => {
+              e.stopPropagation();
+              onEditUser(user);
+            }}
           >
-            <RefreshCw className={`h-4 w-4 mr-1 ${isResetting ? 'animate-spin' : ''}`} />
-            {isResetting ? "Resetting..." : "Reset Password"}
+            <Pencil className="h-4 w-4" />
           </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+              <Button variant="ghost" size="sm">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={(e) => {
+                e.stopPropagation();
+                onEditUser(user);
+              }}>
+                Edit User
+              </DropdownMenuItem>
+              <DropdownMenuItem>Reset Password</DropdownMenuItem>
+              <DropdownMenuItem className="text-red-600">Delete User</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </TableCell>
     </TableRow>

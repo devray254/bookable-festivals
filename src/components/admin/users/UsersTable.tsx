@@ -15,9 +15,10 @@ interface UsersTableProps {
   isLoading: boolean;
   adminEmail: string;
   onEditUser: (user: any) => void;
+  onViewUser: (user: any) => void;
 }
 
-export function UsersTable({ users, isLoading, adminEmail, onEditUser }: UsersTableProps) {
+export function UsersTable({ users, isLoading, adminEmail, onEditUser, onViewUser }: UsersTableProps) {
   if (isLoading) {
     return (
       <div className="flex justify-center my-8">
@@ -50,7 +51,8 @@ export function UsersTable({ users, isLoading, adminEmail, onEditUser }: UsersTa
               key={user.id}
               user={user} 
               adminEmail={adminEmail} 
-              onEditUser={onEditUser} 
+              onEditUser={onEditUser}
+              onViewUser={onViewUser}
             />
           ))
         )}

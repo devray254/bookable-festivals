@@ -18,6 +18,7 @@ import { Form } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { EventFormFields } from "./EventFormFields";
 import { EventImageUpload } from "./EventImageUpload";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Define the validation schema with Zod
 const eventFormSchema = z.object({
@@ -60,31 +61,40 @@ export function AddEventDialog({ onEventAdded, adminEmail }: AddEventDialogProps
   const { formState } = form;
   const { errors } = formState;
 
-  const onSubmit = (data: EventFormData) => {
+  const onSubmit = async (data: EventFormData) => {
     console.log("Form submitted:", data);
     console.log("Admin email:", adminEmail); // Log the admin email
     
-    // For demonstration purposes, we'll use the file name or preview URL
-    const newEvent = { 
-      id: Date.now(), 
-      title: data.title,
-      date: data.date,
-      location: data.location,
-      category: data.category,
-      price: data.price
-    };
-    
-    // Add event to the list
-    onEventAdded(newEvent);
-    
-    toast({
-      title: "Event created",
-      description: `Successfully created ${data.title}`
-    });
-    
-    // Reset form and dialog state
-    setIsDialogOpen(false);
-    form.reset();
+    try {
+      // For demonstration purposes, we'll use the file name or preview URL
+      const newEvent = { 
+        id: Date.now(), 
+        title: data.title,
+        date: data.date,
+        location: data.location,
+        category: data.category,
+        price: data.price
+      };
+      
+      // Add event to the list
+      onEventAdded(newEvent);
+      
+      toast({
+        title: "Event created",
+        description: `Successfully created ${data.title}`
+      });
+      
+      // Reset form and dialog state
+      setIsDialogOpen(false);
+      form.reset();
+    } catch (error) {
+      console.error("Error creating event:", error);
+      toast({
+        title: "Error",
+        description: "Failed to create event",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -95,25 +105,27 @@ export function AddEventDialog({ onEventAdded, adminEmail }: AddEventDialogProps
           Add Event
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[625px]">
+      <DialogContent className="sm:max-w-[625px] max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>Add New Event</DialogTitle>
           <DialogDescription>
             Create a new event for Maabara Online. Fill in all the required fields below.
           </DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <EventFormFields form={form} />
-            <EventImageUpload form={form} />
-            
-            <DialogFooter>
-              <Button type="submit" disabled={formState.isSubmitting}>
-                {formState.isSubmitting ? "Creating..." : "Create Event"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+        <ScrollArea className="max-h-[calc(90vh-180px)] pr-4">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <EventFormFields form={form} />
+              <EventImageUpload form={form} />
+              
+              <DialogFooter className="pt-4 sticky bottom-0">
+                <Button type="submit" disabled={formState.isSubmitting}>
+                  {formState.isSubmitting ? "Creating..." : "Create Event"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
