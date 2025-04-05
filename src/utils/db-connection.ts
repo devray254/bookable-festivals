@@ -11,10 +11,16 @@ const API_BASE_URL = '';
 export const testConnection = async () => {
   try {
     console.log('Testing database connection to:', `${API_BASE_URL}/api/test-connection.php`);
-    const response = await fetch(`${API_BASE_URL}/api/test-connection.php`);
+    const response = await fetch(`${API_BASE_URL}/api/test-connection.php`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache'
+      }
+    });
     
     if (!response.ok) {
-      console.error('API health check failed');
+      console.error('API health check failed with status:', response.status);
       return false;
     }
     
@@ -37,6 +43,7 @@ export const query = async (sql: string, params?: any[]) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache'
       },
       body: JSON.stringify({
         sql,
@@ -45,12 +52,32 @@ export const query = async (sql: string, params?: any[]) => {
     });
     
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'Unknown database error' }));
-      throw new Error(errorData.message || 'Database query failed');
+      console.error('Query response not OK:', response.status, response.statusText);
+      const errorText = await response.text();
+      console.error('Error response:', errorText);
+      
+      try {
+        const errorData = JSON.parse(errorText);
+        throw new Error(errorData.message || 'Database query failed');
+      } catch (parseError) {
+        throw new Error(`Database query failed: ${errorText || response.statusText}`);
+      }
+    }
+    
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      console.error('Unexpected content type:', contentType);
+      const text = await response.text();
+      console.error('Non-JSON response:', text);
+      throw new Error('Unexpected response format from server');
     }
     
     const data = await response.json();
     console.log('Query response:', data);
+    
+    if (data.error) {
+      throw new Error(data.message || 'Database query failed');
+    }
     
     return data.result;
   } catch (error) {

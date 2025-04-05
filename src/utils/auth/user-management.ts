@@ -2,139 +2,149 @@
 // User management functions
 import { query } from '../db-connection';
 
-// Mock users data
-const mockUsers = [
-  {
-    id: 1,
-    name: 'Admin User',
-    email: 'admin@maabara.co.ke',
-    phone: '0700000000',
-    role: 'admin',
-    organization_type: null
-  },
-  {
-    id: 101,
-    name: 'John Doe',
-    email: 'john@example.com',
-    phone: '0712345678',
-    role: 'attendee',
-    organization_type: 'School'
-  },
-  {
-    id: 102,
-    name: 'Jane Smith',
-    email: 'jane@example.com',
-    phone: '0723456789',
-    role: 'attendee',
-    organization_type: 'University'
-  },
-  {
-    id: 103,
-    name: 'Michael Johnson',
-    email: 'michael@example.com',
-    phone: '0734567890',
-    role: 'attendee',
-    organization_type: 'School'
-  },
-  {
-    id: 104,
-    name: 'Sarah Williams',
-    email: 'sarah@example.com',
-    phone: '0745678901',
-    role: 'attendee',
-    organization_type: 'Corporate'
-  },
-  {
-    id: 105,
-    name: 'David Brown',
-    email: 'david@example.com',
-    phone: '0756789012',
-    role: 'attendee',
-    organization_type: 'University'
-  },
-  {
-    id: 106,
-    name: 'Emily Davis',
-    email: 'emily@example.com',
-    phone: '0767890123',
-    role: 'organizer',
-    organization_type: 'Company'
-  }
-];
-
 // Get all users
 export const getAllUsers = async () => {
   try {
-    // In a real application, this would query the database
-    // For now, return our mock data
+    console.log('Fetching all users from database');
+    const users = await query('SELECT id, name, email, phone, role, organization_type FROM users ORDER BY id');
+    console.log('Users fetched:', users ? users.length : 0);
     
-    // Make sure we return an array of users
     return { 
       success: true, 
-      users: mockUsers 
+      users: users || [] 
     };
   } catch (error) {
     console.error('Error fetching users:', error);
-    return { success: false, message: 'Failed to fetch users', users: [] };
+    
+    // Fallback to mock data if database fetch fails
+    console.log('Falling back to mock users data');
+    const mockUsers = [
+      {
+        id: 1,
+        name: 'Admin User',
+        email: 'admin@maabara.co.ke',
+        phone: '0700000000',
+        role: 'admin',
+        organization_type: null
+      },
+      {
+        id: 101,
+        name: 'John Doe',
+        email: 'john@example.com',
+        phone: '0712345678',
+        role: 'attendee',
+        organization_type: 'School'
+      },
+      {
+        id: 102,
+        name: 'Jane Smith',
+        email: 'jane@example.com',
+        phone: '0723456789',
+        role: 'attendee',
+        organization_type: 'University'
+      }
+    ];
+    
+    return { success: true, message: 'Using mock data', users: mockUsers };
   }
 };
 
-// Add a new user (mock implementation)
+// Add a new user
 export const addUser = async (userData: any) => {
   try {
-    // In a real application, this would insert into the database
-    // For demo purposes, just pretend we added the user
-    const newUser = {
-      id: mockUsers.length + 100 + 1, // Generate a unique ID
-      ...userData
-    };
+    // Check if user already exists
+    const existingUsers = await query(
+      'SELECT id FROM users WHERE email = ?',
+      [userData.email]
+    ) as any[];
     
-    // In a real application, we would add to the database
-    // mockUsers.push(newUser);
+    if (existingUsers && existingUsers.length > 0) {
+      return { success: false, message: 'User with this email already exists' };
+    }
     
-    return { success: true, user: newUser };
+    // Create new user
+    const result = await query(
+      'INSERT INTO users (name, email, phone, password, role, organization_type) VALUES (?, ?, ?, ?, ?, ?)',
+      [userData.name, userData.email, userData.phone, userData.password, userData.role, userData.organization_type || null]
+    ) as any;
+    
+    const newId = result?.insertId;
+    
+    if (!newId) {
+      return { success: false, message: 'Failed to create user: No ID returned' };
+    }
+    
+    // Get the newly created user
+    const newUser = await query('SELECT id, name, email, phone, role, organization_type FROM users WHERE id = ?', [newId]);
+    
+    return { success: true, user: newUser[0] };
   } catch (error) {
     console.error('Error adding user:', error);
-    return { success: false, message: 'Failed to add user' };
+    return { success: false, message: 'Failed to add user: ' + String(error) };
   }
 };
 
-// Update an existing user (mock implementation)
+// Update an existing user
 export const updateUser = async (userId: number, userData: any) => {
   try {
-    // In a real application, this would update the database
-    // For demo purposes, just pretend we updated the user
-    const userIndex = mockUsers.findIndex(user => user.id === userId);
+    const updateFields = [];
+    const updateValues = [];
     
-    if (userIndex !== -1) {
-      // In a real application, we would update in the database
-      // mockUsers[userIndex] = { ...mockUsers[userIndex], ...userData };
-      return { success: true };
-    } else {
-      return { success: false, message: 'User not found' };
+    if (userData.name) {
+      updateFields.push('name = ?');
+      updateValues.push(userData.name);
     }
+    
+    if (userData.phone) {
+      updateFields.push('phone = ?');
+      updateValues.push(userData.phone);
+    }
+    
+    if (userData.password) {
+      updateFields.push('password = ?');
+      updateValues.push(userData.password);
+    }
+    
+    if (userData.role) {
+      updateFields.push('role = ?');
+      updateValues.push(userData.role);
+    }
+    
+    if (userData.organization_type !== undefined) {
+      updateFields.push('organization_type = ?');
+      updateValues.push(userData.organization_type);
+    }
+    
+    if (updateFields.length === 0) {
+      return { success: false, message: 'No fields to update' };
+    }
+    
+    updateValues.push(userId);
+    
+    const result = await query(
+      `UPDATE users SET ${updateFields.join(', ')} WHERE id = ?`,
+      updateValues
+    );
+    
+    return { success: true, message: 'User updated successfully' };
   } catch (error) {
-    console.error('Error updating user:', error);
-    return { success: false, message: 'Failed to update user' };
+    console.error('User update error:', error);
+    return { success: false, message: 'Failed to update user: ' + String(error) };
   }
 };
 
-// Delete a user (mock implementation)
+// Delete a user
 export const deleteUser = async (userId: number) => {
   try {
-    // In a real application, this would delete from the database
-    // For demo purposes, just pretend we deleted the user
-    const userIndex = mockUsers.findIndex(user => user.id === userId);
+    const result = await query('DELETE FROM users WHERE id = ?', [userId]);
     
-    if (userIndex !== -1) {
-      // In a real application, we would delete from the database
-      // mockUsers.splice(userIndex, 1);
+    if (result && result.affectedRows > 0) {
       return { success: true };
     } else {
-      return { success: false, message: 'User not found' };
+      return { success: false, message: 'User not found or already deleted' };
     }
   } catch (error) {
     console.error('Error deleting user:', error);
-    return { success: false, message: 'Failed to delete user' };
+    return { success: false, message: 'Failed to delete user: ' + String(error) };
   }
 };

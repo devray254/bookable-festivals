@@ -7,7 +7,12 @@ import { logActivity } from './logs';
 export const fetchEvents = async () => {
   try {
     console.log('Fetching events from database');
-    const events = await query('SELECT * FROM events ORDER BY date DESC');
+    const events = await query(`
+      SELECT e.*, c.name as category_name 
+      FROM events e
+      LEFT JOIN categories c ON e.category_id = c.id
+      ORDER BY date DESC
+    `);
     console.log('Events fetched:', events);
     return events || [];
   } catch (error) {
@@ -28,7 +33,7 @@ export const createEvent = async (eventData: any, adminEmail: string) => {
     
     const params = [
       eventData.title,
-      eventData.description,
+      eventData.description || '',
       eventData.date,
       eventData.location,
       eventData.price,
@@ -72,12 +77,12 @@ export const updateEvent = async (eventId: number, eventData: any, adminEmail: s
     
     const params = [
       eventData.title,
-      eventData.description,
+      eventData.description || '',
       eventData.date,
       eventData.location,
       eventData.price,
       eventData.category_id || 1,
-      eventData.image_url,
+      eventData.image_url || '/placeholder.svg',
       eventId
     ];
     

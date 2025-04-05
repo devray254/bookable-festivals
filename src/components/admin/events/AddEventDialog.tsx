@@ -13,12 +13,13 @@ import {
   DialogTrigger 
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import { Form } from "@/components/ui/form";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { EventFormFields } from "./EventFormFields";
 import { EventImageUpload } from "./EventImageUpload";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { createEvent } from "@/utils/events";
 
 // Define the validation schema with Zod
 const eventFormSchema = z.object({
@@ -42,7 +43,7 @@ interface AddEventDialogProps {
 
 export function AddEventDialog({ onEventAdded, adminEmail }: AddEventDialogProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventFormSchema),
@@ -65,35 +66,46 @@ export function AddEventDialog({ onEventAdded, adminEmail }: AddEventDialogProps
     console.log("Form submitted:", data);
     console.log("Admin email:", adminEmail); // Log the admin email
     
+    setIsSubmitting(true);
+    
     try {
-      // For demonstration purposes, we'll use the file name or preview URL
-      const newEvent = { 
-        id: Date.now(), 
+      // Create full date with time
+      const dateTime = new Date(`${data.date}T${data.time}`);
+      
+      // Format event data for the API
+      const eventData = {
         title: data.title,
-        date: data.date,
+        description: data.description,
+        date: dateTime.toISOString().split('T')[0], // YYYY-MM-DD
         location: data.location,
-        category: data.category,
-        price: data.price
+        category_id: parseInt(data.category),
+        price: data.price,
+        image_url: data.image || '/placeholder.svg'
       };
       
-      // Add event to the list
-      onEventAdded(newEvent);
+      // Send to server
+      const result = await createEvent(eventData, adminEmail || 'admin@maabara.co.ke');
       
-      toast({
-        title: "Event created",
-        description: `Successfully created ${data.title}`
-      });
-      
-      // Reset form and dialog state
-      setIsDialogOpen(false);
-      form.reset();
+      if (result.success) {
+        toast.success(`Successfully created ${data.title}`);
+        
+        // Add event to the list with the new ID
+        onEventAdded({
+          id: result.id,
+          ...eventData
+        });
+        
+        // Reset form and dialog state
+        setIsDialogOpen(false);
+        form.reset();
+      } else {
+        toast.error(result.message || "Failed to create event");
+      }
     } catch (error) {
       console.error("Error creating event:", error);
-      toast({
-        title: "Error",
-        description: "Failed to create event",
-        variant: "destructive"
-      });
+      toast.error("Failed to create event");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -119,8 +131,15 @@ export function AddEventDialog({ onEventAdded, adminEmail }: AddEventDialogProps
               <EventImageUpload form={form} />
               
               <DialogFooter className="pt-4 sticky bottom-0">
-                <Button type="submit" disabled={formState.isSubmitting}>
-                  {formState.isSubmitting ? "Creating..." : "Create Event"}
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Creating...
+                    </>
+                  ) : (
+                    "Create Event"
+                  )}
                 </Button>
               </DialogFooter>
             </form>

@@ -15,7 +15,9 @@ CREATE TABLE IF NOT EXISTS users (
     role VARCHAR(20) NOT NULL,
     organization_type VARCHAR(50) NULL,
     reset_token VARCHAR(100) NULL,
-    reset_token_expires DATETIME NULL
+    reset_token_expires DATETIME NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- Activity logs table
@@ -29,41 +31,48 @@ CREATE TABLE IF NOT EXISTS activity_logs (
     level VARCHAR(20) NOT NULL
 );
 
+-- Categories table
+CREATE TABLE IF NOT EXISTS categories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    description TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
 -- Events table
 CREATE TABLE IF NOT EXISTS events (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(100) NOT NULL,
     date DATE NOT NULL,
     location VARCHAR(100) NOT NULL,
-    category VARCHAR(50) NOT NULL,
     price DECIMAL(10,2) NOT NULL,
     description TEXT NOT NULL,
+    category_id INT NOT NULL,
+    image_url VARCHAR(255) DEFAULT '/placeholder.svg',
     has_webinar BOOLEAN DEFAULT FALSE,
     webinar_link VARCHAR(255) NULL,
-    webinar_time DATETIME NULL
-);
-
--- Categories table
-CREATE TABLE IF NOT EXISTS categories (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
-    description TEXT NOT NULL,
-    events INT DEFAULT 0
+    webinar_time DATETIME NULL,
+    created_by VARCHAR(100) NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (category_id) REFERENCES categories(id)
 );
 
 -- Bookings table
 CREATE TABLE IF NOT EXISTS bookings (
     id INT AUTO_INCREMENT PRIMARY KEY,
     event_id INT NOT NULL,
-    event VARCHAR(100) NOT NULL,
-    customer VARCHAR(100) NOT NULL,
-    email VARCHAR(100) NOT NULL,
-    phone VARCHAR(20) NOT NULL,
-    date DATE NOT NULL,
+    customer_name VARCHAR(100) NOT NULL,
+    customer_email VARCHAR(100) NOT NULL,
+    customer_phone VARCHAR(20) NOT NULL,
+    booking_date DATETIME NOT NULL,
     tickets INT NOT NULL,
-    total DECIMAL(10,2) NOT NULL,
-    status VARCHAR(20) NOT NULL,
+    total_amount DECIMAL(10,2) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'pending',
     webinar_access BOOLEAN DEFAULT FALSE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (event_id) REFERENCES events(id)
 );
 
@@ -71,13 +80,13 @@ CREATE TABLE IF NOT EXISTS bookings (
 CREATE TABLE IF NOT EXISTS payments (
     id VARCHAR(50) PRIMARY KEY,
     booking_id INT NOT NULL,
-    event VARCHAR(100) NOT NULL,
-    customer VARCHAR(100) NOT NULL,
-    phone VARCHAR(20) NOT NULL,
     amount DECIMAL(10,2) NOT NULL,
-    date DATETIME NOT NULL,
+    payment_date DATETIME NOT NULL,
     method VARCHAR(50) NOT NULL,
     status VARCHAR(20) NOT NULL,
+    transaction_code VARCHAR(50) NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (booking_id) REFERENCES bookings(id)
 );
 
@@ -104,6 +113,19 @@ CREATE TABLE IF NOT EXISTS mpesa_settings (
     last_updated DATETIME NOT NULL,
     updated_by VARCHAR(100) NOT NULL
 );
+
+-- Insert default categories if none exist
+INSERT INTO categories (name, description)
+SELECT 'Workshop', 'Technical hands-on workshops and training sessions'
+WHERE NOT EXISTS (SELECT 1 FROM categories LIMIT 1);
+
+INSERT INTO categories (name, description)
+SELECT 'Seminar', 'Educational seminars and presentations'
+WHERE NOT EXISTS (SELECT 2 FROM categories WHERE id = 2);
+
+INSERT INTO categories (name, description)
+SELECT 'Conference', 'Industry conferences and multi-day events'
+WHERE NOT EXISTS (SELECT 3 FROM categories WHERE id = 3);
 
 -- Insert default admin user if not exists
 INSERT IGNORE INTO users (id, name, email, phone, password, role) 

@@ -118,24 +118,6 @@ export const createUser = async (userData: any) => {
     };
   } catch (error) {
     console.error('User creation error:', error);
-    
-    // Fall back to mock registration for demo/testing purposes
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('Using mock registration for testing');
-      const mockId = Math.floor(Math.random() * 1000) + 100;
-      return { 
-        success: true, 
-        id: mockId,
-        user: {
-          id: mockId,
-          name: userData.name,
-          email: userData.email,
-          phone: userData.phone,
-          role: userData.userType
-        }
-      };
-    }
-    
-    return { success: false, message: 'Failed to create user' };
+    return { success: false, message: 'Failed to create user: ' + String(error) };
   }
 };

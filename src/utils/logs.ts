@@ -1,21 +1,35 @@
 
 // Logs related utilities
-import { logActivity as logActivityApi, fetchActivityLogs as fetchLogsApi } from './api';
 import { query } from './db-connection';
 
-// Use API for log activity in production, fallback to mock in development
+// Log activity directly to database
 export const logActivity = async (activity: any) => {
   console.log('Logging activity:', activity);
   
   try {
-    // Try using the API first
-    const apiResult = await logActivityApi(activity);
-    if (apiResult.success) {
-      return apiResult;
+    // First try via API
+    const apiUrl = './api/log-activity.php';
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache'
+        },
+        body: JSON.stringify(activity)
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          return result;
+        }
+      }
+    } catch (apiError) {
+      console.warn('API log request failed, falling back to direct query', apiError);
     }
     
-    // Fallback to mock if API fails
-    console.warn('API request failed, using mock data');
+    // Fallback to direct query if API fails
     const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
     
     const result = await query(
@@ -26,32 +40,44 @@ export const logActivity = async (activity: any) => {
     return { success: true, result };
   } catch (error) {
     console.error('Error logging activity:', error);
-    return { success: false, message: 'Failed to log activity' };
+    // Don't throw - just return failure
+    return { success: false, message: 'Failed to log activity: ' + String(error) };
   }
 };
 
-// Fetch activity logs from API or mock data
+// Fetch activity logs
 export const fetchActivityLogs = async () => {
   try {
-    // Try using the API first
-    const logs = await fetchLogsApi();
-    if (Array.isArray(logs) && logs.length > 0) {
-      return logs;
+    console.log('Fetching activity logs');
+    
+    // Try API first
+    const apiUrl = './api/logs.php';
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache'
+        }
+      });
+      
+      if (response.ok) {
+        const logs = await response.json();
+        if (Array.isArray(logs) && logs.length > 0) {
+          return logs;
+        }
+      }
+    } catch (apiError) {
+      console.warn('API logs request failed, falling back to direct query', apiError);
     }
     
-    // Fallback to mock if API fails
-    console.warn('API request failed or returned empty data, using mock data');
-    const mockLogs = await query(
-      'SELECT * FROM activity_logs ORDER BY timestamp DESC'
+    // Fallback to direct query
+    const logs = await query(
+      'SELECT * FROM activity_logs ORDER BY timestamp DESC LIMIT 100'
     );
     
-    // Ensure we always return an array of logs
-    if (Array.isArray(mockLogs)) {
-      return mockLogs;
-    } else {
-      console.error('Unexpected response format from logs query:', mockLogs);
-      return [];
-    }
+    // Ensure we always return an array
+    return Array.isArray(logs) ? logs : [];
   } catch (error) {
     console.error('Error fetching logs:', error);
     return [];

@@ -8,13 +8,13 @@ export const fetchCategories = async () => {
   try {
     console.log('Fetching categories from database');
     const categories = await query(`
-      SELECT c.*, COUNT(e.id) as events
+      SELECT c.*, COUNT(e.id) as events_count
       FROM categories c
       LEFT JOIN events e ON c.id = e.category_id
       GROUP BY c.id
       ORDER BY c.name
     `);
-    console.log('Categories fetched:', categories);
+    console.log('Categories fetched:', categories ? categories.length : 0);
     return categories || [];
   } catch (error) {
     console.error('Error fetching categories:', error);
@@ -65,7 +65,7 @@ export const updateCategory = async (categoryId: number, categoryData: any, admi
     
     const sql = `
       UPDATE categories 
-      SET name = ?, description = ?, updated_at = NOW()
+      SET name = ?, description = ?
       WHERE id = ?
     `;
     

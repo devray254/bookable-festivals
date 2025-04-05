@@ -20,16 +20,28 @@ export function DbConnectionTester() {
     setError(null);
     setRawResponse(null);
     try {
+      console.log('Testing database connection...');
       // Try to connect to the database using the API
       const result = await testConnection();
-      setTestResult(result);
+      console.log('Connection test result:', result);
+      setTestResult(result ? { success: true, message: 'Successfully connected to the database' } : null);
       
       if (!result) {
-        setError('Failed to connect to the database');
+        setError('Failed to connect to the database. Check console for details.');
       }
     } catch (err) {
+      console.error('Connection test error:', err);
       setError(err instanceof Error ? err.message : 'An unknown error occurred');
       setTestResult(null);
+      
+      // Try to capture raw response if available
+      if (err instanceof Error && err.cause) {
+        try {
+          setRawResponse(JSON.stringify(err.cause, null, 2));
+        } catch (e) {
+          // Ignore stringify errors
+        }
+      }
     } finally {
       setLoading(false);
     }
