@@ -3,6 +3,7 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/comp
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { UseFormReturn } from "react-hook-form";
+import { CategorySelect } from "./CategorySelect"; // Add the import for CategorySelect
 
 interface EventBasicInfoProps {
   form: UseFormReturn<any>;
