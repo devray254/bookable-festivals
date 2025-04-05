@@ -16,10 +16,21 @@ export {
 } from './auth';
 
 // Re-export events utilities
-export { fetchEvents, createEvent } from './events';
+export { 
+  fetchEvents, 
+  createEvent,
+  updateEvent,
+  deleteEvent,
+  getEventById
+} from './events';
 
 // Re-export categories utilities
-export { fetchCategories, createCategory } from './categories';
+export { 
+  fetchCategories, 
+  createCategory,
+  updateCategory,
+  deleteCategory
+} from './categories';
 
 // Re-export bookings utilities
 export { fetchBookings } from './bookings';

@@ -33,7 +33,7 @@ try {
     if (!empty($params)) {
         // Generate types string (s for string, i for integer, d for double)
         $types = '';
-        $bindParams = [$types];
+        $bindParams = [];
         
         foreach ($params as $param) {
             if (is_int($param)) {
@@ -46,10 +46,19 @@ try {
             $bindParams[] = $param;
         }
         
-        $bindParams[0] = $types;
-        
-        // Call bind_param with the dynamically created arguments
-        call_user_func_array([$stmt, 'bind_param'], $bindParams);
+        // Only bind parameters if we have any
+        if (!empty($types)) {
+            // Create a references array for bind_param
+            $bindParamsRef = [];
+            $bindParamsRef[] = $types;
+            
+            for ($i = 0; $i < count($bindParams); $i++) {
+                $bindParamsRef[] = &$bindParams[$i];
+            }
+            
+            // Call bind_param with the dynamically created references
+            call_user_func_array([$stmt, 'bind_param'], $bindParamsRef);
+        }
     }
     
     // Execute the statement

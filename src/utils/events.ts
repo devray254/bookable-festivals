@@ -1,54 +1,159 @@
 
 // Events related utilities
+import { query } from './db-connection';
 import { logActivity } from './logs';
-
-// Mock data for events
-const mockEvents = [
-  {
-    id: 1,
-    title: "Science Exhibition",
-    date: "2023-08-15",
-    location: "Main Hall",
-    category: "Science",
-    price: "500",
-    description: "Explore the wonders of science with interactive displays and demonstrations."
-  },
-  {
-    id: 2,
-    title: "Tech Workshop",
-    date: "2023-08-20",
-    location: "Lab 2",
-    category: "Technology",
-    price: "750",
-    description: "Learn about the latest technologies and how to use them in your projects."
-  }
-];
 
 // Fetch events from database
 export const fetchEvents = async () => {
-  return mockEvents;
+  try {
+    console.log('Fetching events from database');
+    const events = await query('SELECT * FROM events ORDER BY date DESC');
+    console.log('Events fetched:', events);
+    return events || [];
+  } catch (error) {
+    console.error('Error fetching events:', error);
+    return [];
+  }
 };
 
 // Create a new event
-export const createEvent = async (eventData: any) => {
-  console.log('Creating event:', eventData);
-  
-  // Simulate successful creation
-  const newId = mockEvents.length + 1;
-  const newEvent = {
-    id: newId,
-    ...eventData
-  };
-  
-  mockEvents.push(newEvent);
-  
-  // Log the activity
-  await logActivity({
-    action: 'Event Created',
-    user: 'admin@maabara.co.ke',
-    details: `Created new event: ${eventData.title}`,
-    level: 'info'
-  });
-  
-  return { success: true, id: newId };
+export const createEvent = async (eventData: any, adminEmail: string) => {
+  try {
+    console.log('Creating event:', eventData);
+    
+    const sql = `
+      INSERT INTO events (title, description, date, location, price, category_id, image_url, created_by)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    
+    const params = [
+      eventData.title,
+      eventData.description,
+      eventData.date,
+      eventData.location,
+      eventData.price,
+      eventData.category_id || 1, // Default to first category if not specified
+      eventData.image_url || '/placeholder.svg',
+      adminEmail
+    ];
+    
+    const result = await query(sql, params);
+    
+    if (result && result.insertId) {
+      // Log the activity
+      await logActivity({
+        action: 'Event Created',
+        user: adminEmail,
+        details: `Created new event: ${eventData.title}`,
+        level: 'info'
+      });
+      
+      return { success: true, id: result.insertId };
+    } else {
+      return { success: false, message: 'Failed to create event' };
+    }
+  } catch (error) {
+    console.error('Error creating event:', error);
+    return { success: false, message: String(error) };
+  }
+};
+
+// Update an existing event
+export const updateEvent = async (eventId: number, eventData: any, adminEmail: string) => {
+  try {
+    console.log('Updating event:', eventId, eventData);
+    
+    const sql = `
+      UPDATE events 
+      SET title = ?, description = ?, date = ?, location = ?, price = ?, 
+          category_id = ?, image_url = ?, updated_at = NOW()
+      WHERE id = ?
+    `;
+    
+    const params = [
+      eventData.title,
+      eventData.description,
+      eventData.date,
+      eventData.location,
+      eventData.price,
+      eventData.category_id || 1,
+      eventData.image_url,
+      eventId
+    ];
+    
+    const result = await query(sql, params);
+    
+    if (result && result.affectedRows > 0) {
+      // Log the activity
+      await logActivity({
+        action: 'Event Updated',
+        user: adminEmail,
+        details: `Updated event: ${eventData.title}`,
+        level: 'info'
+      });
+      
+      return { success: true };
+    } else {
+      return { success: false, message: 'Failed to update event or no changes made' };
+    }
+  } catch (error) {
+    console.error('Error updating event:', error);
+    return { success: false, message: String(error) };
+  }
+};
+
+// Delete an event
+export const deleteEvent = async (eventId: number, adminEmail: string) => {
+  try {
+    console.log('Deleting event:', eventId);
+    
+    // First get the event details for logging
+    const eventDetails = await query('SELECT title FROM events WHERE id = ?', [eventId]);
+    const eventTitle = eventDetails[0]?.title || 'Unknown event';
+    
+    const sql = 'DELETE FROM events WHERE id = ?';
+    const result = await query(sql, [eventId]);
+    
+    if (result && result.affectedRows > 0) {
+      // Log the activity
+      await logActivity({
+        action: 'Event Deleted',
+        user: adminEmail,
+        details: `Deleted event: ${eventTitle} (ID: ${eventId})`,
+        level: 'warning'
+      });
+      
+      return { success: true };
+    } else {
+      return { success: false, message: 'Event not found or already deleted' };
+    }
+  } catch (error) {
+    console.error('Error deleting event:', error);
+    return { success: false, message: String(error) };
+  }
+};
+
+// Get a single event by ID
+export const getEventById = async (eventId: number) => {
+  try {
+    console.log('Fetching event by ID:', eventId);
+    
+    const sql = `
+      SELECT e.*, c.name as category_name
+      FROM events e
+      LEFT JOIN categories c ON e.category_id = c.id
+      WHERE e.id = ?
+    `;
+    
+    const result = await query(sql, [eventId]);
+    
+    if (result && result.length > 0) {
+      return { success: true, event: result[0] };
+    } else {
+      return { success: false, message: 'Event not found' };
+    }
+  } catch (error) {
+    console.error('Error fetching event by ID:', error);
+    return { success: false, message: String(error) };
+  }
 };
