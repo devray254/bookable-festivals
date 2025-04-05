@@ -4,9 +4,14 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UseFormReturn } from "react-hook-form";
-import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { useEffect, useState } from "react";
+
+interface Category {
+  id: number;
+  name: string;
+}
 
 interface EventFormFieldsProps {
   form: UseFormReturn<any>;
@@ -15,6 +20,13 @@ interface EventFormFieldsProps {
 export function EventFormFields({ form }: EventFormFieldsProps) {
   // Watch the price type to conditionally show price field
   const priceType = form.watch("priceType") || "paid";
+  const [categories, setCategories] = useState<Category[]>([
+    { id: 1, name: 'Workshop' },
+    { id: 2, name: 'Seminar' },
+    { id: 3, name: 'Conference' },
+    { id: 4, name: 'Exhibition' },
+    { id: 5, name: 'Hackathon' }
+  ]);
   
   return (
     <>
@@ -45,10 +57,11 @@ export function EventFormFields({ form }: EventFormFieldsProps) {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="science">Science</SelectItem>
-                  <SelectItem value="technology">Technology</SelectItem>
-                  <SelectItem value="engineering">Engineering</SelectItem>
-                  <SelectItem value="mathematics">Mathematics</SelectItem>
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} value={String(category.id)}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <FormMessage />

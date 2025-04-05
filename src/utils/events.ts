@@ -7,11 +7,12 @@ import { logActivity } from './logs';
 export const fetchEvents = async () => {
   try {
     console.log('Fetching events from database');
+    // Updated SQL query to match the actual database structure
     const events = await query(`
       SELECT e.*, c.name as category_name 
       FROM events e
       LEFT JOIN categories c ON e.category_id = c.id
-      ORDER BY date DESC
+      ORDER BY e.date DESC
     `);
     console.log('Events fetched:', events);
     return events || [];

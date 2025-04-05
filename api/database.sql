@@ -45,8 +45,10 @@ CREATE TABLE IF NOT EXISTS events (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(100) NOT NULL,
     date DATE NOT NULL,
+    time TIME NOT NULL,
     location VARCHAR(100) NOT NULL,
     price DECIMAL(10,2) NOT NULL,
+    is_free BOOLEAN DEFAULT FALSE,
     description TEXT NOT NULL,
     category_id INT NOT NULL,
     image_url VARCHAR(255) DEFAULT '/placeholder.svg',
@@ -63,6 +65,7 @@ CREATE TABLE IF NOT EXISTS events (
 CREATE TABLE IF NOT EXISTS bookings (
     id INT AUTO_INCREMENT PRIMARY KEY,
     event_id INT NOT NULL,
+    user_id INT NOT NULL,
     customer_name VARCHAR(100) NOT NULL,
     customer_email VARCHAR(100) NOT NULL,
     customer_phone VARCHAR(20) NOT NULL,
@@ -71,9 +74,12 @@ CREATE TABLE IF NOT EXISTS bookings (
     total_amount DECIMAL(10,2) NOT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'pending',
     webinar_access BOOLEAN DEFAULT FALSE,
+    attendance_status ENUM('attended', 'partial', 'absent', 'unverified') DEFAULT 'unverified',
+    certificate_enabled BOOLEAN DEFAULT FALSE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (event_id) REFERENCES events(id)
+    FOREIGN KEY (event_id) REFERENCES events(id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 -- Payments table
@@ -85,9 +91,13 @@ CREATE TABLE IF NOT EXISTS payments (
     method VARCHAR(50) NOT NULL,
     status VARCHAR(20) NOT NULL,
     transaction_code VARCHAR(50) NULL,
+    user_id INT NOT NULL,
+    event_id INT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (booking_id) REFERENCES bookings(id)
+    FOREIGN KEY (booking_id) REFERENCES bookings(id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (event_id) REFERENCES events(id)
 );
 
 -- Payment logs table for M-Pesa transaction logging
