@@ -1,8 +1,14 @@
 
-import { generateUniqueId } from "../database";
 import { getBookingById, getBookingsByEventId } from "../bookings";
 import { logActivity } from "../logs";
 import { getPaidUsersForEvent } from "../payments/verification";
+
+// Generate a unique ID for certificates
+const generateUniqueId = (): string => {
+  const timestamp = Date.now().toString(36);
+  const randomStr = Math.random().toString(36).substring(2, 8);
+  return `CERT-${timestamp}-${randomStr}`.toUpperCase();
+};
 
 // Generate a certificate for a user for an event
 export const generateCertificate = async (eventId: number, userId: number, adminEmail: string) => {
