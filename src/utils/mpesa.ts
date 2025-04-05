@@ -51,6 +51,9 @@ export const initiateSTKPush = async (phone: string, amount: number, eventTitle:
     const timestamp = new Date().toISOString().replace(/[-:\.]/g, "").slice(0, 14);
     const password = btoa(`${settings.shortcode}${settings.passkey}${timestamp}`);
     
+    // Generate a unique request ID for tracking this transaction
+    const requestId = `REQ-${Math.random().toString(36).substring(2, 15)}`;
+    
     // Use PHP proxy to avoid CORS issues - use correct relative path
     const response = await fetch("./api/mpesa-stkpush.php", {
       method: "POST",
@@ -64,7 +67,8 @@ export const initiateSTKPush = async (phone: string, amount: number, eventTitle:
         accountReference: `Event-${eventTitle.substring(0, 10)}`,
         transactionDesc: `Payment for ${ticketQuantity} ticket(s) for ${eventTitle}`,
         timestamp,
-        password
+        password,
+        requestId
       })
     });
     
@@ -86,7 +90,9 @@ export const initiateSTKPush = async (phone: string, amount: number, eventTitle:
           date: new Date().toISOString().split('T')[0],
           tickets: ticketQuantity,
           total: amount.toString(),
-          status: "pending"
+          status: "pending",
+          checkout_request_id: data.CheckoutRequestID,
+          merchant_request_id: data.MerchantRequestID
         })
       });
       
@@ -102,3 +108,25 @@ export const initiateSTKPush = async (phone: string, amount: number, eventTitle:
     throw error;
   }
 };
+
+// Function to check payment status by checkout request ID
+export const checkPaymentStatus = async (checkoutRequestId: string) => {
+  try {
+    const response = await fetch("./api/check-payment.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        checkout_request_id: checkoutRequestId
+      })
+    });
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error checking payment status:", error);
+    throw error;
+  }
+};
+

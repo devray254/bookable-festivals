@@ -16,6 +16,16 @@ interface MpesaSettingsFormProps {
   initialData: MpesaSettings | null;
 }
 
+// Generate default callback URL based on current domain
+const getDefaultCallbackUrl = () => {
+  if (typeof window !== 'undefined') {
+    // Get the base URL (protocol + domain)
+    const baseUrl = window.location.origin;
+    return `${baseUrl}/api/mpesa-callback.php`;
+  }
+  return 'https://example.com/callback';
+};
+
 // Sandbox test credentials
 const TEST_CREDENTIALS: MpesaFormValues = {
   consumer_key: "2sh7EgkM79EYKcAYsGZ9OAZlxgzXvDrG",
@@ -23,7 +33,7 @@ const TEST_CREDENTIALS: MpesaFormValues = {
   passkey: "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919",
   shortcode: "174379",
   environment: "sandbox",
-  callback_url: "https://example.com/callback"
+  callback_url: getDefaultCallbackUrl()
 };
 
 export function MpesaSettingsForm({ initialData }: MpesaSettingsFormProps) {
@@ -39,7 +49,7 @@ export function MpesaSettingsForm({ initialData }: MpesaSettingsFormProps) {
       passkey: initialData?.passkey || "",
       shortcode: initialData?.shortcode || "",
       environment: initialData?.environment || "sandbox",
-      callback_url: initialData?.callback_url || "https://example.com/callback"
+      callback_url: initialData?.callback_url || getDefaultCallbackUrl()
     }
   });
 
@@ -228,7 +238,8 @@ export function MpesaSettingsForm({ initialData }: MpesaSettingsFormProps) {
                   />
                 </FormControl>
                 <FormDescription>
-                  URL where M-Pesa will send payment notifications
+                  URL where M-Pesa will send payment notifications.
+                  Must be a public HTTPS URL that Safaricom can reach.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -237,9 +248,9 @@ export function MpesaSettingsForm({ initialData }: MpesaSettingsFormProps) {
         </div>
 
         <div className="bg-muted p-4 rounded-md mb-4">
-          <h3 className="text-sm font-medium mb-2">About Sandbox Testing</h3>
+          <h3 className="text-sm font-medium mb-2">About the Callback URL</h3>
           <p className="text-xs text-muted-foreground">
-            These are Safaricom's official test credentials for the Sandbox environment. They allow you to simulate M-Pesa transactions without using real money. For testing STK Push, use phone number 254708374149 with PIN 12345.
+            The callback URL must be a publicly accessible HTTPS endpoint. For production use, this should be your domain with the path to the mpesa-callback.php file. For testing, you can use a service like Ngrok to create a temporary public URL for your local environment.
           </p>
         </div>
 
