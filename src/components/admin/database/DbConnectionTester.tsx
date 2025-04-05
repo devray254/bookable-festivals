@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { testOnlineConnection } from '@/utils/db-connection';
+import { testConnection } from '@/utils/db-connection';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 
 import { LoadingIndicator } from './LoadingIndicator';
@@ -20,21 +20,15 @@ export function DbConnectionTester() {
     setError(null);
     setRawResponse(null);
     try {
-      // Try to connect to the database using the Node.js API
-      const result = await testOnlineConnection();
+      // Try to connect to the database using the API
+      const result = await testConnection();
       setTestResult(result);
       
-      if (!result.success) {
-        setError(result.message || 'Failed to connect to the database');
-        if (result.response) {
-          setRawResponse(result.response);
-        }
+      if (!result) {
+        setError('Failed to connect to the database');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unknown error occurred');
-      if (err instanceof Error && 'response' in err) {
-        setRawResponse((err as any).response);
-      }
       setTestResult(null);
     } finally {
       setLoading(false);
@@ -51,7 +45,7 @@ export function DbConnectionTester() {
         
         {loading ? null : (
           <>
-            {testResult && testResult.success ? (
+            {testResult ? (
               <ConnectionTestResult testResult={testResult} />
             ) : error ? (
               <ConnectionErrorDisplay error={error} rawResponse={rawResponse} />

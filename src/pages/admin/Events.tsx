@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { EventsList } from "@/components/admin/events/EventsList";
 import { AddEventDialog } from "@/components/admin/events/AddEventDialog";
-import { DbConnectionTester } from "@/components/admin/DbConnectionTester";
+import { DbConnectionTester } from "@/components/admin/database/DbConnectionTester";
 import { fetchEvents } from "@/utils/events";
 import { toast } from "sonner";
 import { RefreshCw, Search } from "lucide-react";
