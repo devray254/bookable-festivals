@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 // Database connection parameters
-$host = '92.113.28.141:3306'; // Online database server hostname
+$host = '92.113.28.141'; // Online database server hostname
 $user = 'u944702148_baraportal';  // Online database username
 $password = 'K@m1kaze.12.12!';    // Online database password
 $dbname = 'u944702148_maabaraonline';
