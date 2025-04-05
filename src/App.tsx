@@ -10,7 +10,6 @@ import Events from "./pages/Events";
 import EventDetail from "./pages/EventDetail";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Organizers from "./pages/Organizers";
 import UserProfile from "./pages/UserProfile";
 import NotFound from "./pages/NotFound";
 import AdminLogin from "./pages/AdminLogin";
@@ -27,6 +26,7 @@ import AboutUs from "./pages/AboutUs";
 import ContactUs from "./pages/ContactUs";
 import FAQ from "./pages/FAQ";
 import Terms from "./pages/Terms";
+import VirtualAcademy from "./pages/VirtualAcademy";
 
 // Create a function to get a new query client instance
 // This ensures a fresh QueryClient is created for each render
@@ -48,11 +48,11 @@ const App: React.FC = () => {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/profile" element={<UserProfile />} />
-              <Route path="/organizers" element={<Organizers />} />
               <Route path="/about" element={<AboutUs />} />
               <Route path="/contact" element={<ContactUs />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/terms" element={<Terms />} />
+              <Route path="/virtual-academy" element={<VirtualAcademy />} />
               
               {/* Admin Routes */}
               <Route path="/admin-portal" element={<AdminLogin />} />

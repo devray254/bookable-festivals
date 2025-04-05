@@ -44,8 +44,17 @@ export function Navbar() {
       <Link to="/events">
         <Button variant="ghost">Events</Button>
       </Link>
-      <Link to="/organizers">
-        <Button variant="ghost">Organizers</Button>
+      <Link to="/virtual-academy">
+        <Button variant="ghost">Virtual Academy</Button>
+      </Link>
+      <Link to="/about">
+        <Button variant="ghost">About Us</Button>
+      </Link>
+      <Link to="/contact">
+        <Button variant="ghost">Contact Us</Button>
+      </Link>
+      <Link to="/faq">
+        <Button variant="ghost">FAQs</Button>
       </Link>
     </>
   );
@@ -53,8 +62,8 @@ export function Navbar() {
   return (
     <nav className="bg-background border-b sticky top-0 z-10">
       <div className="container flex items-center justify-between py-4">
-        <Link to="/" className="text-xl font-bold">
-          Maabara Online
+        <Link to="/" className="flex items-center">
+          <img src="/logo.png" alt="Maabara Online Logo" className="h-10 mr-2" />
         </Link>
         
         {isMobile ? (
@@ -98,7 +107,16 @@ export function Navbar() {
                     <Link to="/events" className="flex items-center py-2 px-3 rounded-md hover:bg-muted">Events</Link>
                   </SheetClose>
                   <SheetClose asChild>
-                    <Link to="/organizers" className="flex items-center py-2 px-3 rounded-md hover:bg-muted">Organizers</Link>
+                    <Link to="/virtual-academy" className="flex items-center py-2 px-3 rounded-md hover:bg-muted">Virtual Academy</Link>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <Link to="/about" className="flex items-center py-2 px-3 rounded-md hover:bg-muted">About Us</Link>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <Link to="/contact" className="flex items-center py-2 px-3 rounded-md hover:bg-muted">Contact Us</Link>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <Link to="/faq" className="flex items-center py-2 px-3 rounded-md hover:bg-muted">FAQs</Link>
                   </SheetClose>
                   {!isLoggedIn && (
                     <SheetClose asChild>

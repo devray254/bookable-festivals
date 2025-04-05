@@ -17,10 +17,9 @@ export interface EventCardProps {
 }
 
 const EventCard = ({ id, title, image, date, time, location, price, is_free, category }: EventCardProps) => {
-  // Check if the event date is in the past
+  // Check if the event date is in the past using East Africa Time (EAT)
   const isPastEvent = () => {
-    // Parse the date string and compare with current date
-    // Handle multiple date formats (database format and display format)
+    // Parse the date string
     const eventDate = new Date(date);
     
     // If parsing failed, try to extract date parts manually
@@ -32,21 +31,34 @@ const EventCard = ({ id, title, image, date, time, location, price, is_free, cat
         const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         const monthIndex = months.findIndex(m => dateParts[0].includes(m));
         if (monthIndex !== -1) {
-          return new Date(parseInt(dateParts[2]), monthIndex, parseInt(dateParts[1])) < new Date();
+          return convertToEAT(new Date(parseInt(dateParts[2]), monthIndex, parseInt(dateParts[1]))) < convertToEAT(new Date());
         }
         
         // Handle numeric formats
-        return new Date(parseInt(dateParts[2]), parseInt(dateParts[1]) - 1, parseInt(dateParts[0])) < new Date();
+        return convertToEAT(new Date(parseInt(dateParts[2]), parseInt(dateParts[1]) - 1, parseInt(dateParts[0]))) < convertToEAT(new Date());
       }
     }
     
-    const today = new Date();
+    // Convert to East Africa Time for comparison
+    const eatEventDate = convertToEAT(eventDate);
+    const eatToday = convertToEAT(new Date());
     
     // Remove time part for accurate date comparison
-    eventDate.setHours(0, 0, 0, 0);
-    today.setHours(0, 0, 0, 0);
+    eatEventDate.setHours(0, 0, 0, 0);
+    eatToday.setHours(0, 0, 0, 0);
     
-    return eventDate < today;
+    return eatEventDate < eatToday;
+  };
+  
+  // Convert date to East Africa Time (EAT is UTC+3)
+  const convertToEAT = (date: Date) => {
+    const eatDate = new Date(date);
+    // Get UTC time in milliseconds
+    const utcTime = date.getTime() + (date.getTimezoneOffset() * 60000);
+    // EAT is UTC+3
+    const eatTime = utcTime + (3 * 3600000);
+    eatDate.setTime(eatTime);
+    return eatDate;
   };
   
   const pastEvent = isPastEvent();

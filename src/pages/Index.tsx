@@ -8,40 +8,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import EventCard from "@/components/events/EventCard";
 import { fetchCategories } from "@/utils/categories";
-
-// Mock data for featured events
-const featuredEvents = [
-  {
-    id: 1,
-    title: "Tech Conference 2023",
-    image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=80",
-    date: "Oct 15, 2023",
-    time: "09:00 AM - 05:00 PM",
-    location: "Nairobi Convention Center",
-    price: 2500,
-    category: "Technology"
-  },
-  {
-    id: 2,
-    title: "Music Festival",
-    image: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=80",
-    date: "Nov 5, 2023",
-    time: "04:00 PM - 11:00 PM",
-    location: "Uhuru Gardens",
-    price: 1500,
-    category: "Music"
-  },
-  {
-    id: 3,
-    title: "Food & Wine Expo",
-    image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=80",
-    date: "Dec 10, 2023",
-    time: "11:00 AM - 07:00 PM",
-    location: "Westlands Food Court",
-    price: 1000,
-    category: "Food & Drink"
-  }
-];
+import { fetchEvents } from "@/utils/events";
 
 // Define Category type
 interface Category {
@@ -50,10 +17,27 @@ interface Category {
   events_count?: number;
 }
 
+// Define Event type
+interface Event {
+  id: number;
+  title: string;
+  description?: string;
+  date: string;
+  time?: string;
+  location: string;
+  price: number;
+  is_free?: number;
+  category_id: number;
+  category_name?: string;
+  image_url?: string;
+}
+
 const Index = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [isLoadingEvents, setIsLoadingEvents] = useState(true);
   
   // Load categories on component mount
   useEffect(() => {
@@ -74,6 +58,69 @@ const Index = () => {
     
     loadCategories();
   }, []);
+
+  // Load events on component mount
+  useEffect(() => {
+    const loadEvents = async () => {
+      setIsLoadingEvents(true);
+      try {
+        const eventsData = await fetchEvents();
+        setEvents(eventsData);
+        console.log('Events loaded on homepage:', eventsData);
+      } catch (error) {
+        console.error("Error loading events:", error);
+        setEvents([]);
+      } finally {
+        setIsLoadingEvents(false);
+      }
+    };
+    
+    loadEvents();
+  }, []);
+
+  // Filter upcoming and past events based on East Africa Time (EAT)
+  const { upcomingEvents, pastEvents } = separateEventsByDate(events);
+
+  // Function to convert date to East Africa Time and separate events
+  function separateEventsByDate(allEvents: Event[]) {
+    const now = new Date();
+    const eatNow = convertToEAT(now);
+    eatNow.setHours(0, 0, 0, 0); // Remove time component for date comparison
+
+    const upcoming: Event[] = [];
+    const past: Event[] = [];
+
+    allEvents.forEach(event => {
+      const eventDate = new Date(event.date);
+      const eatEventDate = convertToEAT(eventDate);
+      eatEventDate.setHours(0, 0, 0, 0); // Remove time component for date comparison
+
+      if (eatEventDate >= eatNow) {
+        upcoming.push(event);
+      } else {
+        past.push(event);
+      }
+    });
+
+    // Sort upcoming events by date (closest first)
+    upcoming.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    
+    // Sort past events by date (most recent first)
+    past.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    return { upcomingEvents: upcoming, pastEvents: past };
+  }
+
+  // Convert date to East Africa Time (EAT is UTC+3)
+  function convertToEAT(date: Date) {
+    const eatDate = new Date(date);
+    // Get UTC time in milliseconds
+    const utcTime = date.getTime() + (date.getTimezoneOffset() * 60000);
+    // EAT is UTC+3
+    const eatTime = utcTime + (3 * 3600000);
+    eatDate.setTime(eatTime);
+    return eatDate;
+  }
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -83,6 +130,13 @@ const Index = () => {
       <div className="bg-gradient-to-r from-eventPurple-700 to-eventPurple-900 text-white py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
+            <div className="flex justify-center mb-6">
+              <img 
+                src="/logo.png" 
+                alt="Maabara Online Logo" 
+                className="h-24 md:h-32" 
+              />
+            </div>
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
               Discover & Book Amazing Events
             </h1>
@@ -109,6 +163,45 @@ const Index = () => {
           </div>
         </div>
       </div>
+      
+      {/* Upcoming Events Section */}
+      <section className="py-12">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold">Upcoming Events</h2>
+            <Link to="/events" className="text-eventPurple-700 hover:underline font-medium">
+              View All Events →
+            </Link>
+          </div>
+          
+          {isLoadingEvents ? (
+            <div className="text-center py-12">
+              <p className="text-gray-600">Loading events...</p>
+            </div>
+          ) : upcomingEvents.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {upcomingEvents.slice(0, 3).map((event) => (
+                <EventCard 
+                  key={event.id} 
+                  id={event.id}
+                  title={event.title} 
+                  image={event.image_url || '/placeholder.svg'} 
+                  date={new Date(event.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} 
+                  time={event.time || '00:00'} 
+                  location={event.location} 
+                  price={event.price} 
+                  category={event.category_name || `Category ${event.category_id}`}
+                  is_free={event.is_free === 1}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 bg-gray-50 rounded-lg">
+              <p className="text-gray-600">No upcoming events found</p>
+            </div>
+          )}
+        </div>
+      </section>
       
       {/* Categories Section */}
       <section className="py-12 bg-gray-50">
@@ -157,53 +250,42 @@ const Index = () => {
         </div>
       </section>
       
-      {/* Featured Events Section */}
+      {/* Past Events Section */}
       <section className="py-12">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold">Featured Events</h2>
-            <Link to="/events" className="text-eventPurple-700 hover:underline font-medium">
-              View All Events →
+            <h2 className="text-2xl md:text-3xl font-bold">Past Events</h2>
+            <Link to="/events?past=true" className="text-eventPurple-700 hover:underline font-medium">
+              View All Past Events →
             </Link>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featuredEvents.map((event) => (
-              <EventCard key={event.id} {...event} />
-            ))}
-          </div>
-        </div>
-      </section>
-      
-      {/* Create Events Section */}
-      <section className="py-12 bg-eventPurple-50">
-        <div className="container mx-auto px-4">
-          <div className="rounded-xl bg-white overflow-hidden shadow-lg">
-            <div className="md:flex">
-              <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
-                <h2 className="text-2xl md:text-3xl font-bold mb-4">
-                  Want to host your own event?
-                </h2>
-                <p className="text-gray-600 mb-6">
-                  Create and manage your events, sell tickets and connect with attendees. Our platform makes it easy to organize successful events.
-                </p>
-                <div>
-                  <Link to="/organizers">
-                    <Button className="bg-eventPurple-700 hover:bg-eventPurple-800">
-                      Become an Organizer
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-              <div className="md:w-1/2">
-                <img 
-                  src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=80" 
-                  alt="Event organizing" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
+          {isLoadingEvents ? (
+            <div className="text-center py-12">
+              <p className="text-gray-600">Loading events...</p>
             </div>
-          </div>
+          ) : pastEvents.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {pastEvents.slice(0, 3).map((event) => (
+                <EventCard 
+                  key={event.id} 
+                  id={event.id}
+                  title={event.title} 
+                  image={event.image_url || '/placeholder.svg'} 
+                  date={new Date(event.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} 
+                  time={event.time || '00:00'} 
+                  location={event.location} 
+                  price={event.price} 
+                  category={event.category_name || `Category ${event.category_id}`}
+                  is_free={event.is_free === 1}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 bg-gray-50 rounded-lg">
+              <p className="text-gray-600">No past events found</p>
+            </div>
+          )}
         </div>
       </section>
       
