@@ -12,8 +12,8 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { CalendarIcon, MapPinIcon, Search, SlidersHorizontal, RefreshCw } from "lucide-react";
 import { fetchEvents } from "@/utils/events";
+import { fetchCategories } from "@/utils/categories";
 import { checkInactivity } from "@/utils/db-connection";
-import { mockCategories } from "@/utils/mock-data";
 
 // Define Event type
 interface Event {
@@ -30,6 +30,14 @@ interface Event {
   image_url?: string;
 }
 
+// Define Category type
+interface Category {
+  id: number;
+  name: string;
+  description?: string;
+  events_count?: number;
+}
+
 const Events = () => {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -42,7 +50,8 @@ const Events = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [categories, setCategories] = useState(mockCategories);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
   
   // Restore session state from sessionStorage
   useEffect(() => {
@@ -95,9 +104,25 @@ const Events = () => {
     }
   };
   
-  // Load events on component mount
+  // Load categories from database
+  const loadCategories = async () => {
+    setLoadingCategories(true);
+    try {
+      const categoriesData = await fetchCategories();
+      setCategories(categoriesData);
+      console.log('Categories loaded:', categoriesData);
+    } catch (error) {
+      console.error("Error loading categories:", error);
+      toast.error("Failed to load categories");
+    } finally {
+      setLoadingCategories(false);
+    }
+  };
+  
+  // Load events and categories on component mount
   useEffect(() => {
     loadEvents();
+    loadCategories();
   }, []);
   
   // Filter events based on search, category and price
@@ -182,18 +207,24 @@ const Events = () => {
                     </Label>
                   </div>
                   
-                  {categories.map(category => (
-                    <div key={category.id} className="flex items-center">
-                      <Checkbox 
-                        id={category.name} 
-                        checked={selectedCategory === category.name} 
-                        onCheckedChange={() => setSelectedCategory(selectedCategory === category.name ? "" : category.name)} 
-                      />
-                      <Label htmlFor={category.name} className="ml-2">
-                        {category.name}
-                      </Label>
-                    </div>
-                  ))}
+                  {loadingCategories ? (
+                    <div className="py-2 text-sm text-gray-500">Loading categories...</div>
+                  ) : categories.length > 0 ? (
+                    categories.map(category => (
+                      <div key={category.id} className="flex items-center">
+                        <Checkbox 
+                          id={`category-${category.id}`}
+                          checked={selectedCategory === category.name} 
+                          onCheckedChange={() => setSelectedCategory(selectedCategory === category.name ? "" : category.name)} 
+                        />
+                        <Label htmlFor={`category-${category.id}`} className="ml-2">
+                          {category.name} {category.events_count !== undefined && `(${category.events_count})`}
+                        </Label>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="py-2 text-sm text-gray-500">No categories found</div>
+                  )}
                 </div>
               </div>
               
@@ -238,12 +269,15 @@ const Events = () => {
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={loadEvents} 
-              disabled={isLoading}
+              onClick={() => {
+                loadEvents();
+                loadCategories();
+              }} 
+              disabled={isLoading || loadingCategories}
               className="flex items-center gap-2"
             >
-              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-              {isLoading ? 'Loading...' : 'Refresh'}
+              <RefreshCw className={`h-4 w-4 ${isLoading || loadingCategories ? 'animate-spin' : ''}`} />
+              {isLoading || loadingCategories ? 'Loading...' : 'Refresh'}
             </Button>
           </div>
           

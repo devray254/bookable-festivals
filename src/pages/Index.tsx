@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,7 @@ import { Search } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import EventCard from "@/components/events/EventCard";
+import { fetchCategories } from "@/utils/categories";
 
 // Mock data for featured events
 const featuredEvents = [
@@ -42,18 +43,37 @@ const featuredEvents = [
   }
 ];
 
-// Categories with icons (could use actual icons in a real app)
-const categories = [
-  { name: "Music", events: 42 },
-  { name: "Business", events: 38 },
-  { name: "Food & Drink", events: 26 },
-  { name: "Arts", events: 31 },
-  { name: "Sports", events: 19 },
-  { name: "Technology", events: 24 }
-];
+// Define Category type
+interface Category {
+  id: number;
+  name: string;
+  events_count?: number;
+}
 
 const Index = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+  
+  // Load categories on component mount
+  useEffect(() => {
+    const loadCategories = async () => {
+      setIsLoadingCategories(true);
+      try {
+        const categoriesData = await fetchCategories();
+        setCategories(categoriesData);
+        console.log('Categories loaded on homepage:', categoriesData);
+      } catch (error) {
+        console.error("Error loading categories:", error);
+        // Fallback to empty categories
+        setCategories([]);
+      } finally {
+        setIsLoadingCategories(false);
+      }
+    };
+    
+    loadCategories();
+  }, []);
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -98,21 +118,41 @@ const Index = () => {
           </h2>
           
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {categories.map((category) => (
-              <Link 
-                to={`/events?category=${category.name}`}
-                key={category.name}
-                className="bg-white rounded-lg p-4 text-center shadow-sm border border-gray-100 hover:shadow-md transition duration-200"
-              >
-                <div className="w-12 h-12 bg-eventPurple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-eventPurple-700 font-bold">
-                    {category.name.charAt(0)}
-                  </span>
+            {isLoadingCategories ? (
+              // Loading state
+              Array(6).fill(0).map((_, index) => (
+                <div 
+                  key={index}
+                  className="bg-white rounded-lg p-4 text-center shadow-sm border border-gray-100 animate-pulse"
+                >
+                  <div className="w-12 h-12 bg-gray-200 rounded-full mx-auto mb-3"></div>
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto mb-2"></div>
+                  <div className="h-3 bg-gray-100 rounded w-1/2 mx-auto"></div>
                 </div>
-                <h3 className="font-medium text-gray-800">{category.name}</h3>
-                <p className="text-sm text-gray-500">{category.events} events</p>
-              </Link>
-            ))}
+              ))
+            ) : categories.length > 0 ? (
+              // Show real categories
+              categories.map((category) => (
+                <Link 
+                  to={`/events?category=${category.name}`}
+                  key={category.id}
+                  className="bg-white rounded-lg p-4 text-center shadow-sm border border-gray-100 hover:shadow-md transition duration-200"
+                >
+                  <div className="w-12 h-12 bg-eventPurple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <span className="text-eventPurple-700 font-bold">
+                      {category.name.charAt(0)}
+                    </span>
+                  </div>
+                  <h3 className="font-medium text-gray-800">{category.name}</h3>
+                  <p className="text-sm text-gray-500">{category.events_count || 0} events</p>
+                </Link>
+              ))
+            ) : (
+              // Fallback for no categories
+              <div className="col-span-full text-center py-8 text-gray-500">
+                No categories available
+              </div>
+            )}
           </div>
         </div>
       </section>

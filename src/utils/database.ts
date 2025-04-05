@@ -12,7 +12,8 @@ export {
   createAdminUser,
   updateUser,
   resetUserPassword,
-  getAllUsers
+  getAllUsers,
+  addUser
 } from './auth';
 
 // Re-export events utilities
