@@ -75,6 +75,11 @@ const EventCard = ({ id, title, image, date, time, location, price, is_free, cat
             <Badge className="bg-green-500 hover:bg-green-600">Free</Badge>
           </div>
         )}
+        {pastEvent && (
+          <div className="absolute top-2 left-2">
+            <Badge className="bg-gray-500 hover:bg-gray-600">Past Event</Badge>
+          </div>
+        )}
       </div>
       
       <div className="p-5">

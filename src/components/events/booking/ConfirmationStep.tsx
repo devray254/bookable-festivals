@@ -1,7 +1,8 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
+import { useNavigate } from "react-router-dom";
 
 interface ConfirmationStepProps {
   grandTotal: number;
@@ -9,7 +10,18 @@ interface ConfirmationStepProps {
 }
 
 const ConfirmationStep = ({ grandTotal, onClose }: ConfirmationStepProps) => {
+  const navigate = useNavigate();
   const transactionRef = `MP${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
+  
+  useEffect(() => {
+    // Set a short timeout before redirecting to profile
+    // This gives the user time to see the confirmation message
+    const redirectTimer = setTimeout(() => {
+      navigate('/profile');
+    }, 3000);
+    
+    return () => clearTimeout(redirectTimer);
+  }, [navigate]);
   
   return (
     <div className="grid gap-4 py-4">
@@ -29,14 +41,17 @@ const ConfirmationStep = ({ grandTotal, onClose }: ConfirmationStepProps) => {
         <p className="text-xs text-gray-500">
           A confirmation email has been sent to your registered email address.
         </p>
+        <p className="text-sm mt-4 text-eventPurple-700">
+          Redirecting to your profile in a moment...
+        </p>
       </div>
       
       <DialogFooter className="mt-4">
         <Button 
           className="w-full bg-eventPurple-700 hover:bg-eventPurple-800"
-          onClick={onClose}
+          onClick={() => navigate('/profile')}
         >
-          Done
+          Go to Profile
         </Button>
       </DialogFooter>
     </div>
