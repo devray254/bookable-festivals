@@ -3,6 +3,8 @@ import { AdminLayout } from "@/components/admin/AdminLayout";
 import { UserManagement } from "@/components/admin/users/UserManagement";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
+import { DataCard } from "@/components/admin/ui/DataCard";
+import { Users, UserCog, UserCheck, UserPlus } from "lucide-react";
 
 const AdminUsers = () => {
   return (
@@ -16,61 +18,35 @@ const AdminUsers = () => {
         </div>
         <Separator />
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Card className="col-span-1">
-            <CardContent className="py-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Total Users</p>
-                  <h3 className="text-2xl font-bold">256</h3>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <span className="text-primary font-semibold">+8%</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <DataCard 
+            label="Total Users"
+            value="256"
+            trend={{ value: 8, isPositive: true }}
+            icon={<Users className="h-5 w-5 text-primary" />}
+          />
           
-          <Card className="col-span-1">
-            <CardContent className="py-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Admin Users</p>
-                  <h3 className="text-2xl font-bold">12</h3>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center">
-                  <span className="text-purple-600 font-semibold">5%</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <DataCard 
+            label="Admin Users"
+            value="12"
+            trend={{ value: 0, isPositive: true }}
+            icon={<UserCog className="h-5 w-5 text-purple-600" />}
+            iconClassName="bg-purple-100"
+          />
           
-          <Card className="col-span-1">
-            <CardContent className="py-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Active Today</p>
-                  <h3 className="text-2xl font-bold">42</h3>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
-                  <span className="text-green-600 font-semibold">18%</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <DataCard 
+            label="Active Today"
+            value="42"
+            trend={{ value: 18, isPositive: true }}
+            icon={<UserCheck className="h-5 w-5 text-green-600" />}
+            iconClassName="bg-green-100"
+          />
           
-          <Card className="col-span-1">
-            <CardContent className="py-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">New This Week</p>
-                  <h3 className="text-2xl font-bold">24</h3>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
-                  <span className="text-blue-600 font-semibold">+14</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <DataCard 
+            label="New This Week"
+            value="24"
+            icon={<UserPlus className="h-5 w-5 text-blue-600" />}
+            iconClassName="bg-blue-100"
+          />
         </div>
         
         <Card>
