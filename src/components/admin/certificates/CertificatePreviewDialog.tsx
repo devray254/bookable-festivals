@@ -38,6 +38,13 @@ export function CertificatePreviewDialog({
         
         <div className="bg-white p-6 border rounded-md shadow-sm">
           <div className="certificate-content whitespace-pre-line">
+            <div className="flex justify-center mb-4">
+              <img 
+                src="/lovable-uploads/624a13a0-9731-45c5-a0dd-e552425a8c41.png" 
+                alt="Maabara Online Logo" 
+                className="h-12 object-contain" 
+              />
+            </div>
             {previewCertificate?.content}
           </div>
         </div>

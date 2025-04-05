@@ -16,10 +16,32 @@ require_once 'db-config.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     try {
-        // Get optional limit parameter
+        // Get optional parameters
         $limit = isset($_GET['limit']) ? intval($_GET['limit']) : 100;
         if ($limit <= 0 || $limit > 1000) {
             $limit = 100; // Default or cap at 1000
+        }
+        
+        // Check if we need to get a specific log by ID
+        if (isset($_GET['id'])) {
+            $logId = intval($_GET['id']);
+            $stmt = $conn->prepare("SELECT * FROM activity_logs WHERE id = ?");
+            $stmt->bind_param("i", $logId);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            if ($row = $result->fetch_assoc()) {
+                echo json_encode($row);
+            } else {
+                http_response_code(404);
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Log not found'
+                ]);
+            }
+            $stmt->close();
+            $conn->close();
+            exit;
         }
         
         // Get logs from database

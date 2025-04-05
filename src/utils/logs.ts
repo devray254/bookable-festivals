@@ -83,3 +83,40 @@ export const fetchActivityLogs = async () => {
     return [];
   }
 };
+
+// Fetch a specific log by ID
+export const fetchLogById = async (logId: number) => {
+  try {
+    console.log('Fetching log details for ID:', logId);
+    
+    // Try API first
+    const apiUrl = `./api/logs.php?id=${logId}`;
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache'
+        }
+      });
+      
+      if (response.ok) {
+        const log = await response.json();
+        return log;
+      }
+    } catch (apiError) {
+      console.warn('API log details request failed, falling back to direct query', apiError);
+    }
+    
+    // Fallback to direct query
+    const log = await query(
+      'SELECT * FROM activity_logs WHERE id = ? LIMIT 1',
+      [logId]
+    );
+    
+    return Array.isArray(log) && log.length > 0 ? log[0] : null;
+  } catch (error) {
+    console.error('Error fetching log details:', error);
+    return null;
+  }
+};

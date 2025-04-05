@@ -59,6 +59,19 @@ export function CertificatesList({ eventId }: CertificatesListProps) {
     try {
       if (content && userName) {
         generateCertificatePDF(content, userName, certificateId);
+        
+        // Update certificate download status via API
+        fetch(`/api/get-certificate.php?id=${certificateId}&download=true`)
+          .then(response => {
+            if (!response.ok) {
+              console.warn("Failed to update certificate download status");
+            }
+            return response.json();
+          })
+          .catch(err => {
+            console.error("Error updating certificate status:", err);
+          });
+          
         return;
       }
 
@@ -81,6 +94,19 @@ export function CertificatesList({ eventId }: CertificatesListProps) {
       );
 
       generateCertificatePDF(certificateContent, certificate.user_name, certificate.id);
+      
+      // Update certificate download status via API
+      fetch(`/api/get-certificate.php?id=${certificateId}&download=true`)
+        .then(response => {
+          if (!response.ok) {
+            console.warn("Failed to update certificate download status");
+          }
+          return response.json();
+        })
+        .catch(err => {
+          console.error("Error updating certificate status:", err);
+        });
+      
       toast.success("Certificate downloaded successfully");
     } catch (error) {
       console.error("Error downloading certificate:", error);

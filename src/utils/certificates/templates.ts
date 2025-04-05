@@ -1,7 +1,7 @@
 
 // Certificate template functionality
 
-// Function to get certificate template content
+// Get certificate template content including the logo
 export const getCertificateTemplate = () => {
   return `
 Certificate of Participation
@@ -45,3 +45,6 @@ export const generateCertificateContent = (
     .replace('[Event Date]', eventDate)
     .replace('[Certificate Issued Date]', issuedDate);
 };
+
+// Template for actual certificate PDF
+export const logoPath = "/lovable-uploads/624a13a0-9731-45c5-a0dd-e552425a8c41.png";

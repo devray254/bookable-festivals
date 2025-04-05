@@ -1,6 +1,7 @@
 
 import jsPDF from "jspdf";
 import { toast } from "sonner";
+import { logoPath } from "./certificates/templates";
 
 export const generateCertificatePDF = (
   content: string, 
@@ -107,26 +108,37 @@ export const generateCertificatePDF = (
     
     addModernBorder();
     
+    // Add Maabara Online logo
+    const addLogo = () => {
+      try {
+        // Logo dimensions and position
+        const logoWidth = 55;
+        const logoHeight = 25;
+        const logoX = pageWidth / 2 - logoWidth / 2;
+        const logoY = margin + 15;
+        
+        // Add the image
+        pdf.addImage(logoPath, 'PNG', logoX, logoY, logoWidth, logoHeight);
+      } catch (error) {
+        console.error("Error adding logo to certificate:", error);
+        // Continue without logo if it fails
+      }
+    };
+    
+    // Add the logo
+    addLogo();
+    
     // Add header with logo-like styling
     const addHeader = () => {
-      // Company name styled as logo
-      pdf.setFillColor(115, 103, 240); // Purple
-      pdf.roundedRect(margin + 5, margin + 10, 55, 12, 6, 6, 'F');
-      
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFont("helvetica", "bold");
-      pdf.setFontSize(12);
-      pdf.text("MAABARA ONLINE", margin + 10, margin + 18.5);
-      
-      // Certificate title with modern styling
+      // Certificate title with modern styling - positioned below logo
       pdf.setFont("helvetica", "bold");
       pdf.setFontSize(36);
       pdf.setTextColor(66, 84, 102); // Dark slate blue
-      pdf.text("CERTIFICATE", pageWidth / 2, margin + 50, { align: "center" });
+      pdf.text("CERTIFICATE", pageWidth / 2, margin + 60, { align: "center" });
       
       pdf.setFontSize(24);
       pdf.setTextColor(115, 103, 240); // Purple
-      pdf.text("OF PARTICIPATION", pageWidth / 2, margin + 65, { align: "center" });
+      pdf.text("OF PARTICIPATION", pageWidth / 2, margin + 75, { align: "center" });
     };
     
     addHeader();
@@ -152,13 +164,13 @@ export const generateCertificatePDF = (
       pdf.setFont("helvetica", "normal");
       pdf.setFontSize(14);
       pdf.setTextColor(90, 90, 90);
-      pdf.text("This is to certify that", pageWidth / 2, margin + 85, { align: "center" });
+      pdf.text("This is to certify that", pageWidth / 2, margin + 95, { align: "center" });
       
       // Recipient name
       pdf.setFont("helvetica", "bold");
       pdf.setFontSize(28);
       pdf.setTextColor(45, 55, 72); // Dark slate gray
-      pdf.text(userName, pageWidth / 2, margin + 100, { align: "center" });
+      pdf.text(userName, pageWidth / 2, margin + 110, { align: "center" });
       
       // Add decorative line below name
       pdf.setDrawColor(115, 103, 240); // Purple
@@ -166,25 +178,25 @@ export const generateCertificatePDF = (
       const nameWidth = pdf.getTextWidth(userName);
       const lineStartX = (pageWidth - nameWidth) / 2 - 20;
       const lineEndX = (pageWidth + nameWidth) / 2 + 20;
-      pdf.line(lineStartX, margin + 105, lineEndX, margin + 105);
+      pdf.line(lineStartX, margin + 115, lineEndX, margin + 115);
       
       // Event participation text
       pdf.setFont("helvetica", "normal");
       pdf.setFontSize(14);
       pdf.setTextColor(90, 90, 90);
-      pdf.text("has successfully participated in the event titled", pageWidth / 2, margin + 120, { align: "center" });
+      pdf.text("has successfully participated in the event titled", pageWidth / 2, margin + 130, { align: "center" });
       
       // Event title
       pdf.setFont("helvetica", "bold");
       pdf.setFontSize(18);
       pdf.setTextColor(115, 103, 240); // Purple
-      pdf.text(`"${eventTitle}"`, pageWidth / 2, margin + 135, { align: "center" });
+      pdf.text(`"${eventTitle}"`, pageWidth / 2, margin + 145, { align: "center" });
       
       // Event date information
       pdf.setFont("helvetica", "normal");
       pdf.setFontSize(14);
       pdf.setTextColor(90, 90, 90);
-      pdf.text("held on", pageWidth / 2, margin + 150, { align: "center" });
+      pdf.text("held on", pageWidth / 2, margin + 160, { align: "center" });
       
       const formattedEventDate = new Date(eventDate).toLocaleDateString('en-US', {
         day: 'numeric', month: 'long', year: 'numeric'
@@ -193,18 +205,18 @@ export const generateCertificatePDF = (
       pdf.setFont("helvetica", "bold");
       pdf.setFontSize(16);
       pdf.setTextColor(66, 153, 225); // Blue
-      pdf.text(formattedEventDate, pageWidth / 2, margin + 165, { align: "center" });
+      pdf.text(formattedEventDate, pageWidth / 2, margin + 175, { align: "center" });
       
       // Organized by text
       pdf.setFont("helvetica", "normal");
       pdf.setFontSize(14);
       pdf.setTextColor(90, 90, 90);
-      pdf.text("organized by", pageWidth / 2, margin + 180, { align: "center" });
+      pdf.text("organized by", pageWidth / 2, margin + 190, { align: "center" });
       
       pdf.setFont("helvetica", "bold");
       pdf.setFontSize(16);
       pdf.setTextColor(45, 55, 72); // Dark slate gray
-      pdf.text("Maabara Online Limited", pageWidth / 2, margin + 195, { align: "center" });
+      pdf.text("Maabara Online Health CPD Provider", pageWidth / 2, margin + 205, { align: "center" });
     };
     
     addRecipientInfo();
