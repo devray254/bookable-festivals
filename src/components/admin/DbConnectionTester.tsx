@@ -41,7 +41,7 @@ export function DbConnectionTester() {
             <div className="flex items-center">
               <span className="font-semibold mr-2">Status:</span>
               {testResult.success ? (
-                <Badge variant="success" className="bg-green-500">Connected</Badge>
+                <Badge variant="default" className="bg-green-500 hover:bg-green-600">Connected</Badge>
               ) : (
                 <Badge variant="destructive">Failed</Badge>
               )}
