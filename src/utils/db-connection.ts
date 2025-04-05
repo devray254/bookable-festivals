@@ -17,6 +17,7 @@ export const testConnection = async () => {
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
       console.error('PHP execution issue: Server returned PHP code instead of executing it');
+      const text = await response.text();
       return false;
     }
     
@@ -41,7 +42,8 @@ export const testOnlineConnection = async () => {
       console.error('PHP execution issue: Server returned PHP code instead of executing it');
       const text = await response.text();
       console.error('Response:', text);
-      return { success: false, message: 'PHP execution failed - check server configuration', response: text };
+      // Return the raw PHP response to help with debugging
+      return text;
     }
     
     const data = await response.json();
@@ -49,7 +51,11 @@ export const testOnlineConnection = async () => {
     return data;
   } catch (error) {
     console.error('Online MySQL database connection test failed:', error);
-    return { success: false, message: error.message };
+    return { 
+      success: false, 
+      message: error instanceof Error ? error.message : String(error),
+      response: error instanceof Error && 'response' in error ? (error as any).response : null
+    };
   }
 };
 
@@ -75,7 +81,8 @@ export const query = async (sql: string, params?: any[]) => {
     // Check if response is actually JSON (PHP is executing properly)
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
-      console.error('PHP execution issue detected - response:', await response.text());
+      const text = await response.text();
+      console.error('PHP execution issue detected - response:', text);
       throw new Error('PHP execution failed - check server configuration');
     }
     
