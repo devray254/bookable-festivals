@@ -72,7 +72,7 @@ export default function AdminEvents() {
             >
               <RefreshCw className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
             </button>
-            <AddEventDialog onEventAdded={handleEventAdded} adminEmail={adminEmail} />
+            <AddEventDialog onEventAdded={handleEventAdded} />
           </div>
         </div>
         

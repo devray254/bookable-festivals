@@ -36,9 +36,10 @@ type EventFormData = z.infer<typeof eventFormSchema>;
 
 interface AddEventDialogProps {
   onEventAdded: (event: any) => void;
+  adminEmail?: string; // Make adminEmail optional
 }
 
-export function AddEventDialog({ onEventAdded }: AddEventDialogProps) {
+export function AddEventDialog({ onEventAdded, adminEmail }: AddEventDialogProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
   
@@ -61,6 +62,7 @@ export function AddEventDialog({ onEventAdded }: AddEventDialogProps) {
 
   const onSubmit = (data: EventFormData) => {
     console.log("Form submitted:", data);
+    console.log("Admin email:", adminEmail); // Log the admin email
     
     // For demonstration purposes, we'll use the file name or preview URL
     const newEvent = { 

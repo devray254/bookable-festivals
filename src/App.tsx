@@ -27,11 +27,12 @@ import ContactUs from "./pages/ContactUs";
 import FAQ from "./pages/FAQ";
 import Terms from "./pages/Terms";
 
-// Create a new query client
-const queryClient = new QueryClient();
-
-// Define App as a proper function component
+// Create a function to get a new query client instance
+// This ensures a fresh QueryClient is created for each render
 const App: React.FC = () => {
+  // Initialize the query client inside the component
+  const queryClient = new QueryClient();
+  
   return (
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
