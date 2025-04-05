@@ -12,7 +12,7 @@ header('Access-Control-Allow-Methods: GET');
 header('Access-Control-Allow-Headers: Content-Type');
 
 // Database connection parameters
-$host = '92.113.28.141';
+$host = 'https://lightgray-peafowl-752159.hostingersite.com/';
 $user = 'u944702148_baraportal';
 $password = 'K@m1kaze.12.12!';
 $dbname = 'u944702148_maabaraonline';
