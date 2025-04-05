@@ -8,11 +8,15 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// Database connection parameters - updated to match your online server
-$host = '92.113.28.141';
-$user = 'u944702148_baraportal';
-$password = 'K@m1kaze.12.12!';
-$dbname = 'u944702148_maabaraonline';
+// Database connection parameters - you should use config.php in production
+require_once 'db-config.php';
+
+// Use configuration from db-config.php which should be properly set up
+// This removes hardcoded credentials from this file for security reasons
+$host = DB_HOST;
+$user = DB_USER;
+$password = DB_PASSWORD;
+$dbname = DB_NAME;
 
 // Path to the SQL file
 $sqlFilePath = __DIR__ . '/database-with-mock-data.sql';

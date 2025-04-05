@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS activity_logs (
     level VARCHAR(20) NOT NULL
 );
 
--- Categories table
+-- Categories table - Must be created BEFORE events table
 CREATE TABLE IF NOT EXISTS categories (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
@@ -39,6 +39,15 @@ CREATE TABLE IF NOT EXISTS categories (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+-- Insert default categories - MUST happen BEFORE events table
+INSERT INTO categories (id, name, description) VALUES 
+(1, 'Workshop', 'Technical hands-on workshops and training sessions'),
+(2, 'Seminar', 'Educational seminars and presentations'),
+(3, 'Conference', 'Industry conferences and multi-day events'),
+(4, 'Exhibition', 'Science and technology exhibitions'),
+(5, 'Hackathon', 'Coding and technology competitions')
+ON DUPLICATE KEY UPDATE name = VALUES(name), description = VALUES(description);
 
 -- Events table
 CREATE TABLE IF NOT EXISTS events (
@@ -139,30 +148,18 @@ CREATE TABLE IF NOT EXISTS certificates (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
--- Insert default categories if none exist
-INSERT INTO categories (name, description)
-SELECT 'Workshop', 'Technical hands-on workshops and training sessions'
-WHERE NOT EXISTS (SELECT 1 FROM categories LIMIT 1);
-
-INSERT INTO categories (name, description)
-SELECT 'Seminar', 'Educational seminars and presentations'
-WHERE NOT EXISTS (SELECT 1 FROM categories WHERE id = 2);
-
-INSERT INTO categories (name, description)
-SELECT 'Conference', 'Industry conferences and multi-day events'
-WHERE NOT EXISTS (SELECT 1 FROM categories WHERE id = 3);
-
-INSERT INTO categories (name, description)
-SELECT 'Exhibition', 'Showcases and demonstrations of products and services'
-WHERE NOT EXISTS (SELECT 1 FROM categories WHERE id = 4);
-
-INSERT INTO categories (name, description)
-SELECT 'Hackathon', 'Competitive coding and problem solving events'
-WHERE NOT EXISTS (SELECT 1 FROM categories WHERE id = 5);
+-- Add indexes for common queries
+CREATE INDEX IF NOT EXISTS idx_certificates_event_id ON certificates(event_id);
+CREATE INDEX IF NOT EXISTS idx_certificates_user_id ON certificates(user_id);
+CREATE INDEX IF NOT EXISTS idx_bookings_user_id ON bookings(user_id);
+CREATE INDEX IF NOT EXISTS idx_bookings_event_id ON bookings(event_id);
+CREATE INDEX IF NOT EXISTS idx_payments_user_id ON payments(user_id);
+CREATE INDEX IF NOT EXISTS idx_payments_event_id ON payments(event_id);
 
 -- Insert default admin user if not exists
-INSERT IGNORE INTO users (id, name, email, phone, password, role) 
-VALUES (1, 'Admin User', 'admin@maabara.co.ke', '0700000000', 'admin123', 'admin');
+INSERT INTO users (id, name, email, phone, password, role) 
+VALUES (1, 'Admin User', 'admin@maabara.co.ke', '0700000000', 'admin123', 'admin')
+ON DUPLICATE KEY UPDATE id = id;
 
 -- Insert sample events
 INSERT INTO events (title, description, date, time, location, price, is_free, category_id, image_url, created_by)

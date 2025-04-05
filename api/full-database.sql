@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS activity_logs (
     level VARCHAR(20) NOT NULL
 );
 
--- Categories table
+-- Categories table - Must be created BEFORE events table
 CREATE TABLE IF NOT EXISTS categories (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
@@ -146,18 +146,20 @@ CREATE INDEX IF NOT EXISTS idx_bookings_event_id ON bookings(event_id);
 CREATE INDEX IF NOT EXISTS idx_payments_user_id ON payments(user_id);
 CREATE INDEX IF NOT EXISTS idx_payments_event_id ON payments(event_id);
 
--- Insert default categories
+-- Insert default categories - MUST happen BEFORE events table
 INSERT INTO categories (id, name, description)
 VALUES 
 (1, 'Workshop', 'Technical hands-on workshops and training sessions'),
 (2, 'Seminar', 'Educational seminars and presentations'),
 (3, 'Conference', 'Industry conferences and multi-day events'),
 (4, 'Exhibition', 'Science and technology exhibitions'),
-(5, 'Hackathon', 'Coding and technology competitions');
+(5, 'Hackathon', 'Coding and technology competitions')
+ON DUPLICATE KEY UPDATE name = VALUES(name), description = VALUES(description);
 
 -- Insert default admin user
 INSERT INTO users (id, name, email, phone, password, role) 
-VALUES (1, 'Admin User', 'admin@maabara.co.ke', '0700000000', 'admin123', 'admin');
+VALUES (1, 'Admin User', 'admin@maabara.co.ke', '0700000000', 'admin123', 'admin')
+ON DUPLICATE KEY UPDATE id = id;
 
 -- Insert mock users
 INSERT INTO users (id, name, email, phone, password, role) 
@@ -167,29 +169,32 @@ VALUES
 (4, 'Michael Johnson', 'michael@example.com', '0734567890', 'password123', 'attendee'),
 (5, 'Sarah Williams', 'sarah@example.com', '0745678901', 'password123', 'attendee'),
 (6, 'David Brown', 'david@example.com', '0756789012', 'password123', 'attendee'),
-(7, 'Emily Davis', 'emily@example.com', '0767890123', 'password123', 'attendee');
+(7, 'Emily Davis', 'emily@example.com', '0767890123', 'password123', 'attendee')
+ON DUPLICATE KEY UPDATE id = id;
 
 -- Insert mock events with both free and paid options
 INSERT INTO events (id, title, date, time, location, price, is_free, description, category_id, image_url, has_webinar, created_by) 
 VALUES 
-(1, 'Science Exhibition', '2025-07-15', '09:00:00', 'Nairobi Science Center', 750.00, FALSE, 'A comprehensive exhibition showcasing scientific innovations from across the country.', 4, '/placeholder.svg', TRUE, 'admin@maabara.co.ke'),
-(2, 'Tech Workshop', '2025-08-20', '10:00:00', 'Kenyatta University', 500.00, FALSE, 'Hands-on workshop on the latest technologies.', 1, '/placeholder.svg', TRUE, 'admin@maabara.co.ke'),
-(3, 'Chemistry Seminar', '2025-09-05', '14:00:00', 'University of Nairobi', 300.00, FALSE, 'Seminar on recent advancements in chemical sciences.', 2, '/placeholder.svg', FALSE, 'admin@maabara.co.ke'),
-(4, 'Data Science Bootcamp', '2025-10-10', '09:00:00', 'iHub, Nairobi', 1000.00, FALSE, 'Intensive bootcamp on data science fundamentals.', 1, '/placeholder.svg', TRUE, 'admin@maabara.co.ke'),
-(5, 'Free Coding Workshop', '2025-11-15', '13:00:00', 'JKUAT, Juja', 0.00, TRUE, 'Free workshop on coding basics for beginners.', 1, '/placeholder.svg', FALSE, 'admin@maabara.co.ke'),
-(6, 'Open Science Fair', '2025-12-01', '10:00:00', 'Sarit Center', 0.00, TRUE, 'Open science fair with demos and hands-on activities.', 4, '/placeholder.svg', FALSE, 'admin@maabara.co.ke');
+(1, 'Science Exhibition', '2025-07-15', '09:00:00', 'Nairobi Science Center', 750.00, 0, 'A comprehensive exhibition showcasing scientific innovations from across the country.', 4, '/placeholder.svg', 1, 'admin@maabara.co.ke'),
+(2, 'Tech Workshop', '2025-08-20', '10:00:00', 'Kenyatta University', 500.00, 0, 'Hands-on workshop on the latest technologies.', 1, '/placeholder.svg', 1, 'admin@maabara.co.ke'),
+(3, 'Chemistry Seminar', '2025-09-05', '14:00:00', 'University of Nairobi', 300.00, 0, 'Seminar on recent advancements in chemical sciences.', 2, '/placeholder.svg', 0, 'admin@maabara.co.ke'),
+(4, 'Data Science Bootcamp', '2025-10-10', '09:00:00', 'iHub, Nairobi', 1000.00, 0, 'Intensive bootcamp on data science fundamentals.', 1, '/placeholder.svg', 1, 'admin@maabara.co.ke'),
+(5, 'Free Coding Workshop', '2025-11-15', '13:00:00', 'JKUAT, Juja', 0.00, 1, 'Free workshop on coding basics for beginners.', 1, '/placeholder.svg', 0, 'admin@maabara.co.ke'),
+(6, 'Open Science Fair', '2025-12-01', '10:00:00', 'Sarit Center', 0.00, 1, 'Open science fair with demos and hands-on activities.', 4, '/placeholder.svg', 0, 'admin@maabara.co.ke')
+ON DUPLICATE KEY UPDATE id = id;
 
 -- Insert mock bookings
 INSERT INTO bookings (id, event_id, user_id, customer_name, customer_email, customer_phone, booking_date, tickets, total_amount, status, webinar_access, attendance_status) 
 VALUES 
-(1, 1, 2, 'John Doe', 'john@example.com', '0712345678', '2025-06-15 10:24:36', 1, 750.00, 'confirmed', TRUE, 'attended'),
-(2, 1, 3, 'Jane Smith', 'jane@example.com', '0723456789', '2025-06-17 14:15:22', 1, 750.00, 'confirmed', TRUE, 'attended'),
-(3, 1, 4, 'Michael Johnson', 'michael@example.com', '0734567890', '2025-06-18 09:45:12', 1, 750.00, 'confirmed', TRUE, 'partial'),
-(4, 2, 5, 'Sarah Williams', 'sarah@example.com', '0745678901', '2025-07-05 16:30:45', 1, 500.00, 'confirmed', TRUE, 'unverified'),
-(5, 2, 6, 'David Brown', 'david@example.com', '0756789012', '2025-07-10 11:20:18', 1, 500.00, 'confirmed', TRUE, 'unverified'),
-(6, 3, 7, 'Emily Davis', 'emily@example.com', '0767890123', '2025-08-01 08:15:30', 1, 300.00, 'confirmed', FALSE, 'unverified'),
-(7, 5, 2, 'John Doe', 'john@example.com', '0712345678', '2025-10-10 08:30:00', 1, 0.00, 'confirmed', FALSE, 'unverified'),
-(8, 6, 3, 'Jane Smith', 'jane@example.com', '0723456789', '2025-11-15 09:45:00', 2, 0.00, 'confirmed', FALSE, 'unverified');
+(1, 1, 2, 'John Doe', 'john@example.com', '0712345678', '2025-06-15 10:24:36', 1, 750.00, 'confirmed', 1, 'attended'),
+(2, 1, 3, 'Jane Smith', 'jane@example.com', '0723456789', '2025-06-17 14:15:22', 1, 750.00, 'confirmed', 1, 'attended'),
+(3, 1, 4, 'Michael Johnson', 'michael@example.com', '0734567890', '2025-06-18 09:45:12', 1, 750.00, 'confirmed', 1, 'partial'),
+(4, 2, 5, 'Sarah Williams', 'sarah@example.com', '0745678901', '2025-07-05 16:30:45', 1, 500.00, 'confirmed', 1, 'unverified'),
+(5, 2, 6, 'David Brown', 'david@example.com', '0756789012', '2025-07-10 11:20:18', 1, 500.00, 'confirmed', 1, 'unverified'),
+(6, 3, 7, 'Emily Davis', 'emily@example.com', '0767890123', '2025-08-01 08:15:30', 1, 300.00, 'confirmed', 0, 'unverified'),
+(7, 5, 2, 'John Doe', 'john@example.com', '0712345678', '2025-10-10 08:30:00', 1, 0.00, 'confirmed', 0, 'unverified'),
+(8, 6, 3, 'Jane Smith', 'jane@example.com', '0723456789', '2025-11-15 09:45:00', 2, 0.00, 'confirmed', 0, 'unverified')
+ON DUPLICATE KEY UPDATE id = id;
 
 -- Insert mock payments (only for paid events)
 INSERT INTO payments (id, booking_id, user_id, event_id, amount, payment_date, method, status, transaction_code) 
@@ -204,14 +209,15 @@ VALUES
 -- Insert mock certificates
 INSERT INTO certificates (id, event_id, user_id, issued_date, issued_by, sent_email, downloaded) 
 VALUES 
-('CERT-1-2-1695302400000', 1, 2, '2025-09-21 15:00:00', 'admin@maabara.co.ke', TRUE, TRUE),
-('CERT-1-3-1695302400001', 1, 3, '2025-09-21 15:05:00', 'admin@maabara.co.ke', TRUE, FALSE),
-('CERT-1-4-1695302400002', 1, 4, '2025-09-21 15:10:00', 'admin@maabara.co.ke', FALSE, FALSE);
+('CERT-1-2-1695302400000', 1, 2, '2025-09-21 15:00:00', 'admin@maabara.co.ke', 1, 1),
+('CERT-1-3-1695302400001', 1, 3, '2025-09-21 15:05:00', 'admin@maabara.co.ke', 1, 0),
+('CERT-1-4-1695302400002', 1, 4, '2025-09-21 15:10:00', 'admin@maabara.co.ke', 0, 0);
 
 -- Insert M-Pesa settings (sandbox test credentials)
 INSERT INTO mpesa_settings (id, consumer_key, consumer_secret, passkey, shortcode, environment, callback_url, last_updated, updated_by)
 VALUES 
-(1, '2sh7EgkM79EYKcAYsGZ9OAZlxgzXvDrG', 'F7jG9MnI3FppN8lY', 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919', '174379', 'sandbox', 'https://example.com/callback', NOW(), 'admin@maabara.co.ke');
+(1, '2sh7EgkM79EYKcAYsGZ9OAZlxgzXvDrG', 'F7jG9MnI3FppN8lY', 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919', '174379', 'sandbox', 'https://example.com/callback', NOW(), 'admin@maabara.co.ke')
+ON DUPLICATE KEY UPDATE id = id;
 
 -- Insert activity logs
 INSERT INTO activity_logs (id, timestamp, action, user, details, ip, level)
