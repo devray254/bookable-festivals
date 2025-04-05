@@ -75,7 +75,7 @@ const EventCard = ({ id, title, image, date, time, location, price, category }: 
         
         <Link to={`/events/${id}`}>
           {pastEvent ? (
-            <Button className="w-full bg-gray-400 hover:bg-gray-500 cursor-not-allowed" disabled>
+            <Button variant="secondary" className="w-full opacity-75 cursor-not-allowed" disabled>
               Event Completed
             </Button>
           ) : (

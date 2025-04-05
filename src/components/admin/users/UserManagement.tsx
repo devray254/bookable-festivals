@@ -11,6 +11,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { UserDetail } from "./UserDetail";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export function UserManagement() {
   const [users, setUsers] = useState<any[]>([]);
@@ -21,6 +22,7 @@ export function UserManagement() {
   const [searchQuery, setSearchQuery] = useState("");
   const [adminEmail, setAdminEmail] = useState('');
   const [userDetailOpen, setUserDetailOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   // Get admin email from localStorage
   useEffect(() => {
@@ -87,15 +89,17 @@ export function UserManagement() {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <Button variant="outline" onClick={fetchUsers} disabled={loading}>
+          <Button variant="outline" onClick={fetchUsers} disabled={loading} className={isMobile ? "w-full" : ""}>
             <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
-          <Button variant="outline">
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
-          <Button onClick={() => setAddDialogOpen(true)}>
+          {!isMobile && (
+            <Button variant="outline">
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </Button>
+          )}
+          <Button onClick={() => setAddDialogOpen(true)} className={isMobile ? "w-full" : ""}>
             <UserPlus className="h-4 w-4 mr-2" />
             Add User
           </Button>
