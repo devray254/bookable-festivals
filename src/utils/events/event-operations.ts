@@ -109,3 +109,38 @@ export const updateEvent = async (eventId: number, eventData: any, adminEmail: s
     return { success: false, message: String(error) };
   }
 };
+
+// Delete an event
+export const deleteEvent = async (eventId: number, adminEmail: string) => {
+  try {
+    console.log('Deleting event:', eventId);
+    
+    // Check if the event exists first
+    const checkSql = `SELECT * FROM events WHERE id = ?`;
+    const event = await query(checkSql, [eventId]);
+    
+    if (!event || event.length === 0) {
+      return { success: false, message: 'Event not found' };
+    }
+    
+    const sql = `DELETE FROM events WHERE id = ?`;
+    const result = await query(sql, [eventId]);
+    
+    if (result && result.affectedRows > 0) {
+      // Log the activity
+      await logActivity({
+        action: 'Event Deleted',
+        user: adminEmail,
+        details: `Deleted event with ID: ${eventId}`,
+        level: 'important'
+      });
+      
+      return { success: true };
+    } else {
+      return { success: false, message: 'Failed to delete event' };
+    }
+  } catch (error) {
+    console.error('Error deleting event:', error);
+    return { success: false, message: String(error) };
+  }
+};

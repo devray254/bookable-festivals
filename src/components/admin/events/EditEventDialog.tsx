@@ -92,7 +92,7 @@ export function EditEventDialog({ event, onEventUpdated, adminEmail }: EditEvent
       const result = await updateEvent(formData.id, {
         ...formData,
         created_by: adminEmail
-      });
+      }, adminEmail);
       
       if (result.success) {
         toast.success("Event updated successfully");
