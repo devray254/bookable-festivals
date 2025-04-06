@@ -4,6 +4,7 @@ import { fetchCertificatesByEvent, fetchCertificatesByUser } from './fetch-certi
 import { generateCertificate, generateBulkCertificates } from './generate-certificates';
 import { generateCertificateContent } from './templates';
 import { sendCertificateEmail, sendBulkCertificateEmails } from './email-certificates';
+import { Certificate } from './types';
 
 // Export all certificate functions
 export {
@@ -13,5 +14,6 @@ export {
   generateBulkCertificates,
   generateCertificateContent,
   sendCertificateEmail,
-  sendBulkCertificateEmails
+  sendBulkCertificateEmails,
+  Certificate
 };

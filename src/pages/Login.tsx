@@ -6,14 +6,26 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Navbar } from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { authenticateUser } from "@/utils/auth";
+import { authenticateUser, authenticateWithGmail } from "@/utils/auth";
+import { fetchGmailSettings } from "@/utils/gmail-settings";
 import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
+import { Mail } from "lucide-react";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isGmailLoading, setIsGmailLoading] = useState(false);
   const navigate = useNavigate();
+
+  // Fetch Gmail settings to check if Gmail login is enabled
+  const { data: gmailSettings } = useQuery({
+    queryKey: ['gmail-settings'],
+    queryFn: fetchGmailSettings
+  });
+
+  const isGmailEnabled = gmailSettings?.enabled;
 
   // Check if user is already logged in
   useEffect(() => {
@@ -60,6 +72,48 @@ const Login = () => {
       toast.error("An error occurred during login. Please try again.");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleGmailLogin = async () => {
+    setIsGmailLoading(true);
+    
+    try {
+      // In a real implementation, this would trigger Google OAuth flow
+      // For demo purposes, we'll simulate by passing the email as the token
+      const gmailToken = prompt("Enter your Gmail address to simulate Google Sign-In");
+      
+      if (!gmailToken) {
+        setIsGmailLoading(false);
+        return;
+      }
+      
+      const result = await authenticateWithGmail(gmailToken);
+      
+      if (result.success) {
+        toast.success("Gmail login successful!");
+        
+        // Store the user info in localStorage
+        localStorage.setItem('user', JSON.stringify(result.user));
+        
+        // Redirect based on user role
+        if (result.user.role === 'admin' || result.user.role === 'organizer') {
+          navigate('/admin');
+        } else {
+          navigate('/events');
+        }
+      } else if (result.newUser) {
+        // New user from Gmail, redirect to register with pre-filled email
+        toast.info("Please complete your registration");
+        navigate('/register', { state: { email: result.email } });
+      } else {
+        toast.error(result.message || "Gmail login failed.");
+      }
+    } catch (error) {
+      console.error("Gmail login error:", error);
+      toast.error("An error occurred during Gmail login. Please try again.");
+    } finally {
+      setIsGmailLoading(false);
     }
   };
 
@@ -117,27 +171,32 @@ const Login = () => {
               </Button>
             </form>
 
-            <div className="mt-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-200" />
+            {isGmailEnabled && (
+              <div className="mt-6">
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-200" />
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white text-gray-500">
+                      Or continue with
+                    </span>
+                  </div>
                 </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">
-                    Or continue with
-                  </span>
-                </div>
-              </div>
 
-              <div className="mt-6 grid grid-cols-2 gap-3">
-                <Button variant="outline" disabled={isLoading}>
-                  Google
-                </Button>
-                <Button variant="outline" disabled={isLoading}>
-                  Facebook
-                </Button>
+                <div className="mt-6">
+                  <Button 
+                    variant="outline" 
+                    className="w-full flex items-center justify-center"
+                    onClick={handleGmailLogin}
+                    disabled={isGmailLoading || isLoading}
+                  >
+                    <Mail className="mr-2 h-4 w-4" />
+                    {isGmailLoading ? "Signing in..." : "Sign in with Gmail"}
+                  </Button>
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="mt-6 text-center text-sm">
               <p className="text-gray-600">

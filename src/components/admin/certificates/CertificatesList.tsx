@@ -8,7 +8,8 @@ import {
   fetchCertificatesByEvent, 
   generateCertificateContent,
   sendCertificateEmail,
-  sendBulkCertificateEmails
+  sendBulkCertificateEmails,
+  Certificate
 } from "@/utils/certificates";
 import { CertificatesTable } from "./CertificatesTable";
 import { CertificatePreviewDialog } from "./CertificatePreviewDialog";
@@ -35,7 +36,7 @@ export function CertificatesList({ eventId }: CertificatesListProps) {
     queryFn: () => fetchCertificatesByEvent(eventId)
   });
 
-  const handlePreview = (certificate: any) => {
+  const handlePreview = (certificate: Certificate) => {
     try {
       if (!certificate.user_name || !certificate.event_title) {
         toast.error("Certificate data is incomplete");

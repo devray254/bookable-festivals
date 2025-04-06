@@ -1,23 +1,47 @@
 
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Navbar } from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { createUser } from "@/utils/auth";
+import { createUser, authenticateWithGmail } from "@/utils/auth";
+import { fetchGmailSettings } from "@/utils/gmail-settings";
 import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
+import { Mail } from "lucide-react";
 
 const Register = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  // Get email from state if coming from Gmail login
+  const initialEmail = location.state?.email || "";
+  
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(initialEmail);
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isGmailLoading, setIsGmailLoading] = useState(false);
   const [error, setError] = useState("");
-  const navigate = useNavigate();
+
+  // Fetch Gmail settings to check if Gmail login is enabled
+  const { data: gmailSettings } = useQuery({
+    queryKey: ['gmail-settings'],
+    queryFn: fetchGmailSettings
+  });
+
+  const isGmailEnabled = gmailSettings?.enabled;
+
+  // Set email from location state if available
+  useEffect(() => {
+    if (location.state?.email) {
+      setEmail(location.state.email);
+    }
+  }, [location.state?.email]);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,6 +102,49 @@ const Register = () => {
     }
   };
 
+  const handleGmailSignup = async () => {
+    setIsGmailLoading(true);
+    
+    try {
+      // In a real implementation, this would trigger Google OAuth flow
+      // For demo purposes, we'll simulate by passing the email as the token
+      const gmailToken = prompt("Enter your Gmail address to simulate Google Sign-Up");
+      
+      if (!gmailToken) {
+        setIsGmailLoading(false);
+        return;
+      }
+      
+      const result = await authenticateWithGmail(gmailToken);
+      
+      if (result.success) {
+        // User already exists with this Gmail
+        toast.success("Gmail login successful!");
+        
+        // Store the user info in localStorage
+        localStorage.setItem('user', JSON.stringify(result.user));
+        
+        // Redirect based on user role
+        if (result.user.role === 'admin' || result.user.role === 'organizer') {
+          navigate('/admin');
+        } else {
+          navigate('/events');
+        }
+      } else if (result.newUser) {
+        // New user from Gmail, set the email in the form
+        setEmail(result.email);
+        toast.info("Please complete your registration with this Gmail address");
+      } else {
+        toast.error(result.message || "Gmail signup failed.");
+      }
+    } catch (error) {
+      console.error("Gmail signup error:", error);
+      toast.error("An error occurred during Gmail signup. Please try again.");
+    } finally {
+      setIsGmailLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -93,6 +160,31 @@ const Register = () => {
             {error && (
               <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
                 {error}
+              </div>
+            )}
+
+            {isGmailEnabled && !initialEmail && (
+              <div className="mb-6">
+                <Button 
+                  variant="outline" 
+                  className="w-full flex items-center justify-center"
+                  onClick={handleGmailSignup}
+                  disabled={isGmailLoading || isLoading}
+                >
+                  <Mail className="mr-2 h-4 w-4" />
+                  {isGmailLoading ? "Processing..." : "Sign up with Gmail"}
+                </Button>
+                
+                <div className="relative my-4">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-200" />
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white text-gray-500">
+                      Or sign up with email
+                    </span>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -117,6 +209,7 @@ const Register = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
                   required
+                  readOnly={!!initialEmail}
                 />
               </div>
 
