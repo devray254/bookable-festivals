@@ -33,7 +33,7 @@ export function PaymentsExport({ payments }: PaymentsExportProps) {
   
   const handleExportToExcel = () => {
     try {
-      exportPaymentsToExcel(payments, selectedEvent, '.xls');
+      exportPaymentsToExcel(payments, selectedEvent);
       toast.success("Successfully exported payments to Excel");
     } catch (error) {
       console.error("Excel export error:", error);

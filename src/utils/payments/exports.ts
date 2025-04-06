@@ -46,8 +46,8 @@ export const exportPaymentsToExcel = (payments: UIPayment[], eventFilter?: strin
     const link = document.createElement("a");
     link.href = url;
     const filename = eventFilter 
-      ? `payments_${eventFilter.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`
-      : `payments_export_${new Date().toISOString().split('T')[0]}.csv`;
+      ? `payments_${eventFilter.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.xls`
+      : `payments_export_${new Date().toISOString().split('T')[0]}.xls`;
     
     link.setAttribute("download", filename);
     document.body.appendChild(link);
