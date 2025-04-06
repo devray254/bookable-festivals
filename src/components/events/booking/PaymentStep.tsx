@@ -9,7 +9,8 @@ interface PaymentStepProps {
   phoneNumber: string;
   setPhoneNumber: (value: string) => void;
   totalAmount: number;
-  processingFee: number;
+  serviceFee: number;
+  serviceFeePercent: number;
   grandTotal: number;
   ticketQuantity: number;
   eventPrice: number;
@@ -22,7 +23,8 @@ const PaymentStep = ({
   phoneNumber,
   setPhoneNumber,
   totalAmount,
-  processingFee,
+  serviceFee,
+  serviceFeePercent,
   grandTotal,
   ticketQuantity,
   eventPrice,
@@ -53,8 +55,8 @@ const PaymentStep = ({
           <span>KES {totalAmount.toLocaleString()}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-gray-500">Processing Fee</span>
-          <span>KES {processingFee}</span>
+          <span className="text-gray-500">Service Fee ({serviceFeePercent}%)</span>
+          <span>KES {serviceFee.toLocaleString()}</span>
         </div>
         <div className="flex justify-between font-medium pt-2 border-t">
           <span>Total</span>

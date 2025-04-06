@@ -34,9 +34,11 @@ const BookingDialog = ({
   const [paymentStep, setPaymentStep] = useState<"details" | "processing" | "confirmation">("details");
   const { toast } = useToast();
   
+  // Calculate the booking amounts
   const totalAmount = eventPrice * ticketQuantity;
-  const processingFee = 50;
-  const grandTotal = totalAmount + processingFee;
+  const serviceFeePercent = 20;
+  const serviceFee = Math.round(totalAmount * (serviceFeePercent / 100));
+  const grandTotal = totalAmount + serviceFee;
 
   const handleInitiatePayment = async () => {
     if (!validatePhoneNumber(phoneNumber)) {
@@ -99,7 +101,8 @@ const BookingDialog = ({
             phoneNumber={phoneNumber}
             setPhoneNumber={setPhoneNumber}
             totalAmount={totalAmount}
-            processingFee={processingFee}
+            serviceFee={serviceFee}
+            serviceFeePercent={serviceFeePercent}
             grandTotal={grandTotal}
             ticketQuantity={ticketQuantity}
             eventPrice={eventPrice}
