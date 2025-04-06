@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { Navbar } from "@/components/layout/Navbar";
@@ -286,7 +287,7 @@ const Events = () => {
                   location={event.location} 
                   price={typeof event.price === 'string' ? parseFloat(event.price) : event.price} 
                   category={event.category_name || `Category ${event.category_id}`}
-                  is_free={event.is_free === 1}
+                  is_free={event.is_free === true || event.is_free === 1}
                 />
               ))}
             </div>

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -184,7 +185,7 @@ const Index = () => {
                   location={event.location} 
                   price={typeof event.price === 'string' ? parseFloat(event.price as string) : event.price as number} 
                   category={event.category_name || `Category ${event.category_id}`}
-                  is_free={event.is_free === 1}
+                  is_free={event.is_free === true || event.is_free === 1}
                 />
               ))}
             </div>
@@ -267,7 +268,7 @@ const Index = () => {
                   location={event.location} 
                   price={typeof event.price === 'string' ? parseFloat(event.price as string) : event.price as number} 
                   category={event.category_name || `Category ${event.category_id}`}
-                  is_free={event.is_free === 1}
+                  is_free={event.is_free === true || event.is_free === 1}
                 />
               ))}
             </div>

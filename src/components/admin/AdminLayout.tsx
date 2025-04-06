@@ -21,7 +21,8 @@ import {
   Tag, 
   Settings,
   Users,
-  Award
+  Award,
+  Mail
 } from "lucide-react";
 
 interface AdminLayoutProps {
@@ -106,6 +107,14 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     <SidebarMenuButton isActive={isActive("/admin/mpesa-settings")} tooltip="M-Pesa Settings">
                       <Settings className="h-4 w-4 mr-2" />
                       <span>M-Pesa Settings</span>
+                    </SidebarMenuButton>
+                  </Link>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <Link to="/admin/gmail-settings">
+                    <SidebarMenuButton isActive={isActive("/admin/gmail-settings")} tooltip="Gmail Settings">
+                      <Mail className="h-4 w-4 mr-2" />
+                      <span>Gmail Settings</span>
                     </SidebarMenuButton>
                   </Link>
                 </SidebarMenuItem>

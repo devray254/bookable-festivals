@@ -22,6 +22,7 @@ import AdminLogs from "./pages/admin/Logs";
 import AdminUsers from "./pages/admin/Users";
 import AdminCertificates from "./pages/admin/Certificates";
 import MpesaSettings from "./pages/admin/MpesaSettings";
+import GmailSettings from "./pages/admin/GmailSettings";
 import SiteSettings from "./pages/admin/SiteSettings";
 import AboutUs from "./pages/AboutUs";
 import ContactUs from "./pages/ContactUs";
@@ -65,6 +66,7 @@ const App: React.FC = () => {
               <Route path="/admin/payments" element={<AdminPayments />} />
               <Route path="/admin/certificates" element={<AdminCertificates />} />
               <Route path="/admin/mpesa-settings" element={<MpesaSettings />} />
+              <Route path="/admin/gmail-settings" element={<GmailSettings />} />
               <Route path="/admin/site-settings" element={<SiteSettings />} />
               <Route path="/admin/logs" element={<AdminLogs />} />
               

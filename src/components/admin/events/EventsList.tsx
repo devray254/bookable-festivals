@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { deleteEvent } from "@/utils/events";
+import { EditEventDialog } from "./EditEventDialog";
 
 interface Event {
   id: number;
@@ -112,35 +113,41 @@ export function EventsList({ events, isLoading, onEventsChanged, adminEmail }: E
                   </tr>
                 </thead>
                 <tbody>
-                  {events.map((event) => (
-                    <tr key={event.id} className="border-b">
-                      <td className="p-2 font-medium">{event.title}</td>
-                      <td className="p-2">{new Date(event.date).toLocaleDateString()}</td>
-                      <td className="p-2">{event.location}</td>
-                      <td className="p-2">
-                        <Badge variant="outline" className="capitalize">
-                          {event.category_name || `Category ${event.category_id}`}
-                        </Badge>
-                      </td>
-                      <td className="p-2">{typeof event.price === 'number' ? event.price.toLocaleString() : event.price}</td>
-                      <td className="p-2">
-                        <div className="flex space-x-2">
-                          <Button variant="ghost" size="icon" title="Edit Event">
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="text-destructive"
-                            onClick={() => setEventToDelete(event)}
-                            title="Delete Event"
-                          >
-                            <Trash className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                  {events.map((event) => {
+                    const isPastEvent = new Date(event.date) < new Date();
+                    
+                    return (
+                      <tr key={event.id} className="border-b">
+                        <td className="p-2 font-medium">{event.title}</td>
+                        <td className="p-2">{new Date(event.date).toLocaleDateString()}</td>
+                        <td className="p-2">{event.location}</td>
+                        <td className="p-2">
+                          <Badge variant="outline" className="capitalize">
+                            {event.category_name || `Category ${event.category_id}`}
+                          </Badge>
+                        </td>
+                        <td className="p-2">{typeof event.price === 'number' ? event.price.toLocaleString() : event.price}</td>
+                        <td className="p-2">
+                          <div className="flex space-x-2">
+                            <EditEventDialog 
+                              event={event} 
+                              onEventUpdated={onEventsChanged}
+                              adminEmail={adminEmail}
+                            />
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="text-destructive"
+                              onClick={() => setEventToDelete(event)}
+                              title="Delete Event"
+                            >
+                              <Trash className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

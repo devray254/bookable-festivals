@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { CalendarIcon, MapPinIcon, ClockIcon, BanknoteIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -69,7 +70,7 @@ const EventCard = ({ id, title, image, date, time, location, price, is_free, cat
   };
   
   const pastEvent = isPastEvent();
-  const isFree = is_free === true || price === 0;
+  const isFree = is_free === true || is_free === 1 || price === 0;
 
   // Handle potentially broken image paths
   const fallbackImage = '/placeholder.svg';
