@@ -1,16 +1,13 @@
-
 import { AdminLayout } from "@/components/admin/AdminLayout";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Eye } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Booking } from "@/utils/bookings";
 import { useQuery } from "@tanstack/react-query";
-import { getAllEvents, Event } from "@/utils/events";
+import { getAllEvents } from "@/utils/events";
 import { BookingFilters } from "@/components/admin/bookings/BookingFilters";
 import { BookingExport } from "@/components/admin/bookings/BookingExport";
+import { BookingSummaryCards } from "@/components/admin/bookings/BookingSummaryCards";
+import { BookingTabs } from "@/components/admin/bookings/BookingTabs";
 
 export default function AdminBookings() {
   const [activeTab, setActiveTab] = useState("all");
@@ -100,52 +97,6 @@ export default function AdminBookings() {
     }
   };
 
-  const renderBookingTable = (bookingsList: typeof bookings) => (
-    <div className="overflow-x-auto">
-      <table className="w-full">
-        <thead>
-          <tr className="border-b">
-            <th className="text-left p-2">Event</th>
-            <th className="text-left p-2">Customer</th>
-            <th className="text-left p-2">Email</th>
-            <th className="text-left p-2">Phone</th>
-            <th className="text-left p-2">Date</th>
-            <th className="text-left p-2">Tickets</th>
-            <th className="text-left p-2">Total (KES)</th>
-            <th className="text-left p-2">Status</th>
-            <th className="text-left p-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {bookingsList.map((booking) => (
-            <tr key={booking.id} className="border-b">
-              <td className="p-2">{booking.event}</td>
-              <td className="p-2">{booking.customer}</td>
-              <td className="p-2">{booking.email}</td>
-              <td className="p-2">{booking.phone}</td>
-              <td className="p-2">{booking.date}</td>
-              <td className="p-2">{booking.tickets}</td>
-              <td className="p-2">{booking.total}</td>
-              <td className="p-2">
-                <Badge variant={
-                  booking.status === "confirmed" ? "default" : 
-                  booking.status === "pending" ? "secondary" : "destructive"
-                }>
-                  {booking.status}
-                </Badge>
-              </td>
-              <td className="p-2">
-                <Button variant="ghost" size="icon">
-                  <Eye className="h-4 w-4" />
-                </Button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -154,36 +105,10 @@ export default function AdminBookings() {
           <p className="text-muted-foreground">View and manage all bookings</p>
         </div>
         
-        <div className="grid gap-4 md:grid-cols-3">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{filteredBookings.length}</div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Confirmed Bookings</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{confirmedBookings.length}</div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                KES {filteredBookings.reduce((sum, booking) => sum + parseInt(booking.total), 0)}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <BookingSummaryCards 
+          filteredBookings={filteredBookings} 
+          confirmedBookings={confirmedBookings} 
+        />
         
         <Card>
           <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
@@ -201,30 +126,13 @@ export default function AdminBookings() {
               onEventSelect={setSelectedEventId}
             />
             
-            <Tabs defaultValue="all" onValueChange={setActiveTab} className="mt-4">
-              <TabsList className="mb-4">
-                <TabsTrigger value="all">All</TabsTrigger>
-                <TabsTrigger value="confirmed">Confirmed</TabsTrigger>
-                <TabsTrigger value="pending">Pending</TabsTrigger>
-                <TabsTrigger value="cancelled">Cancelled</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="all">
-                {renderBookingTable(filteredBookings)}
-              </TabsContent>
-              
-              <TabsContent value="confirmed">
-                {renderBookingTable(confirmedBookings)}
-              </TabsContent>
-              
-              <TabsContent value="pending">
-                {renderBookingTable(pendingBookings)}
-              </TabsContent>
-              
-              <TabsContent value="cancelled">
-                {renderBookingTable(cancelledBookings)}
-              </TabsContent>
-            </Tabs>
+            <BookingTabs
+              filteredBookings={filteredBookings}
+              confirmedBookings={confirmedBookings}
+              pendingBookings={pendingBookings}
+              cancelledBookings={cancelledBookings}
+              onTabChange={setActiveTab}
+            />
           </CardContent>
         </Card>
       </div>
