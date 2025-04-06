@@ -4,9 +4,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Eye } from "lucide-react";
+import { exportToExcel, exportToPDF } from "@/utils/exports";
+import { Eye, FileExcel, FilePdf } from "lucide-react";
+import { useState } from "react";
 
 export default function AdminBookings() {
+  const [activeTab, setActiveTab] = useState("all");
+  
   const bookings = [
     {
       id: 1,
@@ -58,6 +62,25 @@ export default function AdminBookings() {
   const pendingBookings = bookings.filter(booking => booking.status === "pending");
   const cancelledBookings = bookings.filter(booking => booking.status === "cancelled");
 
+  // Get the current active bookings list based on tab
+  const getCurrentBookings = () => {
+    switch (activeTab) {
+      case "confirmed": return confirmedBookings;
+      case "pending": return pendingBookings;
+      case "cancelled": return cancelledBookings;
+      default: return bookings;
+    }
+  };
+
+  // Handle exports
+  const handleExportToExcel = () => {
+    exportToExcel(getCurrentBookings());
+  };
+
+  const handleExportToPDF = () => {
+    exportToPDF(getCurrentBookings());
+  };
+
   const renderBookingTable = (bookingsList: typeof bookings) => (
     <div className="overflow-x-auto">
       <table className="w-full">
@@ -65,6 +88,7 @@ export default function AdminBookings() {
           <tr className="border-b">
             <th className="text-left p-2">Event</th>
             <th className="text-left p-2">Customer</th>
+            <th className="text-left p-2">Email</th>
             <th className="text-left p-2">Phone</th>
             <th className="text-left p-2">Date</th>
             <th className="text-left p-2">Tickets</th>
@@ -78,6 +102,7 @@ export default function AdminBookings() {
             <tr key={booking.id} className="border-b">
               <td className="p-2">{booking.event}</td>
               <td className="p-2">{booking.customer}</td>
+              <td className="p-2">{booking.email}</td>
               <td className="p-2">{booking.phone}</td>
               <td className="p-2">{booking.date}</td>
               <td className="p-2">{booking.tickets}</td>
@@ -142,11 +167,33 @@ export default function AdminBookings() {
         </div>
         
         <Card>
-          <CardHeader>
-            <CardTitle>All Bookings</CardTitle>
+          <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <CardTitle>All Bookings</CardTitle>
+            </div>
+            <div className="flex items-center gap-2 mt-4 sm:mt-0">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex items-center gap-2"
+                onClick={handleExportToExcel}
+              >
+                <FileExcel className="h-4 w-4" />
+                Export to Excel
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex items-center gap-2"
+                onClick={handleExportToPDF}
+              >
+                <FilePdf className="h-4 w-4" />
+                Export to PDF
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="all">
+            <Tabs defaultValue="all" onValueChange={setActiveTab}>
               <TabsList className="mb-4">
                 <TabsTrigger value="all">All</TabsTrigger>
                 <TabsTrigger value="confirmed">Confirmed</TabsTrigger>
