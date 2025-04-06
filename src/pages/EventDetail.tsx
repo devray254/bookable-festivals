@@ -12,102 +12,55 @@ import BookingCard from "@/components/events/BookingCard";
 import BookingDialog from "@/components/events/BookingDialog";
 import { WebinarAccessCard } from "@/components/events/WebinarAccessCard";
 import { useToast } from "@/hooks/use-toast";
-
-// Mock event data (in a real app, we would fetch this from the backend)
-const eventsData = [
-  {
-    id: 1,
-    title: "Tech Conference 2023",
-    image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=80",
-    date: "Oct 15, 2023",
-    time: "09:00 AM - 05:00 PM",
-    location: "Nairobi Convention Center",
-    price: 2500,
-    category: "Technology",
-    description: "Join us for the biggest tech conference in East Africa. Network with industry leaders, attend workshops, and learn about the latest innovations in technology. This year's theme is 'The Future of AI and Machine Learning'.",
-    organizer: "Tech Association of Kenya",
-    availableTickets: 150,
-    hasWebinar: true
-  },
-  {
-    id: 2,
-    title: "Music Festival",
-    image: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=80",
-    date: "Nov 5, 2023",
-    time: "04:00 PM - 11:00 PM",
-    location: "Uhuru Gardens",
-    price: 1500,
-    category: "Music",
-    description: "Experience an unforgettable night of music under the stars. Featuring performances from top local and international artists across various genres. Food stalls and refreshments will be available.",
-    organizer: "Beat Productions",
-    availableTickets: 500,
-    hasWebinar: false
-  },
-  {
-    id: 3,
-    title: "Food & Wine Expo",
-    image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=80",
-    date: "Dec 10, 2023",
-    time: "11:00 AM - 07:00 PM",
-    location: "Westlands Food Court",
-    price: 1000,
-    category: "Food & Drink",
-    description: "A celebration of culinary excellence featuring the finest wines and dishes from around the world. Meet celebrity chefs, participate in cooking demonstrations, and sample exquisite food and wine pairings.",
-    organizer: "Taste Kenya",
-    availableTickets: 200
-  },
-  {
-    id: 4,
-    title: "Art Exhibition",
-    image: "https://images.unsplash.com/photo-1531058020387-3be344556be6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=80",
-    date: "Apr 22, 2025",  // Future date
-    time: "10:00 AM - 06:00 PM",
-    location: "National Museum",
-    price: 500,
-    category: "Arts",
-    description: "Explore a stunning collection of contemporary and traditional African art. This exhibition showcases works from emerging and established artists, highlighting the rich cultural heritage and modern expressions of African art.",
-    organizer: "Arts Foundation",
-    availableTickets: 300
-  },
-  {
-    id: 5,
-    title: "Business Networking",
-    image: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=80",
-    date: "May 15, 2025",  // Future date
-    time: "06:00 PM - 09:00 PM",
-    location: "Kempinski Hotel",
-    price: 2000,
-    category: "Business",
-    description: "An exclusive networking event for entrepreneurs, executives, and professionals. Make valuable connections, share insights, and explore business opportunities. Includes a keynote speech on sustainable business practices.",
-    organizer: "Business Hub",
-    availableTickets: 100
-  },
-  {
-    id: 6,
-    title: "Marathon 2025",
-    image: "https://images.unsplash.com/photo-1530549387789-4c1017266635?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=80",
-    date: "Dec 3, 2025",  // Future date
-    time: "06:00 AM - 12:00 PM",
-    location: "City Stadium",
-    price: 1000,
-    category: "Sports",
-    description: "The annual city marathon returns for its 10th edition. Choose between 5K, 10K, half-marathon, and full marathon distances. The event supports local education initiatives with a portion of each registration going to charity.",
-    organizer: "Run Kenya",
-    availableTickets: 2000
-  }
-];
+import { getEventById } from "@/utils/events";
+import { Event } from "@/utils/events/types";
 
 const EventDetail = () => {
   const { id } = useParams();
   const eventId = Number(id);
   const { toast } = useToast();
   
-  // Find the event by ID
-  const event = eventsData.find(e => e.id === eventId);
-  
+  const [event, setEvent] = useState<Event | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [ticketQuantity, setTicketQuantity] = useState(1);
   const [isPastEvent, setIsPastEvent] = useState(false);
+
+  // Fetch event data
+  useEffect(() => {
+    const fetchEventData = async () => {
+      setIsLoading(true);
+      try {
+        console.log('Fetching event with ID:', eventId);
+        const response = await getEventById(eventId);
+        
+        if (response.success && response.event) {
+          console.log('Event fetched successfully:', response.event);
+          setEvent(response.event);
+        } else {
+          console.error('Failed to fetch event:', response.message);
+          toast({
+            title: "Error",
+            description: "Failed to load event details. Please try again later.",
+            variant: "destructive"
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching event:', error);
+        toast({
+          title: "Error",
+          description: "An unexpected error occurred while loading the event.",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    if (eventId) {
+      fetchEventData();
+    }
+  }, [eventId, toast]);
 
   // Check if event date is in the past
   useEffect(() => {
@@ -193,7 +146,23 @@ const EventDetail = () => {
     }
   }, [event]);
   
-  // Handle when event is not found
+  // Handle when event is not found or loading
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="flex-grow flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin h-12 w-12 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+            <h1 className="text-2xl font-bold text-gray-800 mb-4">Loading Event</h1>
+            <p className="text-gray-600">Please wait while we fetch the event details...</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+  
   if (!event) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -225,6 +194,19 @@ const EventDetail = () => {
     setTicketQuantity(quantity);
     setIsBookingModalOpen(true);
   };
+
+  // Format the event data for display
+  const formattedDate = new Date(event.date).toLocaleDateString('en-US', { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
+  
+  // Get event price - handle different formats
+  const eventPrice = typeof event.price === 'string' ? parseFloat(event.price) : event.price;
+  
+  // Whether event has webinar access - default to false if not specified
+  const hasWebinar = event.has_webinar === 1 || event.has_webinar === true;
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -233,9 +215,9 @@ const EventDetail = () => {
       {/* Event Header Section */}
       <EventHeader 
         title={event.title}
-        image={event.image}
-        category={event.category}
-        organizer={event.organizer}
+        image={event.image_url || '/placeholder.svg'}
+        category={event.category_name || `Category ${event.category_id}`}
+        organizer={event.created_by || "Event Organizer"}
       />
       
       {/* Event Details Section */}
@@ -244,7 +226,7 @@ const EventDetail = () => {
           <Tabs defaultValue="details" className="mb-8">
             <TabsList className="mb-6">
               <TabsTrigger value="details">Event Details</TabsTrigger>
-              {event.hasWebinar && (
+              {hasWebinar && (
                 <TabsTrigger value="webinar">Webinar Access</TabsTrigger>
               )}
             </TabsList>
@@ -253,25 +235,25 @@ const EventDetail = () => {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Main Content */}
                 <div className="lg:col-span-2">
-                  <EventInfo description={event.description} />
+                  <EventInfo description={event.description || ""} />
                   <EventLocation location={event.location} />
                 </div>
                 
                 {/* Booking Card */}
                 <div className="lg:col-span-1">
                   <BookingCard 
-                    date={event.date}
-                    time={event.time}
+                    date={formattedDate}
+                    time={event.time || "00:00"}
                     location={event.location}
-                    availableTickets={event.availableTickets}
-                    price={event.price}
+                    availableTickets={event.available_tickets || 100}
+                    price={eventPrice}
                     onBookNow={handleBookNow}
                   />
                 </div>
               </div>
             </TabsContent>
             
-            {event.hasWebinar && (
+            {hasWebinar && (
               <TabsContent value="webinar">
                 <div className="max-w-md mx-auto">
                   <WebinarAccessCard 
@@ -291,7 +273,7 @@ const EventDetail = () => {
         onOpenChange={setIsBookingModalOpen}
         ticketQuantity={ticketQuantity}
         eventTitle={event.title}
-        eventPrice={event.price}
+        eventPrice={eventPrice}
         eventId={event.id}
       />
       

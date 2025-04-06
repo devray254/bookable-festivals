@@ -115,9 +115,12 @@ const EventCard = ({ id, title, image, date, time, location, price, is_free, cat
   // Format price as a number for display
   const formattedPrice = typeof price === 'number' ? price : parseFloat(String(price));
 
+  // Log the ID to help with debugging
+  console.log(`Rendering EventCard for event ID: ${id}`);
+
   return (
     <div className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 border border-blue-100 flex flex-col h-full transform hover:-translate-y-1">
-      <div className="h-52 overflow-hidden relative">
+      <Link to={`/events/${id}`} className="h-52 overflow-hidden relative">
         <img 
           src={imageUrl} 
           alt={title} 
@@ -145,10 +148,14 @@ const EventCard = ({ id, title, image, date, time, location, price, is_free, cat
             {category}
           </Badge>
         </div>
-      </div>
+      </Link>
       
       <div className="p-5 flex-grow">
-        <h3 className="text-xl font-bold mb-3 text-blue-800 line-clamp-2">{title}</h3>
+        <h3 className="text-xl font-bold mb-3 text-blue-800 line-clamp-2">
+          <Link to={`/events/${id}`} className="hover:text-blue-600 transition-colors">
+            {title}
+          </Link>
+        </h3>
         
         <div className="space-y-3 mb-5">
           <div className="flex items-center text-gray-600">
