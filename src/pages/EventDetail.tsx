@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Navbar } from "@/components/layout/Navbar";
@@ -244,7 +245,7 @@ const EventDetail = () => {
                     date={formattedDate}
                     time={event.time || "00:00"}
                     location={event.location}
-                    availableTickets={100} // Default value since it's not in the Event type
+                    availableTickets={event.available_tickets ?? 100}
                     price={eventPrice}
                     onBookNow={handleBookNow}
                   />

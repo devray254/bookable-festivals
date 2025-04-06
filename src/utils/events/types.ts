@@ -13,13 +13,13 @@ export interface Event {
   category_id: number;
   category_name?: string;
   image_url?: string;
-  has_webinar?: number | boolean; // Updated to support both number and boolean
+  has_webinar?: number | boolean;
   webinar_link?: string;
   webinar_time?: string;
   created_by?: string;
   created_at?: string;
   updated_at?: string;
-  available_tickets?: number; // Added this property
+  available_tickets?: number;
 }
 
 export interface EventResponse {
@@ -35,16 +35,17 @@ export interface CreateEventData {
   time: string;
   location: string;
   priceType: "free" | "paid";
-  price?: number | string; // Updated to accept string or number
+  price?: number | string;
   category_id: number;
   image_url?: string;
   has_webinar?: boolean;
   webinar_link?: string;
   webinar_time?: string;
-  created_by?: string; // Added created_by field
+  created_by?: string;
+  available_tickets?: number;
 }
 
 export interface UpdateEventData extends CreateEventData {
   id: number;
-  created_by?: string; // Added to match usage in EditEventDialog
+  created_by?: string;
 }
