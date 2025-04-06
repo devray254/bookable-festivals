@@ -20,6 +20,7 @@ interface BookingDialogProps {
   ticketQuantity: number;
   eventTitle: string;
   eventPrice: number;
+  eventId?: number;
 }
 
 const BookingDialog = ({ 
@@ -27,7 +28,8 @@ const BookingDialog = ({
   onOpenChange, 
   ticketQuantity, 
   eventTitle,
-  eventPrice 
+  eventPrice,
+  eventId
 }: BookingDialogProps) => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -123,6 +125,7 @@ const BookingDialog = ({
           <ConfirmationStep 
             grandTotal={grandTotal}
             onClose={handleCloseDialog}
+            eventId={eventId}
           />
         )}
       </DialogContent>

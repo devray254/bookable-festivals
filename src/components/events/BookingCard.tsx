@@ -97,7 +97,9 @@ const BookingCard = ({
         today.setHours(0, 0, 0, 0);
         eventDate.setHours(0, 0, 0, 0);
         
-        setIsPastEvent(eventDate < today);
+        const isPast = eventDate < today;
+        console.log(`BookingCard - Event date: ${eventDate}, Today: ${today}, Is past: ${isPast}`);
+        setIsPastEvent(isPast);
       } catch (error) {
         console.error("Error parsing date:", error);
         setIsPastEvent(false); // Default to not past event if parsing fails

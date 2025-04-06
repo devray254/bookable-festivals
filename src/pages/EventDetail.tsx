@@ -182,7 +182,10 @@ const EventDetail = () => {
         today.setHours(0, 0, 0, 0);
         eventDate.setHours(0, 0, 0, 0);
         
-        setIsPastEvent(eventDate < today);
+        // Set isPastEvent based on date comparison
+        const isPast = eventDate < today;
+        console.log(`Event date: ${eventDate}, Today: ${today}, Is past: ${isPast}`);
+        setIsPastEvent(isPast);
       } catch (error) {
         console.error("Error parsing date:", error);
         setIsPastEvent(false); // Default to not past event if parsing fails
@@ -218,6 +221,7 @@ const EventDetail = () => {
       });
       return;
     }
+    
     setTicketQuantity(quantity);
     setIsBookingModalOpen(true);
   };
@@ -288,6 +292,7 @@ const EventDetail = () => {
         ticketQuantity={ticketQuantity}
         eventTitle={event.title}
         eventPrice={event.price}
+        eventId={event.id}
       />
       
       <Footer />

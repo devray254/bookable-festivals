@@ -1,13 +1,15 @@
 
 import { Button } from "@/components/ui/button";
 import { CheckCircle2 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface ConfirmationStepProps {
   grandTotal: number;
   onClose: () => void;
+  eventId?: number;
 }
 
-const ConfirmationStep = ({ grandTotal, onClose }: ConfirmationStepProps) => {
+const ConfirmationStep = ({ grandTotal, onClose, eventId }: ConfirmationStepProps) => {
   return (
     <div className="py-6 text-center">
       <div className="flex justify-center mb-6">
@@ -22,9 +24,19 @@ const ConfirmationStep = ({ grandTotal, onClose }: ConfirmationStepProps) => {
         Your payment of <span className="font-medium">KES {grandTotal.toLocaleString()}</span> has been received. You will receive a confirmation email shortly.
       </p>
       
-      <Button onClick={onClose} className="w-full">
-        Done
-      </Button>
+      <div className="space-y-3">
+        <Button onClick={onClose} className="w-full">
+          Done
+        </Button>
+        
+        {eventId && (
+          <Link to={`/events/${eventId}`}>
+            <Button variant="outline" className="w-full mt-2">
+              Return to Event
+            </Button>
+          </Link>
+        )}
+      </div>
     </div>
   );
 };
