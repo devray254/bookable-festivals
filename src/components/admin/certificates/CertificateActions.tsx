@@ -1,57 +1,77 @@
 
 import { Button } from "@/components/ui/button";
-import { Award, Loader2 } from "lucide-react";
+import { Eye, Download, Mail, MailCheck, Loader2 } from "lucide-react";
+import { useState } from "react";
 
 interface CertificateActionsProps {
-  selectAllUsers: () => void;
-  clearSelection: () => void;
-  handleGenerateCertificates: () => Promise<void>;
-  selectedUsers: number[];
-  isGenerating: boolean;
+  certificateId: string;
+  userEmail?: string;
+  isSent: boolean;
+  onPreview: () => void;
+  onDownload: (certificateId: string) => void;
+  onSendEmail: (certificateId: string, email: string) => void;
 }
 
 export function CertificateActions({
-  selectAllUsers,
-  clearSelection,
-  handleGenerateCertificates,
-  selectedUsers,
-  isGenerating,
+  certificateId,
+  userEmail,
+  isSent,
+  onPreview,
+  onDownload,
+  onSendEmail
 }: CertificateActionsProps) {
+  const [isSending, setIsSending] = useState(false);
+
+  const handleSendEmail = async () => {
+    if (!userEmail) return;
+    
+    setIsSending(true);
+    try {
+      await onSendEmail(certificateId, userEmail);
+    } finally {
+      setIsSending(false);
+    }
+  };
+
   return (
-    <div className="flex gap-2">
-      <Button 
-        variant="outline" 
-        size="sm" 
-        onClick={selectAllUsers}
+    <div className="flex justify-end gap-2">
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={onPreview}
       >
-        Select All
+        <Eye className="h-4 w-4" />
       </Button>
-      <Button 
-        variant="outline" 
-        size="sm" 
-        onClick={clearSelection} 
-        disabled={selectedUsers.length === 0}
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => onDownload(certificateId)}
       >
-        Clear
+        <Download className="h-4 w-4" />
       </Button>
-      <Button 
-        variant="default" 
-        size="sm" 
-        disabled={selectedUsers.length === 0 || isGenerating}
-        onClick={handleGenerateCertificates}
-      >
-        {isGenerating ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Generating...
-          </>
-        ) : (
-          <>
-            <Award className="mr-2 h-4 w-4" />
-            Generate Selected
-          </>
-        )}
-      </Button>
+      {!isSent && userEmail && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleSendEmail}
+          disabled={isSending}
+        >
+          {isSending ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Mail className="h-4 w-4" />
+          )}
+        </Button>
+      )}
+      {isSent && (
+        <Button
+          variant="outline"
+          size="sm"
+          disabled
+        >
+          <MailCheck className="h-4 w-4" />
+        </Button>
+      )}
     </div>
   );
 }
