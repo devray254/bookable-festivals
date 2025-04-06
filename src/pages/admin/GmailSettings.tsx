@@ -1,107 +1,127 @@
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { GmailSettingsForm } from "@/components/admin/gmail/GmailSettingsForm";
 import { GmailStatus } from "@/components/admin/gmail/GmailStatus";
-import { fetchGmailSettings } from "@/utils/gmail-settings";
-import { useQuery } from "@tanstack/react-query";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CertificateEmailSettings } from "@/components/admin/gmail/CertificateEmailSettings";
-import { GmailAuthSettings } from "@/components/admin/gmail/GmailAuthSettings";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { MailCheck } from "lucide-react";
+import { logActivity } from "@/utils/logs";
+import { fetchGmailSettings } from "@/utils/gmail-settings";
 
-// Create an interface that matches what the API returns
-interface GmailSettingsResponse {
+// Define the type for Gmail settings
+interface GmailSettings {
+  clientId: string;
+  clientSecret: string;
+  redirectUri: string;
   enabled: boolean;
-  clientId?: string;
-  clientSecret?: string;
-  redirectUri?: string;
-  scope?: string;
 }
 
-export default function AdminGmailSettings() {
-  const { data: gmailSettings, isLoading, refetch } = useQuery<GmailSettingsResponse>({
-    queryKey: ['gmail-settings'],
-    queryFn: fetchGmailSettings
-  });
-
+const GmailSettings = () => {
+  const [settings, setSettings] = useState<GmailSettings | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Fetch Gmail settings on component mount
+  useEffect(() => {
+    const loadSettings = async () => {
+      setIsLoading(true);
+      try {
+        const settingsData = await fetchGmailSettings();
+        
+        // Transform the data to match our interface
+        const transformedSettings: GmailSettings = {
+          clientId: settingsData.clientId || '',
+          clientSecret: settingsData.clientSecret || '',
+          redirectUri: settingsData.redirectUri || window.location.origin + '/auth/callback',
+          enabled: settingsData.enabled || false
+        };
+        
+        setSettings(transformedSettings);
+        setError(null);
+      } catch (error) {
+        console.error("Error loading Gmail settings:", error);
+        setError("Failed to load Gmail settings. Please try again.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadSettings();
+  }, []);
+  
+  const handleSuccess = async () => {
+    // Log activity after successful update
+    await logActivity({
+      action: "gmail_settings_updated",
+      user: "admin@maabara.co.ke",
+      details: "Gmail API settings were updated",
+      level: "info"
+    });
+    
+    // Reload settings
+    const settingsData = await fetchGmailSettings();
+    
+    // Transform the data to match our interface
+    const transformedSettings: GmailSettings = {
+      clientId: settingsData.clientId || '',
+      clientSecret: settingsData.clientSecret || '',
+      redirectUri: settingsData.redirectUri || window.location.origin + '/auth/callback',
+      enabled: settingsData.enabled || false
+    };
+    
+    setSettings(transformedSettings);
+  };
+  
   return (
     <AdminLayout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Gmail Settings</h1>
-          <p className="text-muted-foreground">
-            Configure Gmail integration for authentication and email functionality
-          </p>
-        </div>
+      <div className="p-6">
+        <h1 className="text-2xl font-bold mb-6">Gmail Integration Settings</h1>
         
-        <Separator />
+        <Alert className="mb-6">
+          <MailCheck className="h-4 w-4" />
+          <AlertTitle>Gmail Integration</AlertTitle>
+          <AlertDescription>
+            Configure Gmail API settings to enable email notifications, certificate sending, and other email-based features.
+          </AlertDescription>
+        </Alert>
         
-        <div className="grid gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <Card>
             <CardHeader>
-              <CardTitle>Gmail Integration</CardTitle>
+              <CardTitle>Gmail API Configuration</CardTitle>
               <CardDescription>
-                Configure Gmail API credentials to enable Sign in with Gmail and email notifications
+                Enter your Gmail API credentials to enable email functionality.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <GmailStatus 
-                isLoading={isLoading} 
-                gmailSettings={gmailSettings} 
-              />
-              <GmailSettingsForm 
-                existingSettings={gmailSettings} 
-                onSuccess={refetch} 
-              />
+              {isLoading ? (
+                <div className="h-40 flex items-center justify-center">
+                  <p>Loading settings...</p>
+                </div>
+              ) : error ? (
+                <div className="text-red-500 p-4 border border-red-200 rounded-md bg-red-50">
+                  {error}
+                </div>
+              ) : (
+                <GmailSettingsForm 
+                  existingSettings={settings || undefined} 
+                  onSuccess={handleSuccess} 
+                />
+              )}
             </CardContent>
           </Card>
-
-          <Tabs defaultValue="auth" className="w-full">
-            <TabsList className="mb-4">
-              <TabsTrigger value="auth">Authentication</TabsTrigger>
-              <TabsTrigger value="certificates">Certificate Emails</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="auth">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Gmail Authentication Settings</CardTitle>
-                  <CardDescription>
-                    Configure settings for Sign in with Gmail functionality
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <GmailAuthSettings 
-                    isEnabled={gmailSettings?.enabled} 
-                  />
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="certificates">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Certificate Email Settings</CardTitle>
-                  <CardDescription>
-                    Configure default email templates for sending certificates
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <CertificateEmailSettings />
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+          
+          <GmailStatus settings={settings} />
+        </div>
+        
+        <div className="mb-6">
+          <CertificateEmailSettings />
         </div>
       </div>
     </AdminLayout>
   );
-}
+};
+
+export default GmailSettings;

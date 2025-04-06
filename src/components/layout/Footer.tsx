@@ -1,12 +1,45 @@
 
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { getCurrentLogo } from "@/utils/image-upload";
 
 const Footer = () => {
+  const [logoUrl, setLogoUrl] = useState(getCurrentLogo());
+
+  useEffect(() => {
+    // Set up logo URL update listener
+    const handleStorageChange = () => {
+      setLogoUrl(getCurrentLogo());
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Check for logo updates every 5 seconds (for demo purposes)
+    const intervalId = setInterval(() => {
+      const currentLogo = getCurrentLogo();
+      if (currentLogo !== logoUrl) {
+        setLogoUrl(currentLogo);
+      }
+    }, 5000);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(intervalId);
+    };
+  }, [logoUrl]);
+
   return (
     <footer className="bg-gray-50 border-t border-gray-200 pt-12 pb-8">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-2">
+            <div className="mb-5">
+              <img 
+                src={logoUrl} 
+                alt="Maabara Online Logo" 
+                className="h-14 object-contain" 
+              />
+            </div>
             <h3 className="text-lg font-bold text-eventPurple-700 mb-4">Maabara Online</h3>
             <p className="text-gray-600 mb-4 max-w-md">
               At Maabara Online™, our mission is to empower healthcare professionals with continuous learning opportunities that enhance their knowledge, skills, and professional growth.

@@ -4,7 +4,6 @@ import { Navbar } from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { fetchCategories } from "@/utils/categories";
 import { fetchEvents } from "@/utils/events";
-import { getCurrentLogo } from "@/utils/image-upload";
 import { Event } from "@/utils/events/types";
 import { Hero } from "@/components/home/Hero";
 import { EventsSection } from "@/components/home/EventsSection";
@@ -22,7 +21,6 @@ const Index = () => {
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoadingEvents, setIsLoadingEvents] = useState(true);
-  const [logoUrl, setLogoUrl] = useState(getCurrentLogo());
   
   useEffect(() => {
     const loadCategories = async () => {
@@ -40,16 +38,7 @@ const Index = () => {
     };
     
     loadCategories();
-    
-    const intervalId = setInterval(() => {
-      const currentLogo = getCurrentLogo();
-      if (currentLogo !== logoUrl) {
-        setLogoUrl(currentLogo);
-      }
-    }, 5000);
-    
-    return () => clearInterval(intervalId);
-  }, [logoUrl]);
+  }, []);
 
   useEffect(() => {
     const loadEvents = async () => {
@@ -75,7 +64,7 @@ const Index = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      <Hero logoUrl={logoUrl} />
+      <Hero />
       
       <EventsSection 
         title="Upcoming Events"

@@ -30,7 +30,11 @@ export function NavbarLogo() {
 
   return (
     <Link to="/" className="flex items-center">
-      <img src={logoUrl} alt="Maabara Online Logo" className="h-10 max-w-[140px] object-contain mr-2" />
+      <img 
+        src={logoUrl} 
+        alt="Maabara Online Logo" 
+        className="h-10 max-w-[140px] object-contain mr-2" 
+      />
     </Link>
   );
 }

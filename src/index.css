@@ -87,16 +87,25 @@
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border font-aptos;
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-aptos;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-aptos font-bold;
+  }
+  
+  h1 {
+    @apply text-3xl md:text-4xl font-aptos font-bold;
   }
   
   /* Improved responsive styles */
   html {
     font-size: 16px;
+    font-family: 'Aptos', sans-serif;
   }
   
   @media (max-width: 640px) {
