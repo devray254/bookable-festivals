@@ -13,7 +13,7 @@ export function Navbar() {
   const isMobile = useIsMobile();
 
   return (
-    <nav className="bg-purple-900 text-white shadow-md sticky top-0 z-10">
+    <nav className="bg-white text-gray-800 shadow-md sticky top-0 z-10">
       <div className="container flex items-center justify-between py-4">
         <NavbarLogo />
         
@@ -36,7 +36,7 @@ export function Navbar() {
               />
             ) : (
               <Link to="/login">
-                <Button variant="default" className="bg-teal-600 hover:bg-teal-700 text-white font-medium">Login</Button>
+                <Button variant="default" className="bg-blue-600 hover:bg-blue-700 text-white font-medium">Login</Button>
               </Link>
             )}
           </div>

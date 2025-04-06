@@ -40,14 +40,14 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   return (
     <div className="h-screen">
       <SidebarProvider defaultOpen={true}>
-        <Sidebar className="border-r border-purple-700 bg-purple-900 text-white">
+        <Sidebar className="border-r border-gray-200 bg-white text-gray-800">
           <SidebarHeader>
-            <h1 className="text-xl font-bold px-4 py-3 text-white">Maabara Online</h1>
-            <p className="text-xs text-purple-200 px-4 pb-2">Admin Control Panel</p>
+            <h1 className="text-xl font-bold px-4 py-3 text-blue-700">Maabara Online</h1>
+            <p className="text-xs text-gray-500 px-4 pb-2">Admin Control Panel</p>
           </SidebarHeader>
           <SidebarContent>
             <SidebarGroup>
-              <p className="px-3 py-2 text-xs font-semibold text-purple-300 uppercase tracking-wider">
+              <p className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                 Main Navigation
               </p>
               <SidebarMenu>
@@ -56,7 +56,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     <SidebarMenuButton 
                       isActive={isActive("/admin")} 
                       tooltip="Dashboard"
-                      className={isActive("/admin") ? "bg-purple-700 text-white" : "text-white hover:bg-purple-800"}
+                      className={isActive("/admin") ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-700 hover:text-red-600 hover:bg-gray-50"}
                     >
                       <LayoutDashboard className="h-5 w-5 mr-3" />
                       <span>Dashboard</span>
@@ -68,7 +68,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     <SidebarMenuButton 
                       isActive={isActive("/admin/users")} 
                       tooltip="Manage Users"
-                      className={isActive("/admin/users") ? "bg-purple-700 text-white" : "text-white hover:bg-purple-800"}
+                      className={isActive("/admin/users") ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-700 hover:text-red-600 hover:bg-gray-50"}
                     >
                       <Users className="h-5 w-5 mr-3" />
                       <span>User Management</span>
@@ -80,7 +80,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     <SidebarMenuButton 
                       isActive={isActive("/admin/events")} 
                       tooltip="Manage Events"
-                      className={isActive("/admin/events") ? "bg-purple-700 text-white" : "text-white hover:bg-purple-800"}
+                      className={isActive("/admin/events") ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-700 hover:text-red-600 hover:bg-gray-50"}
                     >
                       <CalendarDays className="h-5 w-5 mr-3" />
                       <span>Events</span>
@@ -92,7 +92,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     <SidebarMenuButton 
                       isActive={isActive("/admin/categories")} 
                       tooltip="Manage Categories"
-                      className={isActive("/admin/categories") ? "bg-purple-700 text-white" : "text-white hover:bg-purple-800"}
+                      className={isActive("/admin/categories") ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-700 hover:text-red-600 hover:bg-gray-50"}
                     >
                       <Tag className="h-5 w-5 mr-3" />
                       <span>Categories</span>
@@ -102,10 +102,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               </SidebarMenu>
             </SidebarGroup>
             
-            <SidebarSeparator className="my-3 border-purple-700" />
+            <SidebarSeparator className="my-3 border-gray-200" />
             
             <SidebarGroup>
-              <p className="px-3 py-2 text-xs font-semibold text-purple-300 uppercase tracking-wider">
+              <p className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                 Registration & Payments
               </p>
               <SidebarMenu>
@@ -114,7 +114,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     <SidebarMenuButton 
                       isActive={isActive("/admin/bookings")} 
                       tooltip="Manage Bookings"
-                      className={isActive("/admin/bookings") ? "bg-purple-700 text-white" : "text-white hover:bg-purple-800"}
+                      className={isActive("/admin/bookings") ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-700 hover:text-red-600 hover:bg-gray-50"}
                     >
                       <BookOpen className="h-5 w-5 mr-3" />
                       <span>Bookings</span>
@@ -126,7 +126,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     <SidebarMenuButton 
                       isActive={isActive("/admin/payments")} 
                       tooltip="Manage Payments"
-                      className={isActive("/admin/payments") ? "bg-purple-700 text-white" : "text-white hover:bg-purple-800"}
+                      className={isActive("/admin/payments") ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-700 hover:text-red-600 hover:bg-gray-50"}
                     >
                       <CreditCard className="h-5 w-5 mr-3" />
                       <span>Payments</span>
@@ -138,7 +138,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     <SidebarMenuButton 
                       isActive={isActive("/admin/certificates")} 
                       tooltip="Manage Certificates"
-                      className={isActive("/admin/certificates") ? "bg-purple-700 text-white" : "text-white hover:bg-purple-800"}
+                      className={isActive("/admin/certificates") ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-700 hover:text-red-600 hover:bg-gray-50"}
                     >
                       <Award className="h-5 w-5 mr-3" />
                       <span>Certificates</span>
@@ -148,10 +148,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               </SidebarMenu>
             </SidebarGroup>
             
-            <SidebarSeparator className="my-3 border-purple-700" />
+            <SidebarSeparator className="my-3 border-gray-200" />
             
             <SidebarGroup>
-              <p className="px-3 py-2 text-xs font-semibold text-purple-300 uppercase tracking-wider">
+              <p className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                 System Settings
               </p>
               <SidebarMenu>
@@ -160,7 +160,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     <SidebarMenuButton 
                       isActive={isActive("/admin/mpesa-settings")} 
                       tooltip="Configure M-Pesa"
-                      className={isActive("/admin/mpesa-settings") ? "bg-purple-700 text-white" : "text-white hover:bg-purple-800"}
+                      className={isActive("/admin/mpesa-settings") ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-700 hover:text-red-600 hover:bg-gray-50"}
                     >
                       <Settings className="h-5 w-5 mr-3" />
                       <span>M-Pesa Settings</span>
@@ -172,7 +172,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     <SidebarMenuButton 
                       isActive={isActive("/admin/gmail-settings")} 
                       tooltip="Configure Gmail"
-                      className={isActive("/admin/gmail-settings") ? "bg-purple-700 text-white" : "text-white hover:bg-purple-800"}
+                      className={isActive("/admin/gmail-settings") ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-700 hover:text-red-600 hover:bg-gray-50"}
                     >
                       <Mail className="h-5 w-5 mr-3" />
                       <span>Gmail Settings</span>
@@ -184,7 +184,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     <SidebarMenuButton 
                       isActive={isActive("/admin/logs")} 
                       tooltip="View System Logs"
-                      className={isActive("/admin/logs") ? "bg-purple-700 text-white" : "text-white hover:bg-purple-800"}
+                      className={isActive("/admin/logs") ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-700 hover:text-red-600 hover:bg-gray-50"}
                     >
                       <FileText className="h-5 w-5 mr-3" />
                       <span>Activity Logs</span>
@@ -195,20 +195,20 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             </SidebarGroup>
           </SidebarContent>
           <SidebarFooter>
-            <SidebarSeparator className="border-purple-700" />
+            <SidebarSeparator className="border-gray-200" />
             <div className="p-4">
-              <Link to="/" className="flex items-center py-2 px-3 text-purple-200 hover:text-white rounded hover:bg-purple-800 transition-colors">
+              <Link to="/" className="flex items-center py-2 px-3 text-gray-700 hover:text-red-600 rounded hover:bg-gray-50 transition-colors">
                 <HelpCircle className="h-5 w-5 mr-3" />
                 <span>Help & Support</span>
               </Link>
-              <Link to="/" className="flex items-center py-2 px-3 text-purple-200 hover:text-white rounded hover:bg-purple-800 transition-colors">
+              <Link to="/" className="flex items-center py-2 px-3 text-gray-700 hover:text-red-600 rounded hover:bg-gray-50 transition-colors">
                 <LogOut className="h-5 w-5 mr-3" />
                 <span>Return to Website</span>
               </Link>
             </div>
           </SidebarFooter>
         </Sidebar>
-        <main className="flex-1 overflow-y-auto p-6 bg-gray-100">
+        <main className="flex-1 overflow-y-auto p-6 bg-gray-50">
           {children}
         </main>
       </SidebarProvider>

@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "sonner";
 
 interface PaymentsExportProps {
   payments: UIPayment[];
@@ -31,17 +32,29 @@ export function PaymentsExport({ payments }: PaymentsExportProps) {
   const uniqueEvents = [...new Set(payments.map(payment => payment.event))];
   
   const handleExportToExcel = () => {
-    exportPaymentsToExcel(payments, selectedEvent);
+    try {
+      exportPaymentsToExcel(payments, selectedEvent, '.xls');
+      toast.success("Successfully exported payments to Excel");
+    } catch (error) {
+      console.error("Excel export error:", error);
+      toast.error("Failed to export payments to Excel");
+    }
   };
   
   const handleExportToPDF = () => {
-    exportPaymentsToPDF(payments, selectedEvent);
+    try {
+      exportPaymentsToPDF(payments, selectedEvent);
+      toast.success("Successfully exported payments to PDF");
+    } catch (error) {
+      console.error("PDF export error:", error);
+      toast.error("Failed to export payments to PDF");
+    }
   };
   
   return (
     <div className="flex items-center gap-4">
       <Select value={selectedEvent} onValueChange={setSelectedEvent}>
-        <SelectTrigger className="w-[250px]">
+        <SelectTrigger className="w-[250px] bg-white border-gray-300">
           <SelectValue placeholder="All Events" />
         </SelectTrigger>
         <SelectContent>
@@ -56,19 +69,19 @@ export function PaymentsExport({ payments }: PaymentsExportProps) {
       
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="gap-2">
+          <Button variant="outline" className="gap-2 bg-white text-gray-800 border-gray-300 hover:text-red-600">
             <Download className="h-4 w-4" />
             Export
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
+        <DropdownMenuContent align="end" className="bg-white border-gray-200">
           <DropdownMenuLabel>Export Options</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleExportToExcel} className="cursor-pointer">
+          <DropdownMenuItem onClick={handleExportToExcel} className="cursor-pointer text-gray-800 hover:text-red-600">
             <FileSpreadsheet className="h-4 w-4 mr-2" />
-            Export to Excel
+            Export to Excel (.xls)
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleExportToPDF} className="cursor-pointer">
+          <DropdownMenuItem onClick={handleExportToPDF} className="cursor-pointer text-gray-800 hover:text-red-600">
             <FileText className="h-4 w-4 mr-2" />
             Export to PDF
           </DropdownMenuItem>

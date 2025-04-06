@@ -2,6 +2,7 @@
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CalendarDays, CreditCard, User, Clock, Users, Award, Tag } from "lucide-react";
+import { BookOpen } from "lucide-react";
 
 export default function AdminDashboard() {
   return (
