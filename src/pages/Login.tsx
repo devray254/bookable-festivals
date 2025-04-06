@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -88,26 +87,26 @@ const Login = () => {
         return;
       }
       
-      const result = await authenticateWithGmail(gmailToken);
+      const response = await authenticateWithGmail(gmailToken);
       
-      if (result.success) {
+      if (response.success) {
         toast.success("Gmail login successful!");
         
         // Store the user info in localStorage
-        localStorage.setItem('user', JSON.stringify(result.user));
+        localStorage.setItem('user', JSON.stringify(response.user));
         
         // Redirect based on user role
-        if (result.user.role === 'admin' || result.user.role === 'organizer') {
+        if (response.user.role === 'admin' || response.user.role === 'organizer') {
           navigate('/admin');
         } else {
           navigate('/events');
         }
-      } else if (result.newUser) {
+      } else if (response.newUser) {
         // New user from Gmail, redirect to register with pre-filled email
         toast.info("Please complete your registration");
-        navigate('/register', { state: { email: result.email } });
+        navigate('/register', { state: { email: response.email } });
       } else {
-        toast.error(result.message || "Gmail login failed.");
+        toast.error(response.message || "Gmail login failed.");
       }
     } catch (error) {
       console.error("Gmail login error:", error);

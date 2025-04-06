@@ -1,111 +1,115 @@
-
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import Footer from "@/components/layout/Footer";
-import { authenticateUser } from "@/utils/auth";
-import { toast } from "sonner";
-import { LockKeyhole, Shield } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { authenticateWithGmail } from "@/utils/auth";
+import { useToast } from "@/components/ui/use-toast";
+
+const formSchema = z.object({
+  email: z.string().email({ message: "Invalid email address" }),
+  password: z.string().min(8, { message: "Password must be at least 8 characters" }),
+});
 
 const AdminLogin = () => {
-  const [email, setEmail] = useState("admin@maabara.co.ke");
-  const [password, setPassword] = useState("admin123");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
-    toast.info("Attempting to login...");
-
     try {
-      const result = await authenticateUser(email, password);
-      
-      if (result.success && (result.user.role === 'admin' || result.user.role === 'organizer')) {
-        toast.success("Admin login successful!");
-        
-        // Store the user info in localStorage
-        localStorage.setItem('user', JSON.stringify(result.user));
-        
-        // Redirect to admin dashboard
-        navigate('/admin');
+      const response = await authenticateWithGmail(values.email);
+
+      if (response && response.success) {
+        // Store user info in localStorage
+        localStorage.setItem('user', JSON.stringify({
+          name: 'Admin User',
+          email: values.email,
+          role: 'admin'
+        }));
+
+        toast({
+          title: "Login Successful",
+          description: "Redirecting to admin dashboard...",
+        });
+        navigate("/admin");
       } else {
-        toast.error("Login failed. Invalid admin credentials.");
+        toast({
+          variant: "destructive",
+          title: "Login Failed",
+          description: response?.message || "Invalid credentials.",
+        });
       }
     } catch (error) {
       console.error("Login error:", error);
-      toast.error("An error occurred during login. Please try again.");
+      toast({
+        variant: "destructive",
+        title: "Login Error",
+        description: "An error occurred during login. Please try again.",
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <div className="w-full bg-background p-4 border-b flex justify-center">
-        <div className="flex items-center">
-          <Shield className="h-6 w-6 text-eventPurple-700 mr-2" />
-          <h1 className="text-xl font-bold">Maabara Admin</h1>
-        </div>
-      </div>
-
-      <div className="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
-        <div className="w-full max-w-md">
-          <div className="bg-white p-8 rounded-lg shadow-sm">
-            <div className="text-center mb-6">
-              <div className="flex justify-center mb-4">
-                <LockKeyhole className="h-12 w-12 text-eventPurple-700" />
-              </div>
-              <h1 className="text-2xl font-bold text-gray-900">Admin Access</h1>
-              <p className="text-gray-600 mt-1">Sign in to your admin account</p>
+    <div className="flex items-center justify-center h-screen bg-gray-100">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl">Admin Login</CardTitle>
+          <CardDescription>Enter your email and password to log in.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4">
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="grid gap-2">
+              <Label htmlFor="email">Email</Label>
+              <Controller
+                control={control}
+                name="email"
+                render={({ field }) => (
+                  <Input id="email" type="email" {...field} />
+                )}
+              />
+              {errors.email && (
+                <p className="text-red-500 text-sm">{errors.email.message}</p>
+              )}
             </div>
-
-            <form onSubmit={handleLogin} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@example.com"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  required
-                />
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full bg-eventPurple-700 hover:bg-eventPurple-800"
-                disabled={isLoading}
-              >
-                {isLoading ? "Authenticating..." : "Sign in to Admin"}
-              </Button>
-            </form>
-            
-            <div className="mt-4 text-center">
-              <p className="text-sm text-gray-500">
-                Demo credentials are pre-filled for you
-              </p>
+            <div className="grid gap-2">
+              <Label htmlFor="password">Password</Label>
+              <Controller
+                control={control}
+                name="password"
+                render={({ field }) => (
+                  <Input id="password" type="password" {...field} />
+                )}
+              />
+              {errors.password && (
+                <p className="text-red-500 text-sm">{errors.password.message}</p>
+              )}
             </div>
-          </div>
-        </div>
-      </div>
-
-      <Footer />
+            <Button disabled={isLoading} className="w-full mt-4">
+              {isLoading ? "Logging in..." : "Login"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 };
