@@ -89,12 +89,12 @@ const EventCard = ({ id, title, image, date, time, location, price, is_free, cat
   const formattedPrice = typeof price === 'number' ? price : parseFloat(String(price));
 
   return (
-    <div className="event-card bg-white rounded-lg overflow-hidden shadow border border-gray-100">
-      <div className="h-48 overflow-hidden relative">
+    <div className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 border border-blue-100 flex flex-col h-full transform hover:-translate-y-1">
+      <div className="h-52 overflow-hidden relative">
         <img 
           src={imageUrl} 
           alt={title} 
-          className="w-full h-full object-cover" 
+          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105" 
           onError={(e) => {
             const target = e.target as HTMLImageElement;
             if (target.src !== fallbackImage) {
@@ -102,58 +102,60 @@ const EventCard = ({ id, title, image, date, time, location, price, is_free, cat
             }
           }}
         />
-        {isFree && (
-          <div className="absolute top-2 right-2">
-            <Badge className="bg-green-500 hover:bg-green-600">Free</Badge>
-          </div>
-        )}
-        {pastEvent && (
-          <div className="absolute top-2 left-2">
-            <Badge className="bg-gray-500 hover:bg-gray-600">Past Event</Badge>
-          </div>
-        )}
-      </div>
-      
-      <div className="p-5">
-        <div className="mb-3 flex gap-2 flex-wrap">
-          <span className="inline-block px-3 py-1 text-xs font-medium bg-eventPurple-100 text-eventPurple-700 rounded-full">
-            {category}
-          </span>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+        
+        <div className="absolute top-3 right-3 flex gap-2">
+          {isFree && (
+            <Badge className="bg-green-500 hover:bg-green-600 text-white">Free</Badge>
+          )}
+          {pastEvent && (
+            <Badge variant="secondary" className="bg-gray-600 text-white hover:bg-gray-700">Past Event</Badge>
+          )}
         </div>
         
-        <h3 className="text-xl font-bold mb-2 text-gray-800">{title}</h3>
+        <div className="absolute bottom-3 left-3">
+          <Badge className="bg-blue-600 hover:bg-blue-700 text-white">
+            {category}
+          </Badge>
+        </div>
+      </div>
+      
+      <div className="p-5 flex-grow">
+        <h3 className="text-xl font-bold mb-3 text-blue-800 line-clamp-2">{title}</h3>
         
-        <div className="space-y-2 mb-4">
+        <div className="space-y-3 mb-5">
           <div className="flex items-center text-gray-600">
-            <CalendarIcon className="h-4 w-4 mr-2" />
+            <CalendarIcon className="h-4 w-4 mr-2 text-blue-600" />
             <span className="text-sm">{date}</span>
           </div>
           
           <div className="flex items-center text-gray-600">
-            <ClockIcon className="h-4 w-4 mr-2" />
+            <ClockIcon className="h-4 w-4 mr-2 text-blue-600" />
             <span className="text-sm">{time}</span>
           </div>
           
           <div className="flex items-center text-gray-600">
-            <MapPinIcon className="h-4 w-4 mr-2" />
+            <MapPinIcon className="h-4 w-4 mr-2 text-blue-600" />
             <span className="text-sm truncate">{location}</span>
           </div>
           
           <div className="flex items-center text-gray-800 font-medium">
-            <BanknoteIcon className="h-4 w-4 mr-2" />
+            <BanknoteIcon className="h-4 w-4 mr-2 text-blue-600" />
             <span className="text-sm">
               {isFree ? "Free Event" : `KES ${formattedPrice.toLocaleString()}`}
             </span>
           </div>
         </div>
-        
+      </div>
+      
+      <div className="p-5 pt-0 mt-auto">
         <Link to={`/events/${id}`}>
           {pastEvent ? (
-            <Button variant="secondary" className="w-full opacity-75 cursor-not-allowed" disabled>
+            <Button variant="outline" className="w-full border-blue-200 text-blue-700 hover:bg-blue-50" disabled>
               Event Completed
             </Button>
           ) : (
-            <Button className="w-full bg-eventPurple-700 hover:bg-eventPurple-800">
+            <Button className="w-full bg-blue-600 hover:bg-blue-700">
               Book Now
             </Button>
           )}

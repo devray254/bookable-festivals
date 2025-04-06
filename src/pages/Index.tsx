@@ -66,26 +66,30 @@ const Index = () => {
       
       <Hero />
       
-      <EventsSection 
-        title="Upcoming Events"
-        events={upcomingEvents}
-        isLoading={isLoadingEvents}
-        linkText="View All Events →"
-        linkUrl="/events"
-      />
+      <div className="bg-white">
+        <EventsSection 
+          title="Upcoming Events"
+          events={upcomingEvents}
+          isLoading={isLoadingEvents}
+          linkText="View All Events →"
+          linkUrl="/events"
+        />
+      </div>
       
       <CategoriesSection 
         categories={categories}
         isLoading={isLoadingCategories}
       />
       
-      <EventsSection 
-        title="Past Events"
-        events={pastEvents}
-        isLoading={isLoadingEvents}
-        linkText="View All Past Events →"
-        linkUrl="/events?past=true"
-      />
+      <div className="bg-gray-50">
+        <EventsSection 
+          title="Past Events"
+          events={pastEvents}
+          isLoading={isLoadingEvents}
+          linkText="View All Past Events →"
+          linkUrl="/events?past=true"
+        />
+      </div>
       
       <Footer />
     </div>

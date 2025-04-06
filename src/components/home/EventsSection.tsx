@@ -19,21 +19,22 @@ export const EventsSection = ({
   linkUrl 
 }: EventsSectionProps) => {
   return (
-    <section className="py-12">
+    <section className="py-16">
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl md:text-3xl font-bold">{title}</h2>
-          <Link to={linkUrl} className="text-eventPurple-700 hover:underline font-medium">
+        <div className="flex justify-between items-center mb-10">
+          <h2 className="text-2xl md:text-3xl font-bold text-blue-800">{title}</h2>
+          <Link to={linkUrl} className="text-blue-600 hover:text-blue-800 hover:underline font-medium flex items-center transition-colors">
             {linkText}
           </Link>
         </div>
         
         {isLoading ? (
           <div className="text-center py-12">
-            <p className="text-gray-600">Loading events...</p>
+            <div className="animate-spin h-12 w-12 border-4 border-blue-500 border-t-transparent rounded-full mx-auto"></div>
+            <p className="text-gray-600 mt-4">Loading events...</p>
           </div>
         ) : events.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {events.slice(0, 3).map((event) => (
               <EventCard 
                 key={event.id} 
@@ -50,7 +51,7 @@ export const EventsSection = ({
             ))}
           </div>
         ) : (
-          <div className="text-center py-12 bg-gray-50 rounded-lg">
+          <div className="text-center py-12 bg-blue-50 rounded-lg">
             <p className="text-gray-600">No {title.toLowerCase()} found</p>
           </div>
         )}

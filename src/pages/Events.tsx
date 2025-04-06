@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { Navbar } from "@/components/layout/Navbar";
@@ -14,6 +15,7 @@ import { fetchEvents } from "@/utils/events";
 import { fetchCategories } from "@/utils/categories";
 import { checkInactivity } from "@/utils/db-connection";
 import { Event } from "@/utils/events/types";
+import PageBanner from "@/components/layout/PageBanner";
 
 interface Category {
   id: number;
@@ -129,155 +131,158 @@ const Events = () => {
   }, [events, searchTerm, selectedCategory, priceRange]);
   
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <Navbar />
       
-      <div className="bg-eventPurple-700 py-10">
-        <div className="container mx-auto px-4">
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-6">
-            Browse Events
-          </h1>
-          
+      <PageBanner 
+        title="Browse Events" 
+        subtitle="Discover upcoming CPD opportunities for healthcare professionals"
+      />
+      
+      <div className="container mx-auto px-4 py-8">
+        <div className="bg-white p-6 rounded-xl shadow-md mb-8">
           <div className="relative">
             <Input
               type="text"
-              placeholder="Search events..."
-              className="w-full py-6 pl-12 pr-4 rounded-lg text-gray-900"
+              placeholder="Search events by title, location or category..."
+              className="w-full py-6 pl-12 pr-4 rounded-lg border-blue-200 focus-visible:ring-blue-500 text-blue-900"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <Search className="absolute left-4 top-3 h-5 w-5 text-gray-400" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-blue-500" />
             
             <Button 
-              className="absolute right-1 top-1 text-sm flex items-center"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm flex items-center"
               variant="outline"
               onClick={() => setShowFilters(!showFilters)}
             >
               <SlidersHorizontal className="mr-2 h-4 w-4" />
-              Filters
+              {showFilters ? "Hide Filters" : "Show Filters"}
             </Button>
           </div>
         </div>
-      </div>
-      
-      <div className="bg-gray-50 py-8 flex-grow">
-        <div className="container mx-auto px-4">
-          {showFilters && (
-            <div className="bg-white p-6 rounded-lg shadow-sm mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div>
-                <h3 className="font-medium mb-3 text-gray-800">Categories</h3>
-                <div className="space-y-2">
-                  <div className="flex items-center">
-                    <Checkbox 
-                      id="all-categories" 
-                      checked={selectedCategory === ""} 
-                      onCheckedChange={() => setSelectedCategory("")} 
-                    />
-                    <Label htmlFor="all-categories" className="ml-2">
-                      All Categories
-                    </Label>
-                  </div>
-                  
-                  {loadingCategories ? (
-                    <div className="py-2 text-sm text-gray-500">Loading categories...</div>
-                  ) : categories.length > 0 ? (
-                    categories.map(category => (
-                      <div key={category.id} className="flex items-center">
-                        <Checkbox 
-                          id={`category-${category.id}`}
-                          checked={selectedCategory === category.name} 
-                          onCheckedChange={() => setSelectedCategory(selectedCategory === category.name ? "" : category.name)} 
-                        />
-                        <Label htmlFor={`category-${category.id}`} className="ml-2">
-                          {category.name} {category.events_count !== undefined && `(${category.events_count})`}
-                        </Label>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="py-2 text-sm text-gray-500">No categories found</div>
-                  )}
-                </div>
-              </div>
-              
-              <div>
-                <h3 className="font-medium mb-3 text-gray-800">Price Range</h3>
-                <div className="px-2">
-                  <Slider
-                    defaultValue={[0, 5000]}
-                    max={5000}
-                    step={100}
-                    value={priceRange}
-                    onValueChange={setPriceRange}
-                    className="my-6"
+        
+        {showFilters && (
+          <div className="bg-white p-6 rounded-xl shadow-md mb-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+              <h3 className="font-medium mb-4 text-blue-800">Categories</h3>
+              <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
+                <div className="flex items-center">
+                  <Checkbox 
+                    id="all-categories" 
+                    checked={selectedCategory === ""} 
+                    onCheckedChange={() => setSelectedCategory("")} 
                   />
-                  <div className="flex justify-between text-sm text-gray-600">
-                    <span>KES {priceRange[0]}</span>
-                    <span>KES {priceRange[1]}</span>
-                  </div>
+                  <Label htmlFor="all-categories" className="ml-2 text-gray-700">
+                    All Categories
+                  </Label>
+                </div>
+                
+                {loadingCategories ? (
+                  <div className="py-2 text-sm text-gray-500">Loading categories...</div>
+                ) : categories.length > 0 ? (
+                  categories.map(category => (
+                    <div key={category.id} className="flex items-center">
+                      <Checkbox 
+                        id={`category-${category.id}`}
+                        checked={selectedCategory === category.name} 
+                        onCheckedChange={() => setSelectedCategory(selectedCategory === category.name ? "" : category.name)} 
+                      />
+                      <Label htmlFor={`category-${category.id}`} className="ml-2 text-gray-700">
+                        {category.name} {category.events_count !== undefined && <span className="text-blue-600 text-sm">({category.events_count})</span>}
+                      </Label>
+                    </div>
+                  ))
+                ) : (
+                  <div className="py-2 text-sm text-gray-500">No categories found</div>
+                )}
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="font-medium mb-4 text-blue-800">Price Range (KES)</h3>
+              <div className="px-2">
+                <Slider
+                  defaultValue={[0, 5000]}
+                  max={5000}
+                  step={100}
+                  value={priceRange}
+                  onValueChange={setPriceRange}
+                  className="my-6"
+                />
+                <div className="flex justify-between text-sm text-gray-700">
+                  <span className="font-medium">KES {priceRange[0].toLocaleString()}</span>
+                  <span className="font-medium">KES {priceRange[1].toLocaleString()}</span>
                 </div>
               </div>
-              
-              <div>
-                <h3 className="font-medium mb-3 text-gray-800">Date</h3>
-                <Button variant="outline" className="w-full justify-start text-gray-700">
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  Select Dates
-                </Button>
-              </div>
             </div>
-          )}
-          
-          <div className="mb-6 flex justify-between items-center">
-            <p className="text-gray-600">
-              Showing {filteredEvents.length} events
-              {selectedCategory && ` in ${selectedCategory}`}
-              {searchTerm && ` matching "${searchTerm}"`}
-            </p>
             
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => {
-                loadEvents();
-                loadCategories();
-              }} 
-              disabled={isLoading || loadingCategories}
-              className="flex items-center gap-2"
-            >
-              <RefreshCw className={`h-4 w-4 ${isLoading || loadingCategories ? 'animate-spin' : ''}`} />
-              {isLoading || loadingCategories ? 'Loading...' : 'Refresh'}
-            </Button>
+            <div>
+              <h3 className="font-medium mb-4 text-blue-800">Location</h3>
+              <Button variant="outline" className="w-full justify-start text-gray-700 border-blue-200">
+                <MapPinIcon className="mr-2 h-4 w-4 text-blue-600" />
+                All Locations
+              </Button>
+              
+              <h3 className="font-medium mb-4 mt-6 text-blue-800">Date</h3>
+              <Button variant="outline" className="w-full justify-start text-gray-700 border-blue-200">
+                <CalendarIcon className="mr-2 h-4 w-4 text-blue-600" />
+                All Dates
+              </Button>
+            </div>
           </div>
+        )}
+        
+        <div className="mb-6 flex justify-between items-center">
+          <p className="text-gray-700">
+            Showing <span className="font-bold text-blue-700">{filteredEvents.length}</span> events
+            {selectedCategory && <span> in <span className="font-medium text-blue-700">{selectedCategory}</span></span>}
+            {searchTerm && <span> matching "<span className="font-medium text-blue-700">{searchTerm}</span>"</span>}
+          </p>
           
-          {isLoading ? (
-            <div className="py-10 text-center">
-              <RefreshCw className="h-10 w-10 animate-spin mx-auto mb-4 text-eventPurple-600" />
-              <p className="text-gray-600">Loading events...</p>
-            </div>
-          ) : filteredEvents.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredEvents.map(event => (
-                <EventCard 
-                  key={event.id} 
-                  id={event.id}
-                  title={event.title} 
-                  image={event.image_url || '/placeholder.svg'} 
-                  date={new Date(event.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} 
-                  time={event.time || '00:00'} 
-                  location={event.location} 
-                  price={typeof event.price === 'string' ? parseFloat(event.price) : event.price} 
-                  category={event.category_name || `Category ${event.category_id}`}
-                  is_free={Boolean(event.is_free)}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <h3 className="text-xl font-medium text-gray-800 mb-2">No events found</h3>
-              <p className="text-gray-600">Try adjusting your search or filters to find events.</p>
-            </div>
-          )}
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => {
+              loadEvents();
+              loadCategories();
+            }} 
+            disabled={isLoading || loadingCategories}
+            className="flex items-center gap-2 border-blue-200 text-blue-700"
+          >
+            <RefreshCw className={`h-4 w-4 ${isLoading || loadingCategories ? 'animate-spin' : ''}`} />
+            {isLoading || loadingCategories ? 'Loading...' : 'Refresh'}
+          </Button>
         </div>
+        
+        {isLoading ? (
+          <div className="py-16 text-center">
+            <div className="animate-spin h-12 w-12 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading events...</p>
+          </div>
+        ) : filteredEvents.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-10">
+            {filteredEvents.map(event => (
+              <EventCard 
+                key={event.id} 
+                id={event.id}
+                title={event.title} 
+                image={event.image_url || '/placeholder.svg'} 
+                date={new Date(event.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} 
+                time={event.time || '00:00'} 
+                location={event.location} 
+                price={typeof event.price === 'string' ? parseFloat(event.price) : event.price} 
+                category={event.category_name || `Category ${event.category_id}`}
+                is_free={Boolean(event.is_free)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-16 bg-white rounded-xl shadow">
+            <h3 className="text-xl font-medium text-blue-800 mb-2">No events found</h3>
+            <p className="text-gray-600">Try adjusting your search or filters to find events.</p>
+          </div>
+        )}
       </div>
       
       <Footer />
