@@ -4,4 +4,5 @@ export * from './types';
 export * from './core';
 export * from './verification';
 export * from './analytics';
+export * from './exports';
 export * from './mock-data';
