@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Loader2, Save } from "lucide-react";
-import { saveGmailSettings } from "@/utils/gmail-settings";
+import { updateGmailSettings } from "@/utils/gmail-settings";
 
 interface GmailSettings {
   clientId: string;
@@ -38,7 +38,7 @@ export function GmailSettingsForm({ existingSettings, onSuccess }: GmailSettings
   const onSubmit = async (data: GmailSettings) => {
     setIsSubmitting(true);
     try {
-      const result = await saveGmailSettings(data, 'admin@maabara.co.ke'); 
+      const result = await updateGmailSettings(data, 'admin@maabara.co.ke'); 
       
       if (result.success) {
         toast.success("Gmail settings saved successfully");
@@ -58,38 +58,38 @@ export function GmailSettingsForm({ existingSettings, onSuccess }: GmailSettings
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="space-y-4">
         <div className="grid gap-2">
-          <Label htmlFor="client_id">Client ID</Label>
+          <Label htmlFor="clientId">Client ID</Label>
           <Input
-            id="client_id"
-            {...register("client_id", { required: "Client ID is required" })}
+            id="clientId"
+            {...register("clientId", { required: "Client ID is required" })}
             placeholder="Your Gmail OAuth Client ID"
           />
-          {errors.client_id && (
-            <p className="text-sm text-red-500">{errors.client_id.message}</p>
+          {errors.clientId && (
+            <p className="text-sm text-red-500">{errors.clientId.message}</p>
           )}
         </div>
         
         <div className="grid gap-2">
-          <Label htmlFor="client_secret">Client Secret</Label>
+          <Label htmlFor="clientSecret">Client Secret</Label>
           <Input
-            id="client_secret"
+            id="clientSecret"
             type="password"
-            {...register("client_secret", { required: "Client Secret is required" })}
+            {...register("clientSecret", { required: "Client Secret is required" })}
             placeholder="Your Gmail OAuth Client Secret"
           />
-          {errors.client_secret && (
-            <p className="text-sm text-red-500">{errors.client_secret.message}</p>
+          {errors.clientSecret && (
+            <p className="text-sm text-red-500">{errors.clientSecret.message}</p>
           )}
         </div>
         
         <div className="grid gap-2">
-          <Label htmlFor="redirect_uri">Redirect URI</Label>
+          <Label htmlFor="redirectUri">Redirect URI</Label>
           <Input
-            id="redirect_uri"
-            {...register("redirect_uri", { required: "Redirect URI is required" })}
+            id="redirectUri"
+            {...register("redirectUri", { required: "Redirect URI is required" })}
           />
-          {errors.redirect_uri && (
-            <p className="text-sm text-red-500">{errors.redirect_uri.message}</p>
+          {errors.redirectUri && (
+            <p className="text-sm text-red-500">{errors.redirectUri.message}</p>
           )}
           <p className="text-sm text-muted-foreground">
             This should match the redirect URI configured in your Google Cloud Console

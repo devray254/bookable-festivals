@@ -37,7 +37,7 @@ export const logActivity = async (activity: ActivityLog) => {
   } catch (error) {
     console.error('Error logging activity:', error);
     // Even if logging fails, we don't want to interrupt the user flow
-    return { success: false, silent: true };
+    return { success: false, silent: true, message: String(error) };
   }
 };
 
@@ -89,5 +89,20 @@ export const getLogCount = async (level?: string) => {
   } catch (error) {
     console.error('Error getting log count:', error);
     return 0;
+  }
+};
+
+// Add the fetchLogById function that was missing
+export const fetchLogById = async (id: number) => {
+  try {
+    const sql = 'SELECT * FROM activity_logs WHERE id = ? LIMIT 1';
+    const params = [id];
+    
+    const result = await query(sql, params);
+    
+    return result && result.length > 0 ? result[0] : null;
+  } catch (error) {
+    console.error('Error fetching log by ID:', error);
+    return null;
   }
 };

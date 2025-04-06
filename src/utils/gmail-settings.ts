@@ -50,7 +50,7 @@ export const updateGmailSettings = async (settings: GmailSettings, adminEmail: s
   }
 };
 
-// Alias for saveGmailSettings to fix the error in GmailSettingsForm
+// Alias for saveGmailSettings to maintain backward compatibility
 export const saveGmailSettings = updateGmailSettings;
 
 // Send email using Gmail
