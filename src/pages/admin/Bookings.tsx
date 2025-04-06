@@ -1,20 +1,21 @@
-
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { exportToExcel, exportToPDF } from "@/utils/exports";
-import { Eye, FileExcel, FilePdf } from "lucide-react";
+import { FileDown } from "lucide-react";
 import { useState } from "react";
+import { Booking } from "@/utils/bookings";
 
 export default function AdminBookings() {
   const [activeTab, setActiveTab] = useState("all");
   
-  const bookings = [
+  const bookings: Booking[] = [
     {
       id: 1,
       event: "Science Exhibition",
+      event_id: 101,
       customer: "John Doe",
       email: "john@example.com",
       phone: "0712345678",
@@ -26,6 +27,7 @@ export default function AdminBookings() {
     {
       id: 2,
       event: "Tech Workshop",
+      event_id: 102,
       customer: "Jane Smith",
       email: "jane@example.com",
       phone: "0723456789",
@@ -37,6 +39,7 @@ export default function AdminBookings() {
     {
       id: 3,
       event: "Chemistry Seminar",
+      event_id: 103,
       customer: "Mike Johnson",
       email: "mike@example.com",
       phone: "0734567890",
@@ -48,6 +51,7 @@ export default function AdminBookings() {
     {
       id: 4,
       event: "Tech Workshop",
+      event_id: 102,
       customer: "Sarah Williams",
       email: "sarah@example.com",
       phone: "0745678901",
@@ -62,7 +66,6 @@ export default function AdminBookings() {
   const pendingBookings = bookings.filter(booking => booking.status === "pending");
   const cancelledBookings = bookings.filter(booking => booking.status === "cancelled");
 
-  // Get the current active bookings list based on tab
   const getCurrentBookings = () => {
     switch (activeTab) {
       case "confirmed": return confirmedBookings;
@@ -72,7 +75,6 @@ export default function AdminBookings() {
     }
   };
 
-  // Handle exports
   const handleExportToExcel = () => {
     exportToExcel(getCurrentBookings());
   };
@@ -178,7 +180,7 @@ export default function AdminBookings() {
                 className="flex items-center gap-2"
                 onClick={handleExportToExcel}
               >
-                <FileExcel className="h-4 w-4" />
+                <FileDown className="h-4 w-4" />
                 Export to Excel
               </Button>
               <Button 
@@ -187,7 +189,7 @@ export default function AdminBookings() {
                 className="flex items-center gap-2"
                 onClick={handleExportToPDF}
               >
-                <FilePdf className="h-4 w-4" />
+                <FileDown className="h-4 w-4" />
                 Export to PDF
               </Button>
             </div>
