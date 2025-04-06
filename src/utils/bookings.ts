@@ -1,4 +1,3 @@
-
 // Booking type definition
 export interface Booking {
   id: number;
@@ -11,6 +10,11 @@ export interface Booking {
   tickets: number;
   total: string;
   status: "confirmed" | "pending" | "cancelled";
+  attendance_status?: "attended" | "partial" | "absent" | "unverified";
+  certificate_enabled?: boolean;
+  webinar_link?: string;
+  user_id?: number;
+  certificate_id?: string;
 }
 
 // Function to fetch bookings from the API
@@ -114,4 +118,94 @@ export const getBookingStatistics = (bookings: Booking[]) => {
     cancelled,
     totalRevenue
   };
+};
+
+// Function to get bookings by event ID (alias for getBookingsByEvent for consistent naming)
+export const getBookingsByEventId = async (eventId: number): Promise<Booking[]> => {
+  return getBookingsByEvent(eventId);
+};
+
+// Function to get a booking by ID
+export const getBookingById = async (bookingId: number): Promise<Booking | null> => {
+  try {
+    const response = await fetch(`/api/bookings.php?id=${bookingId}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch booking');
+    }
+    const bookings = await response.json();
+    return bookings.length > 0 ? bookings[0] : null;
+  } catch (error) {
+    console.error('Error fetching booking by ID:', error);
+    return null;
+  }
+};
+
+// Function to get bookings by user ID
+export const getBookingsByUserId = async (userId: number): Promise<Booking[]> => {
+  try {
+    const response = await fetch(`/api/bookings.php?user_id=${userId}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch user bookings');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching bookings by user ID:', error);
+    return [];
+  }
+};
+
+// Function to get a booking by phone number and event
+export const getBookingByPhone = async (phoneNumber: string, eventId: number): Promise<Booking | null> => {
+  try {
+    const response = await fetch(`/api/bookings.php?phone=${phoneNumber}&event_id=${eventId}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch booking by phone');
+    }
+    const bookings = await response.json();
+    return bookings.length > 0 ? bookings[0] : null;
+  } catch (error) {
+    console.error('Error fetching booking by phone:', error);
+    return null;
+  }
+};
+
+// Function to update attendance status and certificate eligibility
+export const updateAttendanceStatus = async (
+  bookingId: number,
+  status: "attended" | "partial" | "absent" | "unverified",
+  enableCertificate: boolean,
+  adminEmail: string
+): Promise<{success: boolean, message?: string, booking?: Booking}> => {
+  try {
+    const response = await fetch('/api/update-attendance.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        bookingId,
+        status,
+        enableCertificate,
+        adminEmail
+      }),
+    });
+    
+    const data = await response.json();
+    
+    // If successful, return the updated booking
+    if (data.success && data.booking) {
+      return {
+        success: true,
+        booking: data.booking
+      };
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Error updating attendance status:', error);
+    return {
+      success: false,
+      message: String(error)
+    };
+  }
 };
