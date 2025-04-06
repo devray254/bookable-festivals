@@ -13,6 +13,9 @@ import { GmailSettingsForm } from "@/components/admin/gmail/GmailSettingsForm";
 import { GmailStatus } from "@/components/admin/gmail/GmailStatus";
 import { fetchGmailSettings } from "@/utils/gmail-settings";
 import { useQuery } from "@tanstack/react-query";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CertificateEmailSettings } from "@/components/admin/gmail/CertificateEmailSettings";
+import { GmailAuthSettings } from "@/components/admin/gmail/GmailAuthSettings";
 
 export default function AdminGmailSettings() {
   const { data: gmailSettings, isLoading, refetch } = useQuery({
@@ -51,6 +54,43 @@ export default function AdminGmailSettings() {
               />
             </CardContent>
           </Card>
+
+          <Tabs defaultValue="auth" className="w-full">
+            <TabsList className="mb-4">
+              <TabsTrigger value="auth">Authentication</TabsTrigger>
+              <TabsTrigger value="certificates">Certificate Emails</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="auth">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Gmail Authentication Settings</CardTitle>
+                  <CardDescription>
+                    Configure settings for Sign in with Gmail functionality
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <GmailAuthSettings 
+                    isEnabled={gmailSettings?.enabled} 
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="certificates">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Certificate Email Settings</CardTitle>
+                  <CardDescription>
+                    Configure default email templates for sending certificates
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <CertificateEmailSettings />
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </AdminLayout>

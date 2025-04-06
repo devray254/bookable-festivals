@@ -5,12 +5,21 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { exportToExcel, exportToPDF } from "@/utils/exports";
-import { FileDown, Eye } from "lucide-react";
-import { useState } from "react";
+import { FileDown, Eye, Filter } from "lucide-react";
+import { useState, useEffect } from "react";
 import { Booking } from "@/utils/bookings";
+import { useQuery } from "@tanstack/react-query";
+import { getAllEvents } from "@/utils/events";
+import { BookingFilters } from "@/components/admin/bookings/BookingFilters";
 
 export default function AdminBookings() {
   const [activeTab, setActiveTab] = useState("all");
+  const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
+  
+  const { data: events = [] } = useQuery({
+    queryKey: ['events'],
+    queryFn: getAllEvents
+  });
   
   const bookings: Booking[] = [
     {
@@ -63,16 +72,33 @@ export default function AdminBookings() {
     }
   ];
 
-  const confirmedBookings = bookings.filter(booking => booking.status === "confirmed");
-  const pendingBookings = bookings.filter(booking => booking.status === "pending");
-  const cancelledBookings = bookings.filter(booking => booking.status === "cancelled");
+  // Filter bookings based on active tab and selected event
+  const filteredBookings = bookings
+    .filter(booking => {
+      // Filter by status
+      if (activeTab !== "all") {
+        return booking.status === activeTab;
+      }
+      return true;
+    })
+    .filter(booking => {
+      // Filter by event ID
+      if (selectedEventId) {
+        return booking.event_id === selectedEventId;
+      }
+      return true;
+    });
+
+  const confirmedBookings = filteredBookings.filter(booking => booking.status === "confirmed");
+  const pendingBookings = filteredBookings.filter(booking => booking.status === "pending");
+  const cancelledBookings = filteredBookings.filter(booking => booking.status === "cancelled");
 
   const getCurrentBookings = () => {
     switch (activeTab) {
       case "confirmed": return confirmedBookings;
       case "pending": return pendingBookings;
       case "cancelled": return cancelledBookings;
-      default: return bookings;
+      default: return filteredBookings;
     }
   };
 
@@ -144,7 +170,7 @@ export default function AdminBookings() {
               <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{bookings.length}</div>
+              <div className="text-2xl font-bold">{filteredBookings.length}</div>
             </CardContent>
           </Card>
           
@@ -163,7 +189,7 @@ export default function AdminBookings() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                KES {bookings.reduce((sum, booking) => sum + parseInt(booking.total), 0)}
+                KES {filteredBookings.reduce((sum, booking) => sum + parseInt(booking.total), 0)}
               </div>
             </CardContent>
           </Card>
@@ -196,7 +222,13 @@ export default function AdminBookings() {
             </div>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="all" onValueChange={setActiveTab}>
+            <BookingFilters 
+              events={events} 
+              selectedEventId={selectedEventId}
+              onEventSelect={setSelectedEventId}
+            />
+            
+            <Tabs defaultValue="all" onValueChange={setActiveTab} className="mt-4">
               <TabsList className="mb-4">
                 <TabsTrigger value="all">All</TabsTrigger>
                 <TabsTrigger value="confirmed">Confirmed</TabsTrigger>
@@ -205,7 +237,7 @@ export default function AdminBookings() {
               </TabsList>
               
               <TabsContent value="all">
-                {renderBookingTable(bookings)}
+                {renderBookingTable(filteredBookings)}
               </TabsContent>
               
               <TabsContent value="confirmed">

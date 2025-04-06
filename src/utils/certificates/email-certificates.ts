@@ -87,7 +87,7 @@ export const sendCertificateEmail = async (certificateId: string, email: string)
 };
 
 // Send certificates in bulk
-export const sendBulkCertificateEmails = async (eventId: number, customMessage?: string) => {
+export const sendBulkCertificateEmails = async (eventId: number, adminEmail?: string, customMessage?: string) => {
   try {
     console.log(`Sending certificates in bulk for event ${eventId}`);
     
@@ -169,7 +169,7 @@ export const sendBulkCertificateEmails = async (eventId: number, customMessage?:
     // Log bulk email activity
     await logActivity({
       action: 'Bulk Certificate Email',
-      user: 'admin', // Ideally this should be the actual admin user
+      user: adminEmail || 'admin',
       details: `Sent ${sentCount} of ${certificates.length} certificates for event ${eventId}`,
       level: 'important'
     });

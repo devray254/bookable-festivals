@@ -1,15 +1,17 @@
+
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Award, Loader2 } from "lucide-react";
+import { Award, Loader2, Mail } from "lucide-react";
 import { getAllUsers } from "@/utils/auth";
-import { generateCertificate, generateBulkCertificates } from "@/utils/certificates";
+import { generateCertificate, generateBulkCertificates, sendBulkCertificateEmails } from "@/utils/certificates";
 import { UsersList } from "./UsersList";
 import { BulkCertificateActions } from "./BulkCertificateActions";
 import { BulkCertificateSection } from "./BulkCertificateSection";
+import { BulkEmailButton } from "./BulkEmailButton";
 
 interface CertificateGeneratorProps {
   eventId: number;
@@ -20,6 +22,7 @@ export function CertificateGenerator({ eventId }: CertificateGeneratorProps) {
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
   const [isBulkGenerating, setIsBulkGenerating] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isEmailSending, setIsEmailSending] = useState(false);
   const [adminEmail, setAdminEmail] = useState('');
 
   useEffect(() => {
@@ -116,6 +119,25 @@ export function CertificateGenerator({ eventId }: CertificateGeneratorProps) {
     }
   };
 
+  const handleSendBulkEmails = async () => {
+    setIsEmailSending(true);
+    
+    try {
+      const result = await sendBulkCertificateEmails(eventId, adminEmail);
+      
+      if (result.success) {
+        toast.success(`Sent ${result.sent} certificates by email out of ${result.total} total`);
+      } else {
+        toast.error(result.message || "Failed to send certificates by email");
+      }
+    } catch (error) {
+      console.error("Error sending certificates by email:", error);
+      toast.error("An error occurred while sending certificates by email");
+    } finally {
+      setIsEmailSending(false);
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -141,10 +163,18 @@ export function CertificateGenerator({ eventId }: CertificateGeneratorProps) {
             />
           </div>
           
-          <BulkCertificateSection 
-            isBulkGenerating={isBulkGenerating}
-            onBulkGenerate={handleBulkGenerate}
-          />
+          <div className="flex flex-wrap justify-between items-center">
+            <BulkCertificateSection 
+              isBulkGenerating={isBulkGenerating}
+              onBulkGenerate={handleBulkGenerate}
+            />
+            
+            <BulkEmailButton
+              onClick={handleSendBulkEmails}
+              isSending={isEmailSending}
+              disabled={isBulkGenerating || isGenerating}
+            />
+          </div>
           
           <UsersList 
             filteredUsers={filteredUsers}
