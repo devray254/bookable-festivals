@@ -1,10 +1,11 @@
+
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { exportToExcel, exportToPDF } from "@/utils/exports";
-import { FileDown } from "lucide-react";
+import { FileDown, Eye } from "lucide-react";
 import { useState } from "react";
 import { Booking } from "@/utils/bookings";
 
