@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +8,7 @@ import { Award, Loader2 } from "lucide-react";
 import { getAllUsers } from "@/utils/auth";
 import { generateCertificate, generateBulkCertificates } from "@/utils/certificates";
 import { UsersList } from "./UsersList";
-import { CertificateActions } from "./CertificateActions";
+import { BulkCertificateActions } from "./BulkCertificateActions";
 import { BulkCertificateSection } from "./BulkCertificateSection";
 
 interface CertificateGeneratorProps {
@@ -23,7 +22,6 @@ export function CertificateGenerator({ eventId }: CertificateGeneratorProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [adminEmail, setAdminEmail] = useState('');
 
-  // Get admin email from localStorage
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     if (user && user.email) {
@@ -31,13 +29,11 @@ export function CertificateGenerator({ eventId }: CertificateGeneratorProps) {
     }
   }, []);
 
-  // Fetch all users who have registered
   const { data, isLoading } = useQuery({
     queryKey: ['users'],
     queryFn: getAllUsers
   });
 
-  // Extract users array from the response
   const users = data?.success ? data.users : [];
 
   const filteredUsers = users.filter(user => 
@@ -75,7 +71,6 @@ export function CertificateGenerator({ eventId }: CertificateGeneratorProps) {
     setIsGenerating(true);
     
     try {
-      // Generate certificates for selected users
       const results = await Promise.all(
         selectedUsers.map(userId => 
           generateCertificate(eventId, userId, adminEmail)
@@ -137,7 +132,7 @@ export function CertificateGenerator({ eventId }: CertificateGeneratorProps) {
               />
             </div>
             
-            <CertificateActions 
+            <BulkCertificateActions 
               selectAllUsers={selectAllUsers}
               clearSelection={clearSelection}
               handleGenerateCertificates={handleGenerateCertificates}
