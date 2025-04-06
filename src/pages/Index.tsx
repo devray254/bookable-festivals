@@ -9,6 +9,7 @@ import { Hero } from "@/components/home/Hero";
 import { EventsSection } from "@/components/home/EventsSection";
 import { CategoriesSection } from "@/components/home/CategoriesSection";
 import { separateEventsByDate } from "@/utils/date-helpers";
+import { toast } from "sonner";
 
 interface Category {
   id: number;
@@ -31,6 +32,7 @@ const Index = () => {
         console.log('Categories loaded on homepage:', categoriesData);
       } catch (error) {
         console.error("Error loading categories:", error);
+        toast.error("Could not load categories. Please try again later.");
         setCategories([]);
       } finally {
         setIsLoadingCategories(false);
@@ -49,6 +51,7 @@ const Index = () => {
         console.log('Events loaded on homepage:', eventsData);
       } catch (error) {
         console.error("Error loading events:", error);
+        toast.error("Could not load events. Please try again later.");
         setEvents([]);
       } finally {
         setIsLoadingEvents(false);
@@ -66,7 +69,7 @@ const Index = () => {
       
       <Hero />
       
-      <div className="bg-white">
+      <div className="bg-gradient-to-br from-white to-purple-50">
         <EventsSection 
           title="Upcoming Events"
           events={upcomingEvents}
@@ -81,7 +84,7 @@ const Index = () => {
         isLoading={isLoadingCategories}
       />
       
-      <div className="bg-gray-50">
+      <div className="bg-gradient-to-br from-gray-50 to-white">
         <EventsSection 
           title="Past Events"
           events={pastEvents}

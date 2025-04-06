@@ -22,15 +22,15 @@ export const EventsSection = ({
     <section className="py-16">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-10">
-          <h2 className="text-2xl md:text-3xl font-bold text-blue-800">{title}</h2>
-          <Link to={linkUrl} className="text-blue-600 hover:text-blue-800 hover:underline font-medium flex items-center transition-colors">
+          <h2 className="text-2xl md:text-3xl font-bold text-purple-800">{title}</h2>
+          <Link to={linkUrl} className="text-teal-600 hover:text-teal-800 hover:underline font-medium flex items-center transition-colors">
             {linkText}
           </Link>
         </div>
         
         {isLoading ? (
           <div className="text-center py-12">
-            <div className="animate-spin h-12 w-12 border-4 border-blue-500 border-t-transparent rounded-full mx-auto"></div>
+            <div className="animate-spin h-12 w-12 border-4 border-purple-500 border-t-transparent rounded-full mx-auto"></div>
             <p className="text-gray-600 mt-4">Loading events...</p>
           </div>
         ) : events.length > 0 ? (
@@ -51,7 +51,7 @@ export const EventsSection = ({
             ))}
           </div>
         ) : (
-          <div className="text-center py-12 bg-blue-50 rounded-lg">
+          <div className="text-center py-12 bg-purple-50 rounded-lg">
             <p className="text-gray-600">No {title.toLowerCase()} found</p>
           </div>
         )}

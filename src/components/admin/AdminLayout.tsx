@@ -22,7 +22,9 @@ import {
   Settings,
   Users,
   Award,
-  Mail
+  Mail,
+  LogOut,
+  HelpCircle
 } from "lucide-react";
 
 interface AdminLayoutProps {
@@ -38,22 +40,25 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   return (
     <div className="h-screen">
       <SidebarProvider defaultOpen={true}>
-        <Sidebar className="border-r border-blue-700 bg-blue-800 text-white">
+        <Sidebar className="border-r border-purple-700 bg-purple-900 text-white">
           <SidebarHeader>
-            <h1 className="text-xl font-bold px-4 py-2 text-white">Maabara Online</h1>
-            <p className="text-xs text-blue-200 px-4">Admin Panel</p>
+            <h1 className="text-xl font-bold px-4 py-3 text-white">Maabara Online</h1>
+            <p className="text-xs text-purple-200 px-4 pb-2">Admin Control Panel</p>
           </SidebarHeader>
           <SidebarContent>
             <SidebarGroup>
+              <p className="px-3 py-2 text-xs font-semibold text-purple-300 uppercase tracking-wider">
+                Main Navigation
+              </p>
               <SidebarMenu>
                 <SidebarMenuItem>
                   <Link to="/admin">
                     <SidebarMenuButton 
                       isActive={isActive("/admin")} 
                       tooltip="Dashboard"
-                      className={isActive("/admin") ? "bg-blue-600 text-white" : "text-blue-100 hover:bg-blue-700"}
+                      className={isActive("/admin") ? "bg-purple-700 text-white" : "text-white hover:bg-purple-800"}
                     >
-                      <LayoutDashboard className="h-4 w-4 mr-2" />
+                      <LayoutDashboard className="h-5 w-5 mr-3" />
                       <span>Dashboard</span>
                     </SidebarMenuButton>
                   </Link>
@@ -62,11 +67,11 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   <Link to="/admin/users">
                     <SidebarMenuButton 
                       isActive={isActive("/admin/users")} 
-                      tooltip="Users"
-                      className={isActive("/admin/users") ? "bg-blue-600 text-white" : "text-blue-100 hover:bg-blue-700"}
+                      tooltip="Manage Users"
+                      className={isActive("/admin/users") ? "bg-purple-700 text-white" : "text-white hover:bg-purple-800"}
                     >
-                      <Users className="h-4 w-4 mr-2" />
-                      <span>Users</span>
+                      <Users className="h-5 w-5 mr-3" />
+                      <span>User Management</span>
                     </SidebarMenuButton>
                   </Link>
                 </SidebarMenuItem>
@@ -74,10 +79,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   <Link to="/admin/events">
                     <SidebarMenuButton 
                       isActive={isActive("/admin/events")} 
-                      tooltip="Events"
-                      className={isActive("/admin/events") ? "bg-blue-600 text-white" : "text-blue-100 hover:bg-blue-700"}
+                      tooltip="Manage Events"
+                      className={isActive("/admin/events") ? "bg-purple-700 text-white" : "text-white hover:bg-purple-800"}
                     >
-                      <CalendarDays className="h-4 w-4 mr-2" />
+                      <CalendarDays className="h-5 w-5 mr-3" />
                       <span>Events</span>
                     </SidebarMenuButton>
                   </Link>
@@ -86,22 +91,32 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   <Link to="/admin/categories">
                     <SidebarMenuButton 
                       isActive={isActive("/admin/categories")} 
-                      tooltip="Categories"
-                      className={isActive("/admin/categories") ? "bg-blue-600 text-white" : "text-blue-100 hover:bg-blue-700"}
+                      tooltip="Manage Categories"
+                      className={isActive("/admin/categories") ? "bg-purple-700 text-white" : "text-white hover:bg-purple-800"}
                     >
-                      <Tag className="h-4 w-4 mr-2" />
+                      <Tag className="h-5 w-5 mr-3" />
                       <span>Categories</span>
                     </SidebarMenuButton>
                   </Link>
                 </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroup>
+            
+            <SidebarSeparator className="my-3 border-purple-700" />
+            
+            <SidebarGroup>
+              <p className="px-3 py-2 text-xs font-semibold text-purple-300 uppercase tracking-wider">
+                Registration & Payments
+              </p>
+              <SidebarMenu>
                 <SidebarMenuItem>
                   <Link to="/admin/bookings">
                     <SidebarMenuButton 
                       isActive={isActive("/admin/bookings")} 
-                      tooltip="Bookings"
-                      className={isActive("/admin/bookings") ? "bg-blue-600 text-white" : "text-blue-100 hover:bg-blue-700"}
+                      tooltip="Manage Bookings"
+                      className={isActive("/admin/bookings") ? "bg-purple-700 text-white" : "text-white hover:bg-purple-800"}
                     >
-                      <BookOpen className="h-4 w-4 mr-2" />
+                      <BookOpen className="h-5 w-5 mr-3" />
                       <span>Bookings</span>
                     </SidebarMenuButton>
                   </Link>
@@ -110,10 +125,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   <Link to="/admin/payments">
                     <SidebarMenuButton 
                       isActive={isActive("/admin/payments")} 
-                      tooltip="Payments"
-                      className={isActive("/admin/payments") ? "bg-blue-600 text-white" : "text-blue-100 hover:bg-blue-700"}
+                      tooltip="Manage Payments"
+                      className={isActive("/admin/payments") ? "bg-purple-700 text-white" : "text-white hover:bg-purple-800"}
                     >
-                      <CreditCard className="h-4 w-4 mr-2" />
+                      <CreditCard className="h-5 w-5 mr-3" />
                       <span>Payments</span>
                     </SidebarMenuButton>
                   </Link>
@@ -122,22 +137,32 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   <Link to="/admin/certificates">
                     <SidebarMenuButton 
                       isActive={isActive("/admin/certificates")} 
-                      tooltip="Certificates"
-                      className={isActive("/admin/certificates") ? "bg-blue-600 text-white" : "text-blue-100 hover:bg-blue-700"}
+                      tooltip="Manage Certificates"
+                      className={isActive("/admin/certificates") ? "bg-purple-700 text-white" : "text-white hover:bg-purple-800"}
                     >
-                      <Award className="h-4 w-4 mr-2" />
+                      <Award className="h-5 w-5 mr-3" />
                       <span>Certificates</span>
                     </SidebarMenuButton>
                   </Link>
                 </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroup>
+            
+            <SidebarSeparator className="my-3 border-purple-700" />
+            
+            <SidebarGroup>
+              <p className="px-3 py-2 text-xs font-semibold text-purple-300 uppercase tracking-wider">
+                System Settings
+              </p>
+              <SidebarMenu>
                 <SidebarMenuItem>
                   <Link to="/admin/mpesa-settings">
                     <SidebarMenuButton 
                       isActive={isActive("/admin/mpesa-settings")} 
-                      tooltip="M-Pesa Settings"
-                      className={isActive("/admin/mpesa-settings") ? "bg-blue-600 text-white" : "text-blue-100 hover:bg-blue-700"}
+                      tooltip="Configure M-Pesa"
+                      className={isActive("/admin/mpesa-settings") ? "bg-purple-700 text-white" : "text-white hover:bg-purple-800"}
                     >
-                      <Settings className="h-4 w-4 mr-2" />
+                      <Settings className="h-5 w-5 mr-3" />
                       <span>M-Pesa Settings</span>
                     </SidebarMenuButton>
                   </Link>
@@ -146,10 +171,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   <Link to="/admin/gmail-settings">
                     <SidebarMenuButton 
                       isActive={isActive("/admin/gmail-settings")} 
-                      tooltip="Gmail Settings"
-                      className={isActive("/admin/gmail-settings") ? "bg-blue-600 text-white" : "text-blue-100 hover:bg-blue-700"}
+                      tooltip="Configure Gmail"
+                      className={isActive("/admin/gmail-settings") ? "bg-purple-700 text-white" : "text-white hover:bg-purple-800"}
                     >
-                      <Mail className="h-4 w-4 mr-2" />
+                      <Mail className="h-5 w-5 mr-3" />
                       <span>Gmail Settings</span>
                     </SidebarMenuButton>
                   </Link>
@@ -158,10 +183,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   <Link to="/admin/logs">
                     <SidebarMenuButton 
                       isActive={isActive("/admin/logs")} 
-                      tooltip="Activity Logs"
-                      className={isActive("/admin/logs") ? "bg-blue-600 text-white" : "text-blue-100 hover:bg-blue-700"}
+                      tooltip="View System Logs"
+                      className={isActive("/admin/logs") ? "bg-purple-700 text-white" : "text-white hover:bg-purple-800"}
                     >
-                      <FileText className="h-4 w-4 mr-2" />
+                      <FileText className="h-5 w-5 mr-3" />
                       <span>Activity Logs</span>
                     </SidebarMenuButton>
                   </Link>
@@ -170,10 +195,15 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             </SidebarGroup>
           </SidebarContent>
           <SidebarFooter>
-            <SidebarSeparator className="border-blue-700" />
-            <div className="px-4 py-2 text-xs">
-              <Link to="/" className="text-blue-200 hover:text-white transition-colors">
-                Return to Website
+            <SidebarSeparator className="border-purple-700" />
+            <div className="p-4">
+              <Link to="/" className="flex items-center py-2 px-3 text-purple-200 hover:text-white rounded hover:bg-purple-800 transition-colors">
+                <HelpCircle className="h-5 w-5 mr-3" />
+                <span>Help & Support</span>
+              </Link>
+              <Link to="/" className="flex items-center py-2 px-3 text-purple-200 hover:text-white rounded hover:bg-purple-800 transition-colors">
+                <LogOut className="h-5 w-5 mr-3" />
+                <span>Return to Website</span>
               </Link>
             </div>
           </SidebarFooter>

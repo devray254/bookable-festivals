@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -14,37 +13,36 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 221 83% 53%; /* Bright blue */
+    --primary: 215 70% 50%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 175 70% 41%;
+    --secondary-foreground: 0 0% 100%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 226 71% 40%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 260 60% 55%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%; /* Red 500 */
+    --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%; /* Blue 600 */
+    --ring: 221.2 83.2% 53.3%;
 
     --radius: 0.5rem;
 
-    --sidebar-background: 213 100% 98%; /* Light blue-50 */
-    --sidebar-foreground: 222.2 84% 4.9%;
-    --sidebar-primary: 221.2 83.2% 53.3%; /* Blue 600 */
+    --sidebar-background: 260 40% 20%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 260 50% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 213.3 96.9% 87.3%; /* Light blue-200 */
-    --sidebar-accent-foreground: 222.2 84% 4.9%;
-    --sidebar-border: 211.7 96.4% 78.4%; /* Light blue-300 */
-    --sidebar-ring: 221.2 83.2% 53.3%; /* Blue 600 */
+    --sidebar-accent: 260 30% 35%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 260 30% 30%;
+    --sidebar-ring: 260 50% 60%;
     
-    /* Blue shades - brighter and more vibrant */
     --blue-50: 213 100% 97%;
     --blue-100: 214 94% 93%;
     --blue-200: 213 97% 87%;
@@ -57,20 +55,30 @@
     --blue-900: 224 64% 33%;
     --blue-950: 226 58% 21%;
     
-    /* Cyan shades - fresh and vibrant */
-    --cyan-50: 183 100% 96%;
-    --cyan-100: 185 96% 90%;
-    --cyan-200: 186 94% 82%;
-    --cyan-300: 187 92% 70%;
-    --cyan-400: 188 86% 60%;
-    --cyan-500: 189 94% 43%;
-    --cyan-600: 192 91% 36%;
-    --cyan-700: 193 82% 31%;
-    --cyan-800: 195 70% 27%;
-    --cyan-900: 196 64% 24%;
-    --cyan-950: 197 79% 17%;
+    --teal-50: 166 76% 97%;
+    --teal-100: 167 85% 89%;
+    --teal-200: 168 84% 78%;
+    --teal-300: 171 77% 64%;
+    --teal-400: 172 70% 50%;
+    --teal-500: 173 80% 40%;
+    --teal-600: 175 84% 32%;
+    --teal-700: 175 77% 26%;
+    --teal-800: 176 69% 22%;
+    --teal-900: 176 61% 19%;
+    --teal-950: 180 54% 12%;
     
-    /* Red shades - bold and vibrant */
+    --purple-50: 270 100% 98%;
+    --purple-100: 269 100% 94%;
+    --purple-200: 269 97% 85%;
+    --purple-300: 270 95% 75%;
+    --purple-400: 270 95% 65%;
+    --purple-500: 260 80% 60%;
+    --purple-600: 260 64% 50%;
+    --purple-700: 258 60% 44%;
+    --purple-800: 255 50% 38%;
+    --purple-900: 255 46% 32%;
+    --purple-950: 260 42% 22%;
+    
     --red-50: 0 86% 97%;
     --red-100: 0 93% 94%;
     --red-200: 0 96% 89%;
@@ -122,7 +130,6 @@
     --sidebar-border: 224.4 64.3% 27.0%; /* Blue-900 */
     --sidebar-ring: 217.2 91.2% 59.8%; /* Blue-500 */
     
-    /* Blue shades (same values but adjusted for dark mode) */
     --blue-50: 213 100% 97%;
     --blue-100: 214 94% 93%;
     --blue-200: 213 97% 87%;
@@ -135,20 +142,30 @@
     --blue-900: 224 64% 33%;
     --blue-950: 226 58% 21%;
     
-    /* Cyan shades (adjusted for dark mode) */
-    --cyan-50: 183 100% 96%;
-    --cyan-100: 185 96% 90%;
-    --cyan-200: 186 94% 82%;
-    --cyan-300: 187 92% 70%;
-    --cyan-400: 188 86% 60%;
-    --cyan-500: 189 94% 43%;
-    --cyan-600: 192 91% 36%;
-    --cyan-700: 193 82% 31%;
-    --cyan-800: 195 70% 27%;
-    --cyan-900: 196 64% 24%;
-    --cyan-950: 197 79% 17%;
+    --teal-50: 166 76% 97%;
+    --teal-100: 167 85% 89%;
+    --teal-200: 168 84% 78%;
+    --teal-300: 171 77% 64%;
+    --teal-400: 172 70% 50%;
+    --teal-500: 173 80% 40%;
+    --teal-600: 175 84% 32%;
+    --teal-700: 175 77% 26%;
+    --teal-800: 176 69% 22%;
+    --teal-900: 176 61% 19%;
+    --teal-950: 180 54% 12%;
     
-    /* Red shades (adjusted for dark mode) */
+    --purple-50: 270 100% 98%;
+    --purple-100: 269 100% 94%;
+    --purple-200: 269 97% 85%;
+    --purple-300: 270 95% 75%;
+    --purple-400: 270 95% 65%;
+    --purple-500: 260 80% 60%;
+    --purple-600: 260 64% 50%;
+    --purple-700: 258 60% 44%;
+    --purple-800: 255 50% 38%;
+    --purple-900: 255 46% 32%;
+    --purple-950: 260 42% 22%;
+    
     --red-50: 0 86% 97%;
     --red-100: 0 93% 94%;
     --red-200: 0 96% 89%;
@@ -180,7 +197,6 @@
     @apply text-3xl md:text-4xl font-aptos font-bold;
   }
   
-  /* Improved responsive styles */
   html {
     font-size: 16px;
     font-family: 'Aptos', sans-serif;
@@ -192,14 +208,12 @@
     }
   }
   
-  /* Ensure images don't overflow their containers */
   img {
     max-width: 100%;
     height: auto;
   }
 }
 
-/* Animation for cards */
 .event-card {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -209,40 +223,46 @@
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
-/* Gradient backgrounds */
-.bg-blue-gradient {
-  background: linear-gradient(135deg, hsl(var(--blue-500)) 0%, hsl(var(--blue-700)) 100%);
+.bg-primary-gradient {
+  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--blue-700)) 100%);
   color: white;
 }
 
-.bg-cyan-gradient {
-  background: linear-gradient(135deg, hsl(var(--cyan-400)) 0%, hsl(var(--cyan-600)) 100%);
+.bg-secondary-gradient {
+  background: linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(var(--teal-600)) 100%);
   color: white;
 }
 
-.bg-red-gradient {
-  background: linear-gradient(135deg, hsl(var(--red-400)) 0%, hsl(var(--red-600)) 100%);
+.bg-accent-gradient {
+  background: linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--purple-700)) 100%);
   color: white;
 }
 
-/* Enhanced Card Styles */
+.bg-destructive-gradient {
+  background: linear-gradient(135deg, hsl(var(--destructive)) 0%, hsl(var(--red-700)) 100%);
+  color: white;
+}
+
 .dashboard-card {
   @apply border rounded-lg shadow-sm transition-all duration-300 hover:shadow-md;
 }
 
-.dashboard-card-blue {
+.dashboard-card-primary {
   @apply border-blue-200 bg-gradient-to-br from-blue-50 to-white;
 }
 
-.dashboard-card-cyan {
-  @apply border-cyan-200 bg-gradient-to-br from-cyan-50 to-white;
+.dashboard-card-secondary {
+  @apply border-teal-200 bg-gradient-to-br from-teal-50 to-white;
 }
 
-.dashboard-card-red {
+.dashboard-card-accent {
+  @apply border-purple-200 bg-gradient-to-br from-purple-50 to-white;
+}
+
+.dashboard-card-destructive {
   @apply border-red-200 bg-gradient-to-br from-red-50 to-white;
 }
 
-/* Glass effect for cards */
 .glass-card {
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(10px);
@@ -250,7 +270,6 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
-/* Responsive container improvements */
 .container {
   width: 100%;
   padding-right: 1rem;
@@ -273,7 +292,6 @@
   }
 }
 
-/* Better spacing for mobile */
 .space-y-6 > :not([hidden]) ~ :not([hidden]) {
   --tw-space-y-reverse: 0;
   margin-top: calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));
@@ -288,7 +306,6 @@
   }
 }
 
-/* Dialog content improvements for mobile */
 @media (max-width: 640px) {
   .dialog-content {
     width: 95%;
@@ -298,7 +315,6 @@
   }
 }
 
-/* Improved contrast for text on colored backgrounds */
 .text-on-primary {
   color: white;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
@@ -313,20 +329,22 @@
   color: hsl(var(--foreground));
 }
 
-/* Button enhancements */
 .btn-primary {
   @apply bg-blue-600 hover:bg-blue-700 text-white;
 }
 
 .btn-secondary {
-  @apply bg-cyan-600 hover:bg-cyan-700 text-white;
+  @apply bg-teal-600 hover:bg-teal-700 text-white;
 }
 
-.btn-danger {
+.btn-accent {
+  @apply bg-purple-600 hover:bg-purple-700 text-white;
+}
+
+.btn-destructive {
   @apply bg-red-600 hover:bg-red-700 text-white;
 }
 
-/* Table styling improvements */
 .admin-table {
   @apply w-full text-sm text-left;
 }

@@ -9,20 +9,20 @@ export const Hero = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   return (
-    <div className="bg-gradient-to-r from-blue-700 to-blue-900 text-white py-20 md:py-28">
+    <div className="bg-gradient-to-r from-purple-700 via-purple-800 to-blue-900 text-white py-20 md:py-28">
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
             Welcome to Maabara Online™
           </h1>
-          <div className="text-xl mb-10 text-blue-100 max-w-2xl mx-auto leading-relaxed">
+          <div className="text-xl mb-10 text-purple-100 max-w-2xl mx-auto leading-relaxed">
             <p className="mb-4">
               A trade mark of Maabara Hub Africa LTD, a dedicated platform for Continuing Professional Development (CPD) to healthcare providers.
             </p>
           </div>
           
           <div className="relative max-w-2xl mx-auto mt-12">
-            <div className="absolute inset-0 bg-blue-500 opacity-10 blur-xl rounded-lg"></div>
+            <div className="absolute inset-0 bg-purple-500 opacity-10 blur-xl rounded-lg"></div>
             <div className="relative">
               <Input
                 type="text"
@@ -34,7 +34,7 @@ export const Hero = () => {
               <Search className="absolute left-5 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               
               <Link to={`/events?search=${searchTerm}`}>
-                <Button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 hover:bg-blue-700 px-5 py-6 text-base">
+                <Button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-teal-600 hover:bg-teal-700 px-5 py-6 text-base">
                   Search
                 </Button>
               </Link>

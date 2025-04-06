@@ -147,6 +147,21 @@ CREATE TABLE IF NOT EXISTS certificates (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+-- Gmail settings table
+CREATE TABLE IF NOT EXISTS gmail_settings (
+    id INT PRIMARY KEY DEFAULT 1,
+    client_id VARCHAR(255) NOT NULL,
+    client_secret VARCHAR(255) NOT NULL,
+    refresh_token VARCHAR(255),
+    access_token VARCHAR(255),
+    token_expiry DATETIME,
+    sender_email VARCHAR(100) NOT NULL,
+    sender_name VARCHAR(100) NOT NULL,
+    is_configured BOOLEAN DEFAULT FALSE,
+    last_updated DATETIME,
+    updated_by VARCHAR(100)
+);
+
 -- Add indexes for common queries
 CREATE INDEX IF NOT EXISTS idx_certificates_event_id ON certificates(event_id);
 CREATE INDEX IF NOT EXISTS idx_certificates_user_id ON certificates(user_id);
@@ -154,82 +169,105 @@ CREATE INDEX IF NOT EXISTS idx_bookings_user_id ON bookings(user_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_event_id ON bookings(event_id);
 CREATE INDEX IF NOT EXISTS idx_payments_user_id ON payments(user_id);
 CREATE INDEX IF NOT EXISTS idx_payments_event_id ON payments(event_id);
+CREATE INDEX IF NOT EXISTS idx_events_category_id ON events(category_id);
+CREATE INDEX IF NOT EXISTS idx_events_date ON events(date);
+CREATE INDEX IF NOT EXISTS idx_events_price ON events(price);
+CREATE INDEX IF NOT EXISTS idx_events_is_free ON events(is_free);
 
 -- Insert default admin user
 INSERT INTO users (id, name, email, phone, password, role) 
-VALUES (1, 'Admin User', 'admin@maabara.co.ke', '0700000000', 'admin123', 'admin')
+VALUES (1, 'Admin User', 'admin@maabara.co.ke', '0700000000', '$2y$10$XFE/DtUhpLz1g5dDC9RkrOhbTCh3BSY9MF0RCS9PcZ6tI.5hLM7Qi', 'admin')
 ON DUPLICATE KEY UPDATE id = id;
+-- Password: admin123 (hashed with bcrypt)
 
--- Insert mock users
-INSERT INTO users (id, name, email, phone, password, role) 
+-- Insert mock users with properly hashed passwords
+INSERT INTO users (id, name, email, phone, password, role, organization_type) 
 VALUES 
-(2, 'John Doe', 'john@example.com', '0712345678', 'password123', 'attendee'),
-(3, 'Jane Smith', 'jane@example.com', '0723456789', 'password123', 'attendee'),
-(4, 'Michael Johnson', 'michael@example.com', '0734567890', 'password123', 'attendee'),
-(5, 'Sarah Williams', 'sarah@example.com', '0745678901', 'password123', 'attendee'),
-(6, 'David Brown', 'david@example.com', '0756789012', 'password123', 'attendee'),
-(7, 'Emily Davis', 'emily@example.com', '0767890123', 'password123', 'attendee'),
-(8, 'Alice Johnson', 'alice@example.com', '0798765432', 'password123', 'attendee'),
-(9, 'Bob Martin', 'bob@example.com', '0709876543', 'password123', 'organizer'),
-(10, 'Carol White', 'carol@example.com', '0721987654', 'password123', 'organizer')
+(2, 'John Doe', 'john@example.com', '0712345678', '$2y$10$x5nCuV.q3Z4XvbzE9YmEruNR4mFcxHMHyXjZgWcRRbHfC4xmS7P9W', 'attendee', 'Hospital'),
+(3, 'Jane Smith', 'jane@example.com', '0723456789', '$2y$10$x5nCuV.q3Z4XvbzE9YmEruNR4mFcxHMHyXjZgWcRRbHfC4xmS7P9W', 'attendee', 'Clinic'),
+(4, 'Michael Johnson', 'michael@example.com', '0734567890', '$2y$10$x5nCuV.q3Z4XvbzE9YmEruNR4mFcxHMHyXjZgWcRRbHfC4xmS7P9W', 'attendee', 'University'),
+(5, 'Sarah Williams', 'sarah@example.com', '0745678901', '$2y$10$x5nCuV.q3Z4XvbzE9YmEruNR4mFcxHMHyXjZgWcRRbHfC4xmS7P9W', 'attendee', 'Medical School'),
+(6, 'David Brown', 'david@example.com', '0756789012', '$2y$10$x5nCuV.q3Z4XvbzE9YmEruNR4mFcxHMHyXjZgWcRRbHfC4xmS7P9W', 'attendee', 'Hospital'),
+(7, 'Emily Davis', 'emily@example.com', '0767890123', '$2y$10$x5nCuV.q3Z4XvbzE9YmEruNR4mFcxHMHyXjZgWcRRbHfC4xmS7P9W', 'attendee', 'Private Practice'),
+(8, 'Alice Johnson', 'alice@example.com', '0798765432', '$2y$10$x5nCuV.q3Z4XvbzE9YmEruNR4mFcxHMHyXjZgWcRRbHfC4xmS7P9W', 'attendee', 'Clinic'),
+(9, 'Bob Martin', 'bob@example.com', '0709876543', '$2y$10$x5nCuV.q3Z4XvbzE9YmEruNR4mFcxHMHyXjZgWcRRbHfC4xmS7P9W', 'organizer', 'University'),
+(10, 'Carol White', 'carol@example.com', '0721987654', '$2y$10$x5nCuV.q3Z4XvbzE9YmEruNR4mFcxHMHyXjZgWcRRbHfC4xmS7P9W', 'organizer', 'Hospital')
 ON DUPLICATE KEY UPDATE id = id;
+-- Password: password123 (hashed with bcrypt for all users)
 
--- Insert mock events
-INSERT INTO events (id, title, date, time, location, price, is_free, description, category_id, image_url, has_webinar, created_by)
+-- Insert mock events (enhanced with more descriptive content)
+INSERT INTO events (id, title, date, time, location, price, is_free, description, category_id, image_url, has_webinar, webinar_link, created_by)
 VALUES 
-(1, 'Science Exhibition', '2023-09-15', '09:00:00', 'Nairobi Science Center', 750.00, 0, 'A comprehensive exhibition showcasing scientific innovations from across the country.', 4, '/placeholder.svg', 1, 'admin@maabara.co.ke'),
-(2, 'Tech Workshop', '2023-10-20', '10:00:00', 'Kenyatta University', 500.00, 0, 'Hands-on workshop on the latest technologies.', 1, '/placeholder.svg', 1, 'admin@maabara.co.ke'),
-(3, 'Chemistry Seminar', '2023-11-05', '14:00:00', 'University of Nairobi', 300.00, 0, 'Seminar on recent advancements in chemical sciences.', 2, '/placeholder.svg', 0, 'admin@maabara.co.ke'),
-(4, 'Data Science Bootcamp', '2023-12-10', '09:00:00', 'iHub, Nairobi', 1000.00, 0, 'Intensive bootcamp on data science fundamentals.', 1, '/placeholder.svg', 1, 'admin@maabara.co.ke'),
-(5, 'Physics Symposium', '2024-01-15', '13:00:00', 'JKUAT, Juja', 450.00, 0, 'Annual physics symposium with guest speakers from renowned universities.', 4, '/placeholder.svg', 0, 'admin@maabara.co.ke')
+(1, 'Science Exhibition', '2025-09-15', '09:00:00', 'Nairobi Science Center', 750.00, 0, 'A comprehensive exhibition showcasing scientific innovations from across the country. This exhibition will feature the latest advances in medical technology, healthcare solutions, and scientific research relevant to healthcare professionals. Attendees will have the opportunity to interact with exhibitors, attend demonstration sessions, and network with peers in the healthcare industry.', 4, '/placeholder.svg', 1, 'https://zoom.us/j/123456789', 'admin@maabara.co.ke'),
+(2, 'Healthcare Tech Workshop', '2025-10-20', '10:00:00', 'Kenyatta University', 500.00, 0, 'Hands-on workshop on the latest healthcare technologies. This intensive workshop will cover electronic health records systems, telemedicine platforms, medical imaging technologies, and healthcare data analytics. Participants will gain practical skills through guided exercises and real-world case studies. Certificate of completion will be provided to all attendees.', 1, '/placeholder.svg', 1, 'https://zoom.us/j/987654321', 'admin@maabara.co.ke'),
+(3, 'Advanced Chemistry Seminar', '2025-11-05', '14:00:00', 'University of Nairobi', 300.00, 0, 'Seminar on recent advancements in pharmaceutical chemistry and drug development. This seminar will feature presentations from leading researchers and industry professionals on topics including drug discovery pipelines, computational chemistry, biologics development, and regulatory considerations. Question and answer sessions will provide opportunities for in-depth discussions on current challenges and innovations.', 2, '/placeholder.svg', 0, NULL, 'admin@maabara.co.ke'),
+(4, 'Health Data Science Bootcamp', '2025-12-10', '09:00:00', 'iHub, Nairobi', 1000.00, 0, 'Intensive bootcamp on healthcare data science fundamentals. This three-day bootcamp will cover statistical analysis of healthcare data, machine learning applications in diagnostics, predictive modeling for patient outcomes, and ethical considerations in health data science. Participants should have basic knowledge of statistics and programming. Laptops are required for practical sessions.', 1, '/placeholder.svg', 1, 'https://zoom.us/j/112233445', 'admin@maabara.co.ke'),
+(5, 'Medical Physics Symposium', '2026-01-15', '13:00:00', 'JKUAT, Juja', 450.00, 0, 'Annual medical physics symposium with guest speakers from renowned universities. This symposium will focus on radiation therapy advancements, medical imaging technology innovations, radiation protection standards, and quality assurance in medical physics. The event will feature keynote addresses, panel discussions, research presentations, and networking opportunities. CPD points will be awarded to all attendees.', 4, '/placeholder.svg', 0, NULL, 'admin@maabara.co.ke'),
+(6, 'Women in Healthcare Leadership', '2026-02-25', '10:00:00', 'Strathmore University', 0.00, 1, 'A free workshop focused on empowering women in healthcare leadership positions. This workshop will address challenges and opportunities for women in healthcare leadership, featuring successful female leaders who will share their experiences and insights. Topics include career advancement strategies, work-life balance, mentorship opportunities, and building professional networks. Registration is required despite the event being free of charge.', 1, '/placeholder.svg', 1, 'https://zoom.us/j/998877665', 'admin@maabara.co.ke')
 ON DUPLICATE KEY UPDATE id = id;
 
 -- Insert bookings
-INSERT INTO bookings (id, event_id, user_id, customer_name, customer_email, customer_phone, booking_date, tickets, total_amount, status, webinar_access)
+INSERT INTO bookings (id, event_id, user_id, customer_name, customer_email, customer_phone, booking_date, tickets, total_amount, status, webinar_access, attendance_status, certificate_enabled)
 VALUES 
-(101, 1, 2, 'John Doe', 'john@example.com', '0712345678', '2023-07-15 10:24:36', 1, 750.00, 'confirmed', 1),
-(102, 1, 3, 'Jane Smith', 'jane@example.com', '0723456789', '2023-07-17 14:15:22', 1, 750.00, 'confirmed', 1),
-(103, 1, 4, 'Michael Johnson', 'michael@example.com', '0734567890', '2023-07-18 09:45:12', 1, 750.00, 'confirmed', 1),
-(104, 2, 5, 'Sarah Williams', 'sarah@example.com', '0745678901', '2023-08-05 16:30:45', 1, 500.00, 'confirmed', 1),
-(105, 2, 6, 'David Brown', 'david@example.com', '0756789012', '2023-08-10 11:20:18', 1, 500.00, 'confirmed', 1),
-(106, 3, 7, 'Emily Davis', 'emily@example.com', '0767890123', '2023-09-01 08:15:30', 1, 300.00, 'confirmed', 0)
+(101, 1, 2, 'John Doe', 'john@example.com', '0712345678', '2025-07-15 10:24:36', 1, 750.00, 'confirmed', 1, 'attended', 1),
+(102, 1, 3, 'Jane Smith', 'jane@example.com', '0723456789', '2025-07-17 14:15:22', 1, 750.00, 'confirmed', 1, 'attended', 1),
+(103, 1, 4, 'Michael Johnson', 'michael@example.com', '0734567890', '2025-07-18 09:45:12', 1, 750.00, 'confirmed', 1, 'partial', 0),
+(104, 2, 5, 'Sarah Williams', 'sarah@example.com', '0745678901', '2025-08-05 16:30:45', 2, 1000.00, 'confirmed', 1, 'attended', 1),
+(105, 2, 6, 'David Brown', 'david@example.com', '0756789012', '2025-08-10 11:20:18', 1, 500.00, 'confirmed', 1, 'attended', 1),
+(106, 3, 7, 'Emily Davis', 'emily@example.com', '0767890123', '2025-09-01 08:15:30', 1, 300.00, 'confirmed', 0, 'unverified', 0),
+(107, 4, 8, 'Alice Johnson', 'alice@example.com', '0798765432', '2025-09-15 13:45:22', 1, 1000.00, 'pending', 0, 'unverified', 0),
+(108, 6, 2, 'John Doe', 'john@example.com', '0712345678', '2025-09-20 09:10:15', 1, 0.00, 'confirmed', 1, 'unverified', 0)
 ON DUPLICATE KEY UPDATE id = id;
 
 -- Insert payments
 INSERT INTO payments (id, booking_id, user_id, event_id, amount, payment_date, method, status, transaction_code)
 VALUES 
-('PAY001', 101, 2, 1, 750.00, '2023-07-15 10:30:00', 'M-Pesa', 'completed', 'MPE123456789'),
-('PAY002', 102, 3, 1, 750.00, '2023-07-17 14:20:00', 'M-Pesa', 'completed', 'MPE987654321'),
-('PAY003', 103, 4, 1, 750.00, '2023-07-18 09:50:00', 'M-Pesa', 'completed', 'MPE456789123'),
-('PAY004', 104, 5, 2, 500.00, '2023-08-05 16:35:00', 'M-Pesa', 'completed', 'MPE789123456'),
-('PAY005', 105, 6, 2, 500.00, '2023-08-10 11:25:00', 'Cash', 'completed', 'CASH001'),
-('PAY006', 106, 7, 3, 300.00, '2023-09-01 08:20:00', 'M-Pesa', 'completed', 'MPE321654987');
+('PAY001', 101, 2, 1, 750.00, '2025-07-15 10:30:00', 'M-Pesa', 'completed', 'MPE123456789'),
+('PAY002', 102, 3, 1, 750.00, '2025-07-17 14:20:00', 'M-Pesa', 'completed', 'MPE987654321'),
+('PAY003', 103, 4, 1, 750.00, '2025-07-18 09:50:00', 'M-Pesa', 'completed', 'MPE456789123'),
+('PAY004', 104, 5, 2, 1000.00, '2025-08-05 16:35:00', 'M-Pesa', 'completed', 'MPE789123456'),
+('PAY005', 105, 6, 2, 500.00, '2025-08-10 11:25:00', 'Cash', 'completed', 'CASH001'),
+('PAY006', 106, 7, 3, 300.00, '2025-09-01 08:20:00', 'M-Pesa', 'completed', 'MPE321654987'),
+('PAY007', 107, 8, 4, 1000.00, '2025-09-15 13:50:00', 'M-Pesa', 'pending', 'MPE456789012');
+-- Note: No payment for booking 108 as it's a free event
 
 -- Insert activity logs
 INSERT INTO activity_logs (id, timestamp, action, user, details, ip, level)
 VALUES 
-(1, '2023-07-15 10:35:00', 'Payment Received', 'system', 'Payment of KES 750.00 received for booking #101', '127.0.0.1', 'info'),
-(2, '2023-07-17 14:25:00', 'Payment Received', 'system', 'Payment of KES 750.00 received for booking #102', '127.0.0.1', 'info'),
-(3, '2023-07-18 09:55:00', 'Payment Received', 'system', 'Payment of KES 750.00 received for booking #103', '127.0.0.1', 'info'),
-(4, '2023-08-05 16:40:00', 'Payment Received', 'system', 'Payment of KES 500.00 received for booking #104', '127.0.0.1', 'info'),
-(5, '2023-08-10 11:30:00', 'Payment Received', 'system', 'Payment of KES 500.00 received for booking #105', '127.0.0.1', 'info'),
-(6, '2023-09-01 08:25:00', 'Payment Received', 'system', 'Payment of KES 300.00 received for booking #106', '127.0.0.1', 'info'),
-(7, '2023-09-10 15:30:00', 'User Login', 'admin@maabara.co.ke', 'Admin user logged in', '127.0.0.1', 'info'),
-(8, '2023-09-10 15:45:00', 'Event Created', 'admin@maabara.co.ke', 'Created new event: Science Exhibition', '127.0.0.1', 'important'),
-(9, '2023-09-10 16:00:00', 'Event Created', 'admin@maabara.co.ke', 'Created new event: Tech Workshop', '127.0.0.1', 'important'),
-(10, '2023-09-10 16:15:00', 'Event Created', 'admin@maabara.co.ke', 'Created new event: Chemistry Seminar', '127.0.0.1', 'important');
+(1, '2025-07-15 10:35:00', 'Payment Received', 'system', 'Payment of KES 750.00 received for booking #101', '127.0.0.1', 'info'),
+(2, '2025-07-17 14:25:00', 'Payment Received', 'system', 'Payment of KES 750.00 received for booking #102', '127.0.0.1', 'info'),
+(3, '2025-07-18 09:55:00', 'Payment Received', 'system', 'Payment of KES 750.00 received for booking #103', '127.0.0.1', 'info'),
+(4, '2025-08-05 16:40:00', 'Payment Received', 'system', 'Payment of KES 1000.00 received for booking #104', '127.0.0.1', 'info'),
+(5, '2025-08-10 11:30:00', 'Payment Received', 'system', 'Payment of KES 500.00 received for booking #105', '127.0.0.1', 'info'),
+(6, '2025-09-01 08:25:00', 'Payment Received', 'system', 'Payment of KES 300.00 received for booking #106', '127.0.0.1', 'info'),
+(7, '2025-09-10 15:30:00', 'User Login', 'admin@maabara.co.ke', 'Admin user logged in', '127.0.0.1', 'info'),
+(8, '2025-09-10 15:45:00', 'Event Created', 'admin@maabara.co.ke', 'Created new event: Science Exhibition', '127.0.0.1', 'important'),
+(9, '2025-09-10 16:00:00', 'Event Created', 'admin@maabara.co.ke', 'Created new event: Healthcare Tech Workshop', '127.0.0.1', 'important'),
+(10, '2025-09-10 16:15:00', 'Event Created', 'admin@maabara.co.ke', 'Created new event: Advanced Chemistry Seminar', '127.0.0.1', 'important'),
+(11, '2025-09-15 13:55:00', 'Payment Status', 'system', 'Payment for booking #107 is pending confirmation', '127.0.0.1', 'warning'),
+(12, '2025-09-20 09:15:00', 'Free Registration', 'system', 'User registered for free event: Women in Healthcare Leadership', '127.0.0.1', 'info'),
+(13, '2025-09-25 14:20:00', 'Certificate Generated', 'admin@maabara.co.ke', 'Certificate issued for user John Doe for event #1', '127.0.0.1', 'info'),
+(14, '2025-09-25 14:25:00', 'Certificate Generated', 'admin@maabara.co.ke', 'Certificate issued for user Jane Smith for event #1', '127.0.0.1', 'info'),
+(15, '2025-09-30 10:15:00', 'Certificate Generated', 'admin@maabara.co.ke', 'Certificate issued for user Sarah Williams for event #2', '127.0.0.1', 'info'),
+(16, '2025-09-30 10:20:00', 'Certificate Generated', 'admin@maabara.co.ke', 'Certificate issued for user David Brown for event #2', '127.0.0.1', 'info');
 
 -- Insert certificates
 INSERT INTO certificates (id, event_id, user_id, issued_date, issued_by, sent_email, downloaded)
 VALUES 
-('CERT-1-2-1695302400000', 1, 2, '2023-09-21 15:00:00', 'admin@maabara.co.ke', 1, 1),
-('CERT-1-3-1695302400001', 1, 3, '2023-09-21 15:05:00', 'admin@maabara.co.ke', 1, 0),
-('CERT-1-4-1695302400002', 1, 4, '2023-09-21 15:10:00', 'admin@maabara.co.ke', 0, 0),
-('CERT-2-5-1698739200000', 2, 5, '2023-10-31 14:00:00', 'admin@maabara.co.ke', 1, 1),
-('CERT-2-6-1698739200001', 2, 6, '2023-10-31 14:05:00', 'admin@maabara.co.ke', 1, 0);
+('CERT-1-2-1726569600000', 1, 2, '2025-09-25 14:20:00', 'admin@maabara.co.ke', 1, 1),
+('CERT-1-3-1726569900000', 1, 3, '2025-09-25 14:25:00', 'admin@maabara.co.ke', 1, 0),
+('CERT-2-5-1727003700000', 2, 5, '2025-09-30 10:15:00', 'admin@maabara.co.ke', 1, 1),
+('CERT-2-6-1727004000000', 2, 6, '2025-09-30 10:20:00', 'admin@maabara.co.ke', 1, 0);
 
 -- Insert M-Pesa settings (sandbox test credentials)
 INSERT INTO mpesa_settings (id, consumer_key, consumer_secret, passkey, shortcode, environment, callback_url, last_updated, updated_by)
 VALUES 
 (1, '2sh7EgkM79EYKcAYsGZ9OAZlxgzXvDrG', 'F7jG9MnI3FppN8lY', 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919', '174379', 'sandbox', 'https://example.com/callback', NOW(), 'admin@maabara.co.ke')
 ON DUPLICATE KEY UPDATE id = id;
+
+-- Insert Gmail settings (placeholder test values)
+INSERT INTO gmail_settings (id, client_id, client_secret, sender_email, sender_name, is_configured, last_updated, updated_by)
+VALUES 
+(1, 'your-client-id.apps.googleusercontent.com', 'your-client-secret', 'noreply@maabara.co.ke', 'Maabara Events', 0, NOW(), 'admin@maabara.co.ke')
+ON DUPLICATE KEY UPDATE id = id;
+
