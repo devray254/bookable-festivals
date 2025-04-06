@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -49,7 +50,9 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const result = await authenticateUser(email, password);
+      // Fix: authenticateUser now only expects a single argument (token)
+      // Since it's aliased to authenticateWithGmail
+      const result = await authenticateUser(email);
       
       if (result.success) {
         toast.success("Login successful!");

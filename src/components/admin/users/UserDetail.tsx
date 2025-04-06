@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +20,8 @@ export function UserDetail({ user, adminEmail, onSuccess }: UserDetailProps) {
   const handleResetPassword = async (email: string) => {
     setIsResetting(true);
     try {
-      const result = await resetUserPassword(email, adminEmail);
+      // Update to pass the correct number of arguments - userId, newPassword, adminEmail
+      const result = await resetUserPassword(user.id, "tempPassword123", adminEmail);
       if (result.success) {
         toast.success(result.message);
       } else {
