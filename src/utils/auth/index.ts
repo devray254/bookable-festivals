@@ -2,7 +2,7 @@
 // Main auth entry point that re-exports all auth-related functions
 import { resetUserPassword } from './user-authentication';
 import { createAdminUser, updateUser } from './admin-functions';
-import { getAllUsers, addUser } from './user-management';
+import { getAllUsers, addUser, updateUser as updateUserManagement, deleteUser } from './user-management';
 import { authenticateWithGmail, linkGmailAccount } from './gmail-authentication';
 
 // Export all auth functions
@@ -15,6 +15,7 @@ export {
   // User management
   getAllUsers,
   addUser,
+  deleteUser,
   
   // Gmail authentication
   authenticateWithGmail,

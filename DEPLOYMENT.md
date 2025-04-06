@@ -1,110 +1,166 @@
 
-# Maabara Events Platform - Live Server Deployment Checklist
+# Maabara Events Platform - Live Server Deployment Guide
 
-## Pre-Deployment
+## Pre-Deployment Checklist
 
 - [ ] Back up any existing data
 - [ ] Verify server meets system requirements
 - [ ] Prepare database credentials
-- [ ] Review and update API endpoints if necessary
+- [ ] Test application locally with mock data
 
 ## Server Requirements
 
 - [ ] PHP 7.4+ with extensions: mysqli, json, gd
 - [ ] MySQL 5.7+
 - [ ] Apache or Nginx web server
-- [ ] SSL certificate (recommended for secure M-Pesa transactions)
+- [ ] SSL certificate (recommended for security and payment processing)
 
 ## Deployment Steps
 
 ### 1. Database Setup
 
-- [ ] Create MySQL database `maabara_events`
-- [ ] Import `api/database-with-mock-data.sql`
-- [ ] Verify tables created successfully
-- [ ] Confirm mock data is present
+- [ ] Access your MySQL server via phpMyAdmin or command line
+- [ ] Create a new database called `maabara_events` (or your preferred name)
+- [ ] Import the SQL file from `api/setup/install-database.sql`
+- [ ] Verify all tables were created successfully
+- [ ] Update the admin user password to a secure password
 
-### 2. Backend Setup
+```sql
+UPDATE users SET password = 'your-secure-password' WHERE email = 'admin@maabara.co.ke';
+```
 
-- [ ] Upload all PHP files to server `/api` directory
-- [ ] Update database credentials in `api/db-connect.php`:
-  ```php
-  $host = 'your-database-host';
-  $user = 'your-database-username';
-  $password = 'your-database-password';
-  $dbname = 'maabara_events';
-  ```
+### 2. API Backend Setup
+
+- [ ] Create a database configuration file at `api/db-config.php`:
+
+```php
+<?php
+// Database connection settings
+define('DB_HOST', 'your-database-host');
+define('DB_USER', 'your-database-username');
+define('DB_PASSWORD', 'your-database-password');
+define('DB_NAME', 'maabara_events');
+
+// Create database connection
+$conn = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Set character set
+$conn->set_charset("utf8mb4");
+?>
+```
+
+- [ ] Upload all PHP files to your server's API directory
 - [ ] Set appropriate file permissions:
-  ```
-  chmod 644 *.php
-  chmod 755 */
-  ```
-- [ ] Test API endpoint: `/api/test-connection.php`
+```
+chmod 644 *.php
+chmod 755 */
+```
 
-### 3. Frontend Setup
+### 3. Frontend Build and Deployment
 
-- [ ] Build the React application locally:
-  ```
-  npm run build
-  ```
-- [ ] Upload the contents of the `dist/` directory to server root
-- [ ] Configure your web server to serve the application correctly
-- [ ] Update API base URL if necessary in `src/utils/db-connection.ts`
+- [ ] Update the API base URL in `src/utils/db-connection.ts` if necessary:
+```typescript
+// Base URL for API endpoints - empty for relative path in production
+const API_BASE_URL = ''; // Update this if your API is not in the same domain
+```
 
-### 4. Configuration
+- [ ] Build the React application:
+```
+npm run build
+```
 
-- [ ] Update M-Pesa credentials in admin dashboard
-- [ ] Test M-Pesa integration with sandbox environment
-- [ ] Configure any environment-specific settings
-- [ ] Update contact details and other business information
+- [ ] Upload the contents of the `dist/` directory to the web server root
+- [ ] Configure your web server to handle client-side routing
 
-### 5. Testing
+#### Apache Configuration (.htaccess)
 
-- [ ] Test user registration and login
-- [ ] Test event browsing and booking
-- [ ] Test payment processing
-- [ ] Test certificate generation and download
-- [ ] Test admin dashboard functionality
-- [ ] Verify mobile responsiveness
+```
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME} !-l
+  RewriteRule . /index.html [L]
+</IfModule>
+```
 
-### 6. Security
+#### Nginx Configuration
 
-- [ ] Ensure proper CORS configuration
-- [ ] Validate input sanitization
-- [ ] Check for secure password storage
-- [ ] Verify proper authentication/authorization
+```
+location / {
+  try_files $uri $uri/ /index.html;
+}
+```
+
+### 4. Security Configuration
+
 - [ ] Enable HTTPS for all traffic
+- [ ] Set up appropriate CORS headers in your API:
 
-### 7. Monitoring
+```php
+// Add to the top of each PHP file
+header("Access-Control-Allow-Origin: https://your-domain.com");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
+```
 
-- [ ] Set up error logging
-- [ ] Configure activity logging
-- [ ] Set up backup schedule
-- [ ] Implement monitoring for critical functions
+- [ ] Implement rate limiting on API endpoints
+- [ ] Set up proper error handling and logging
+- [ ] Secure sensitive files with .htaccess or Nginx rules
 
-## Post-Deployment
+### 5. M-Pesa Integration Setup
 
-- [ ] Change default admin password
-- [ ] Delete sensitive setup files (like `import-database.php`)
-- [ ] Create additional admin accounts as needed
-- [ ] Document any server-specific configurations
+For live M-Pesa integration:
 
-## Production M-Pesa Setup
-
-When ready to go to production:
-
-1. [ ] Register for Safaricom Developer account
+1. [ ] Register for a Safaricom Developer account
 2. [ ] Apply for Lipa Na M-Pesa Online API access
-3. [ ] Update M-Pesa settings in admin dashboard:
+3. [ ] Update M-Pesa settings in the admin dashboard:
    - [ ] Change environment to "production"
    - [ ] Update Consumer Key and Secret
    - [ ] Update Shortcode to production values
    - [ ] Configure proper callback URL
+
+### 6. Testing
+
+- [ ] Test user registration and login
+- [ ] Test event browsing and booking
+- [ ] Test payment processing
+- [ ] Test certificate generation
+- [ ] Test admin dashboard functionality
+- [ ] Verify mobile responsiveness
+
+### 7. Post-Deployment
+
+- [ ] Remove or secure setup files (like `import-database.php`)
+- [ ] Create additional admin accounts as needed
+- [ ] Document any server-specific configurations
+- [ ] Set up regular backups
+- [ ] Configure monitoring for critical functions
 
 ## Troubleshooting Common Issues
 
 - **White screen/500 error**: Check PHP error logs
 - **Database connection fails**: Verify credentials and MySQL server status
 - **API endpoints return errors**: Check PHP version and required extensions
-- **Certificate generation fails**: Verify GD library is enabled
-- **M-Pesa integration issues**: Confirm API credentials and callback URL
+- **Client-side routing issues**: Verify .htaccess or Nginx configuration
+- **Authentication problems**: Clear localStorage in browser and retry
+
+## Production Maintenance
+
+- **Database Backups**: Set up automated daily backups
+- **Logs Rotation**: Configure log rotation for PHP/server logs
+- **Updates**: Regularly check for security updates
+- **Monitoring**: Set up uptime and performance monitoring
+
+## Contact Support
+
+If you encounter issues during deployment, please contact:
+- Technical Support: support@maabara.co.ke
+- Developer Team: dev@maabara.co.ke

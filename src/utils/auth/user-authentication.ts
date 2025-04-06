@@ -25,7 +25,10 @@ export const resetUserPassword = async (userId: number, newPassword: string, adm
         level: 'important'
       });
       
-      return { success: true };
+      return { 
+        success: true,
+        message: `Password has been reset successfully`
+      };
     } else {
       return { success: false, message: 'User not found or password not changed' };
     }

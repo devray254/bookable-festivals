@@ -1,5 +1,6 @@
 
-// Bookings related utilities
+import { createCrudOperations } from './database';
+import { query } from './db-connection';
 
 // Interface for booking data
 export interface Booking {
@@ -100,53 +101,170 @@ const mockBookings: Booking[] = [
   }
 ];
 
+// Create CRUD operations for bookings
+const bookingFields = [
+  'event_id', 'user_id', 'customer_name', 'customer_email', 'customer_phone',
+  'booking_date', 'tickets', 'total_amount', 'status', 'webinar_access',
+  'attendance_status', 'certificate_enabled'
+];
+
+export const bookingsOperations = createCrudOperations<Booking>('bookings', 'id', bookingFields);
+
+// Additional specialized booking functions
+
 // Fetch bookings from database
-export const fetchBookings = async () => {
-  return mockBookings;
+export const fetchBookings = async (): Promise<Booking[]> => {
+  try {
+    const sql = `
+      SELECT b.*, e.title as event, u.name as customer
+      FROM bookings b
+      LEFT JOIN events e ON b.event_id = e.id
+      LEFT JOIN users u ON b.user_id = u.id
+      ORDER BY b.booking_date DESC
+    `;
+    
+    const result = await query(sql);
+    return result || mockBookings;
+  } catch (error) {
+    console.error('Error fetching bookings:', error);
+    return mockBookings;
+  }
 };
 
 // Get booking by ID
-export const getBookingById = async (id: number) => {
-  const booking = mockBookings.find(b => b.id === id);
-  return booking || null;
+export const getBookingById = async (id: number): Promise<Booking | null> => {
+  try {
+    const sql = `
+      SELECT b.*, e.title as event, u.name as customer
+      FROM bookings b
+      LEFT JOIN events e ON b.event_id = e.id
+      LEFT JOIN users u ON b.user_id = u.id
+      WHERE b.id = ?
+    `;
+    
+    const result = await query(sql, [id]);
+    return result && result.length > 0 ? result[0] : null;
+  } catch (error) {
+    console.error('Error fetching booking by ID:', error);
+    const booking = mockBookings.find(b => b.id === id);
+    return booking || null;
+  }
 };
 
 // Get booking by phone number
-export const getBookingByPhone = async (phone: string, eventId: number) => {
-  const booking = mockBookings.find(b => b.phone === phone && b.event_id === eventId);
-  return booking || null;
+export const getBookingByPhone = async (phone: string, eventId: number): Promise<Booking | null> => {
+  try {
+    const sql = `
+      SELECT b.*, e.title as event, u.name as customer
+      FROM bookings b
+      LEFT JOIN events e ON b.event_id = e.id
+      LEFT JOIN users u ON b.user_id = u.id
+      WHERE b.customer_phone = ? AND b.event_id = ?
+    `;
+    
+    const result = await query(sql, [phone, eventId]);
+    return result && result.length > 0 ? result[0] : null;
+  } catch (error) {
+    console.error('Error fetching booking by phone:', error);
+    const booking = mockBookings.find(b => b.phone === phone && b.event_id === eventId);
+    return booking || null;
+  }
 };
 
 // Get all bookings for an event
-export const getBookingsByEventId = async (eventId: number) => {
-  return mockBookings.filter(b => b.event_id === eventId);
+export const getBookingsByEventId = async (eventId: number): Promise<Booking[]> => {
+  try {
+    const sql = `
+      SELECT b.*, e.title as event, u.name as customer
+      FROM bookings b
+      LEFT JOIN events e ON b.event_id = e.id
+      LEFT JOIN users u ON b.user_id = u.id
+      WHERE b.event_id = ?
+      ORDER BY b.booking_date DESC
+    `;
+    
+    const result = await query(sql, [eventId]);
+    return result || mockBookings.filter(b => b.event_id === eventId);
+  } catch (error) {
+    console.error('Error fetching bookings by event ID:', error);
+    return mockBookings.filter(b => b.event_id === eventId);
+  }
 };
 
 // Update attendance status for a booking
 export const updateAttendanceStatus = async (
   bookingId: number, 
   status: "attended" | "partial" | "absent" | "unverified",
-  certificateEnabled: boolean
+  certificateEnabled: boolean,
+  adminEmail: string
 ) => {
-  const bookingIndex = mockBookings.findIndex(b => b.id === bookingId);
-  
-  if (bookingIndex === -1) {
-    return { success: false, message: "Booking not found" };
+  try {
+    const sql = `
+      UPDATE bookings
+      SET attendance_status = ?, certificate_enabled = ?
+      WHERE id = ?
+    `;
+    
+    const result = await query(sql, [status, certificateEnabled ? 1 : 0, bookingId]);
+    
+    if (result && result.affectedRows > 0) {
+      // Get the updated booking
+      const updatedBooking = await getBookingById(bookingId);
+      
+      // Log the activity
+      const { logActivity } = await import('./logs');
+      await logActivity({
+        action: 'Attendance Updated',
+        user: adminEmail,
+        details: `Updated attendance status to "${status}" for booking #${bookingId}`,
+        level: 'info'
+      });
+      
+      return { 
+        success: true, 
+        booking: updatedBooking 
+      };
+    } else {
+      return { success: false, message: "Booking not found" };
+    }
+  } catch (error) {
+    console.error('Error updating attendance status:', error);
+    
+    // For mock data
+    const bookingIndex = mockBookings.findIndex(b => b.id === bookingId);
+    if (bookingIndex === -1) {
+      return { success: false, message: "Booking not found" };
+    }
+    
+    mockBookings[bookingIndex] = {
+      ...mockBookings[bookingIndex],
+      attendance_status: status,
+      certificate_enabled: certificateEnabled
+    };
+    
+    return { 
+      success: true, 
+      booking: mockBookings[bookingIndex] 
+    };
   }
-  
-  mockBookings[bookingIndex] = {
-    ...mockBookings[bookingIndex],
-    attendance_status: status,
-    certificate_enabled: certificateEnabled
-  };
-  
-  return { 
-    success: true, 
-    booking: mockBookings[bookingIndex] 
-  };
 };
 
 // Get bookings for a specific user
-export const getBookingsByUserId = async (userId: number) => {
-  return mockBookings.filter(b => b.user_id === userId);
+export const getBookingsByUserId = async (userId: number): Promise<Booking[]> => {
+  try {
+    const sql = `
+      SELECT b.*, e.title as event, u.name as customer
+      FROM bookings b
+      LEFT JOIN events e ON b.event_id = e.id
+      LEFT JOIN users u ON b.user_id = u.id
+      WHERE b.user_id = ?
+      ORDER BY b.booking_date DESC
+    `;
+    
+    const result = await query(sql, [userId]);
+    return result || mockBookings.filter(b => b.user_id === userId);
+  } catch (error) {
+    console.error('Error fetching bookings by user ID:', error);
+    return mockBookings.filter(b => b.user_id === userId);
+  }
 };

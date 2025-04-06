@@ -50,8 +50,10 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      // Fix: authenticateUser now only expects a single argument (token)
-      // Since it's aliased to authenticateWithGmail
+      // Simulate a login attempt
+      // In a real-world scenario, we'd validate with a backend
+      // For now, we're using authenticateUser which is aliased to authenticateWithGmail
+      // and only expects the email as a parameter
       const result = await authenticateUser(email);
       
       if (result.success) {

@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
@@ -35,12 +36,13 @@ const AdminLogin = () => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     try {
+      // For demo purposes, we're just passing the email to authenticateWithGmail
       const response = await authenticateWithGmail(values.email);
 
       if (response && response.success) {
         // Store user info in localStorage
         localStorage.setItem('user', JSON.stringify({
-          name: 'Admin User',
+          name: response.user?.name || 'Admin User',
           email: values.email,
           role: 'admin'
         }));

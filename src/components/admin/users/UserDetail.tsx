@@ -17,19 +17,20 @@ export function UserDetail({ user, adminEmail, onSuccess }: UserDetailProps) {
   const [isResetting, setIsResetting] = useState(false);
   
   // Handle password reset
-  const handleResetPassword = async (email: string) => {
+  const handleResetPassword = async () => {
     setIsResetting(true);
     try {
-      // Update to pass the correct number of arguments - userId, newPassword, adminEmail
+      // Pass the correct arguments: userId, newPassword, adminEmail
       const result = await resetUserPassword(user.id, "tempPassword123", adminEmail);
       if (result.success) {
-        toast.success(result.message);
+        toast.success(result.message || "Password reset successfully");
+        onSuccess();
       } else {
-        toast.error(result.message);
+        toast.error(result.message || "Failed to reset password");
       }
     } catch (error) {
       console.error("Password reset error:", error);
-      toast.error("Failed to reset password");
+      toast.error("An error occurred during password reset");
     } finally {
       setIsResetting(false);
     }
@@ -44,7 +45,7 @@ export function UserDetail({ user, adminEmail, onSuccess }: UserDetailProps) {
       <div className="flex items-center justify-center mb-6">
         <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center">
           <span className="text-3xl font-semibold text-primary">
-            {user.name.charAt(0).toUpperCase()}
+            {user.name?.charAt(0).toUpperCase() || "?"}
           </span>
         </div>
       </div>
@@ -96,7 +97,7 @@ export function UserDetail({ user, adminEmail, onSuccess }: UserDetailProps) {
           <Button 
             variant="outline" 
             className="justify-start"
-            onClick={() => handleResetPassword(user.email)}
+            onClick={handleResetPassword}
             disabled={isResetting}
           >
             <RefreshCw className={`h-4 w-4 mr-2 ${isResetting ? 'animate-spin' : ''}`} />
