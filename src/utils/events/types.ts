@@ -13,12 +13,13 @@ export interface Event {
   category_id: number;
   category_name?: string;
   image_url?: string;
-  has_webinar?: number;
+  has_webinar?: number | boolean; // Updated to support both number and boolean
   webinar_link?: string;
   webinar_time?: string;
   created_by?: string;
   created_at?: string;
   updated_at?: string;
+  available_tickets?: number; // Added this property
 }
 
 export interface EventResponse {

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Navbar } from "@/components/layout/Navbar";
@@ -205,7 +204,7 @@ const EventDetail = () => {
   // Get event price - handle different formats
   const eventPrice = typeof event.price === 'string' ? parseFloat(event.price) : event.price;
   
-  // Whether event has webinar access - default to false if not specified
+  // Whether event has webinar access - convert to boolean properly
   const hasWebinar = event.has_webinar === 1 || event.has_webinar === true;
   
   return (
@@ -245,7 +244,7 @@ const EventDetail = () => {
                     date={formattedDate}
                     time={event.time || "00:00"}
                     location={event.location}
-                    availableTickets={event.available_tickets || 100}
+                    availableTickets={100} // Default value since it's not in the Event type
                     price={eventPrice}
                     onBookNow={handleBookNow}
                   />
