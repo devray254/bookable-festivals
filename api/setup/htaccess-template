@@ -26,6 +26,18 @@ Options -Indexes
     RewriteRule ^ index.html [L]
 </IfModule>
 
+# Protect sensitive directories from direct access
+<FilesMatch "^\.env|\.git">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Protect sensitive API endpoints
+<FilesMatch "^(config\.php|db-config\.php|.*\.sql|import-database\.php)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
 # Set proper MIME types
 <IfModule mod_mime.c>
     AddType application/javascript .js
@@ -58,4 +70,12 @@ Options -Indexes
     php_value memory_limit 256M
     php_value max_execution_time 300
     php_flag display_errors off
+</IfModule>
+
+# Security headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
 </IfModule>
