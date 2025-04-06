@@ -11,8 +11,8 @@ export interface EventCardProps {
   date: string;
   time: string;
   location: string;
-  price: number;
-  is_free?: boolean;
+  price: number | string;
+  is_free?: boolean | number;
   category: string;
 }
 

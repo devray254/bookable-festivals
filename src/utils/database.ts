@@ -1,56 +1,29 @@
 
-// This file serves as the main entry point for database operations
-// It re-exports all functions from the specialized modules
+import { query } from './db-connection';
+import { 
+  fetchEvents, 
+  fetchEvent, 
+  fetchFeaturedEvents, 
+  searchEvents 
+} from './events';
+import { logActivity } from './logs';
 
-// Test database connection
-export { testConnection } from './db-connection';
+// Test the database connection
+export const testDatabaseConnection = async () => {
+  try {
+    // Simple query to test connection
+    await query('SELECT 1');
+    return { success: true, message: 'Database connection successful' };
+  } catch (error) {
+    console.error('Database connection error:', error);
+    return { success: false, message: String(error) };
+  }
+};
 
-// Re-export authentication utilities
-export { 
-  authenticateUser, 
-  createUser,
-  createAdminUser,
-  updateUser,
-  resetUserPassword,
-  getAllUsers,
-  addUser
-} from './auth';
-
-// Re-export events utilities
+// Export events functions
 export { 
   fetchEvents, 
-  createEvent,
-  updateEvent,
-  deleteEvent,
-  getEventById,
-  getAllEvents
-} from './events';
-
-// Re-export categories utilities
-export { 
-  fetchCategories, 
-  createCategory,
-  updateCategory,
-  deleteCategory
-} from './categories';
-
-// Re-export bookings utilities
-export { fetchBookings } from './bookings';
-
-// Re-export payments utilities
-export { fetchPayments } from './payments/core';
-
-// Re-export certificates utilities
-export { 
-  fetchCertificatesByEvent,
-  fetchCertificatesByUser,
-  generateCertificate,
-  generateBulkCertificates,
-  generateCertificateContent
-} from './certificates';
-
-// Re-export logs utilities
-export { fetchActivityLogs, logActivity } from './logs';
-
-// Re-export image upload utilities
-export { uploadEventImage, validateImage } from './image-upload';
+  fetchEvent, 
+  fetchFeaturedEvents, 
+  searchEvents 
+};
