@@ -1,70 +1,65 @@
 
-import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import { AlertCircle, CheckCircle } from "lucide-react";
+import { GmailSettings } from "@/utils/gmail-settings";
 
-interface GmailSettings {
-  client_id: string;
-  client_secret: string;
-  redirect_uri: string;
-  enabled: boolean;
+export interface GmailStatusProps {
+  settings: GmailSettings;
 }
 
-interface GmailStatusProps {
-  isLoading: boolean;
-  gmailSettings?: GmailSettings;
-}
-
-export function GmailStatus({ isLoading, gmailSettings }: GmailStatusProps) {
-  if (isLoading) {
-    return (
-      <div className="flex justify-center py-4">
-        <div className="animate-spin h-6 w-6 border-4 border-eventPurple-700 rounded-full border-t-transparent"></div>
-      </div>
-    );
-  }
-
-  const isConfigured = gmailSettings?.client_id && gmailSettings?.client_secret;
-  const isEnabled = gmailSettings?.enabled;
-
+const GmailStatus = ({ settings }: GmailStatusProps) => {
+  const isConnected = settings.is_connected;
+  
   return (
-    <div className="mb-6">
-      <div className="flex justify-between items-center mb-4">
-        <div className="font-medium">Gmail Integration Status</div>
-        <Badge variant={isEnabled ? "default" : "outline"}>
-          {isEnabled ? "Enabled" : "Disabled"}
-        </Badge>
+    <div className="space-y-4">
+      <div className="flex items-center gap-2">
+        <div className="flex-1">Connection Status:</div>
+        <div className="flex items-center gap-1.5">
+          {isConnected ? (
+            <>
+              <CheckCircle className="h-5 w-5 text-green-500" />
+              <span className="font-medium text-green-500">Connected</span>
+            </>
+          ) : (
+            <>
+              <AlertCircle className="h-5 w-5 text-amber-500" />
+              <span className="font-medium text-amber-500">Not Connected</span>
+            </>
+          )}
+        </div>
       </div>
       
-      {!isConfigured && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Not Configured</AlertTitle>
-          <AlertDescription>
-            Gmail integration is not configured. Please provide the required credentials below.
-          </AlertDescription>
-        </Alert>
+      {isConnected && (
+        <>
+          <div className="flex items-center gap-2">
+            <div className="flex-1">Account:</div>
+            <div className="font-medium">{settings.certificate_sender_email || 'Not set'}</div>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <div className="flex-1">Token Expires:</div>
+            <div className="font-medium">
+              {settings.token_expiry 
+                ? new Date(settings.token_expiry).toLocaleString() 
+                : 'Unknown'}
+            </div>
+          </div>
+        </>
       )}
       
-      {isConfigured && isEnabled && (
-        <Alert variant="default" className="bg-green-50 border-green-200 text-green-800">
-          <CheckCircle className="h-4 w-4 text-green-600" />
-          <AlertTitle>Gmail Integration Active</AlertTitle>
-          <AlertDescription>
-            Gmail integration is properly configured and activated. Users can sign in with Gmail and certificates can be emailed.
-          </AlertDescription>
-        </Alert>
-      )}
-      
-      {isConfigured && !isEnabled && (
-        <Alert variant="default" className="bg-orange-50 border-orange-200 text-orange-800">
-          <AlertCircle className="h-4 w-4 text-orange-600" />
-          <AlertTitle>Gmail Integration Inactive</AlertTitle>
-          <AlertDescription>
-            Gmail integration is configured but not enabled. Enable it to allow users to sign in with Gmail and send certificate emails.
-          </AlertDescription>
-        </Alert>
-      )}
+      <div className="pt-4">
+        {isConnected ? (
+          <Button variant="destructive" className="w-full">
+            Disconnect Gmail
+          </Button>
+        ) : (
+          <Button className="w-full" disabled={!settings.client_id || !settings.client_secret}>
+            Connect to Gmail
+          </Button>
+        )}
+      </div>
     </div>
   );
-}
+};
+
+export default GmailStatus;

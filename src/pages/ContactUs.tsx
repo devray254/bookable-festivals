@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { Mail, Phone, MapPin, Clock } from "lucide-react";
+import PageBanner from "@/components/layout/PageBanner";
 
 const ContactUs = () => {
   const [name, setName] = useState("");
@@ -41,45 +42,56 @@ const ContactUs = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
+      <PageBanner 
+        title="Contact Us" 
+        subtitle="We'd love to hear from you"
+      />
+      
       <main className="flex-grow container mx-auto px-4 py-12">
         <div className="max-w-5xl mx-auto">
-          <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center text-eventPurple-700">Contact Us</h1>
-          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             {/* Contact Information */}
             <div>
-              <h2 className="text-2xl font-semibold mb-6 text-gray-800">Get In Touch</h2>
+              <h2 className="text-2xl font-semibold mb-6 text-eventPurple-700">Get In Touch</h2>
               <p className="text-gray-600 mb-8">
                 Have questions or feedback? We'd love to hear from you. Fill out the form or reach us through any of the methods below.
               </p>
               
               <div className="space-y-6">
-                <div className="flex items-start space-x-4">
-                  <MapPin className="w-6 h-6 text-eventPurple-600 mt-1" />
+                <div className="flex items-start space-x-4 bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                  <div className="bg-eventPurple-100 p-3 rounded-full text-eventPurple-600">
+                    <MapPin className="w-5 h-5" />
+                  </div>
                   <div>
                     <h3 className="font-medium text-gray-800">Address</h3>
                     <p className="text-gray-600">Nairobi, Kenya</p>
                   </div>
                 </div>
                 
-                <div className="flex items-start space-x-4">
-                  <Phone className="w-6 h-6 text-eventPurple-600 mt-1" />
+                <div className="flex items-start space-x-4 bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                  <div className="bg-eventPurple-100 p-3 rounded-full text-eventPurple-600">
+                    <Phone className="w-5 h-5" />
+                  </div>
                   <div>
                     <h3 className="font-medium text-gray-800">Phone</h3>
                     <p className="text-gray-600">+254 758 978 931</p>
                   </div>
                 </div>
                 
-                <div className="flex items-start space-x-4">
-                  <Mail className="w-6 h-6 text-eventPurple-600 mt-1" />
+                <div className="flex items-start space-x-4 bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                  <div className="bg-eventPurple-100 p-3 rounded-full text-eventPurple-600">
+                    <Mail className="w-5 h-5" />
+                  </div>
                   <div>
                     <h3 className="font-medium text-gray-800">Email</h3>
                     <p className="text-gray-600">maabarahub@gmail.com</p>
                   </div>
                 </div>
                 
-                <div className="flex items-start space-x-4">
-                  <Clock className="w-6 h-6 text-eventPurple-600 mt-1" />
+                <div className="flex items-start space-x-4 bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                  <div className="bg-eventPurple-100 p-3 rounded-full text-eventPurple-600">
+                    <Clock className="w-5 h-5" />
+                  </div>
                   <div>
                     <h3 className="font-medium text-gray-800">Office Hours</h3>
                     <p className="text-gray-600">Mon – Fri: 8:00 – 5:00</p>
@@ -87,7 +99,7 @@ const ContactUs = () => {
                 </div>
               </div>
               
-              <div className="mt-10 bg-eventPurple-50 rounded-lg p-6">
+              <div className="mt-10 bg-white rounded-lg p-6 shadow-sm">
                 <h3 className="font-semibold text-lg mb-4 text-eventPurple-700">Follow Us</h3>
                 <div className="flex space-x-4">
                   <a href="#" className="w-10 h-10 bg-eventPurple-100 rounded-full flex items-center justify-center text-eventPurple-700 hover:bg-eventPurple-200 transition-colors">
@@ -120,7 +132,7 @@ const ContactUs = () => {
             
             {/* Contact Form */}
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-2xl font-semibold mb-6 text-gray-800">Send Us a Message</h2>
+              <h2 className="text-2xl font-semibold mb-6 text-eventPurple-700">Send Us a Message</h2>
               
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
@@ -133,6 +145,7 @@ const ContactUs = () => {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Enter your name"
+                    className="border-gray-300 focus:border-eventPurple-500 focus:ring-1 focus:ring-eventPurple-500"
                     required
                   />
                 </div>
@@ -147,6 +160,7 @@ const ContactUs = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter your email"
+                    className="border-gray-300 focus:border-eventPurple-500 focus:ring-1 focus:ring-eventPurple-500"
                     required
                   />
                 </div>
@@ -161,6 +175,7 @@ const ContactUs = () => {
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
                     placeholder="Enter subject"
+                    className="border-gray-300 focus:border-eventPurple-500 focus:ring-1 focus:ring-eventPurple-500"
                     required
                   />
                 </div>
@@ -175,6 +190,7 @@ const ContactUs = () => {
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder="Type your message here..."
                     rows={5}
+                    className="border-gray-300 focus:border-eventPurple-500 focus:ring-1 focus:ring-eventPurple-500"
                     required
                   />
                 </div>
