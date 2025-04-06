@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,6 +21,7 @@ const initialSettings: GmailSettings = {
   access_token: '',
   refresh_token: '',
   token_expiry: '',
+  enabled: false, // Added this property
 };
 
 const GmailSettingsPage = () => {

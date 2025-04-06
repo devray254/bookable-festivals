@@ -12,6 +12,7 @@ export interface GmailSettings {
   access_token: string;
   refresh_token: string;
   token_expiry: string;
+  enabled: boolean; // Added this property
 }
 
 // Fetch Gmail settings from database
@@ -30,6 +31,7 @@ export const fetchGmailSettings = async (): Promise<GmailSettings> => {
       access_token: '',
       refresh_token: '',
       token_expiry: '',
+      enabled: false, // Added default value
     };
   } catch (error) {
     console.error('Error fetching Gmail settings:', error);
@@ -45,6 +47,7 @@ export const fetchGmailSettings = async (): Promise<GmailSettings> => {
       access_token: '',
       refresh_token: '',
       token_expiry: '',
+      enabled: false, // Added default value
     };
   }
 };

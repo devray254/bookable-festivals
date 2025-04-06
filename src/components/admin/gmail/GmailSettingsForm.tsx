@@ -29,6 +29,7 @@ export function GmailSettingsForm({ existingSettings, onSuccess }: GmailSettings
       access_token: existingSettings?.access_token || '',
       refresh_token: existingSettings?.refresh_token || '',
       token_expiry: existingSettings?.token_expiry || '',
+      enabled: existingSettings?.enabled || false, // Added this field
     }
   });
   
