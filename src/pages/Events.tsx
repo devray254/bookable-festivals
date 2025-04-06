@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { Navbar } from "@/components/layout/Navbar";
@@ -16,7 +15,6 @@ import { fetchCategories } from "@/utils/categories";
 import { checkInactivity } from "@/utils/db-connection";
 import { Event } from "@/utils/events/types";
 
-// Define Category type
 interface Category {
   id: number;
   name: string;
@@ -28,7 +26,6 @@ const Events = () => {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   
-  // State variables
   const [events, setEvents] = useState<Event[]>([]);
   const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "");
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get("category") || "");
@@ -39,7 +36,6 @@ const Events = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
   
-  // Restore session state from sessionStorage
   useEffect(() => {
     const restoreSessionState = () => {
       const savedSearch = sessionStorage.getItem('events_searchTerm');
@@ -53,21 +49,17 @@ const Events = () => {
       if (savedShowFilters) setShowFilters(savedShowFilters === 'true');
     };
     
-    // Check if user has been inactive for more than 5 minutes
     if (checkInactivity()) {
-      // Reset state if inactive
       console.log('User was inactive for 5+ minutes, resetting state');
       sessionStorage.removeItem('events_searchTerm');
       sessionStorage.removeItem('events_selectedCategory');
       sessionStorage.removeItem('events_priceRange');
       sessionStorage.removeItem('events_showFilters');
     } else {
-      // Restore state if not inactive
       restoreSessionState();
     }
   }, []);
   
-  // Save state to sessionStorage whenever it changes
   useEffect(() => {
     sessionStorage.setItem('events_searchTerm', searchTerm);
     sessionStorage.setItem('events_selectedCategory', selectedCategory);
@@ -75,7 +67,6 @@ const Events = () => {
     sessionStorage.setItem('events_showFilters', showFilters.toString());
   }, [searchTerm, selectedCategory, priceRange, showFilters]);
   
-  // Load events from database
   const loadEvents = async () => {
     setIsLoading(true);
     try {
@@ -90,7 +81,6 @@ const Events = () => {
     }
   };
   
-  // Load categories from database
   const loadCategories = async () => {
     setLoadingCategories(true);
     try {
@@ -105,19 +95,16 @@ const Events = () => {
     }
   };
   
-  // Load events and categories on component mount
   useEffect(() => {
     loadEvents();
     loadCategories();
   }, []);
   
-  // Filter events based on search, category and price
   useEffect(() => {
     if (events.length === 0) return;
     
     let result = [...events];
     
-    // Filter by search term
     if (searchTerm) {
       result = result.filter(event => 
         event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -126,7 +113,6 @@ const Events = () => {
       );
     }
     
-    // Filter by category
     if (selectedCategory) {
       result = result.filter(event => 
         (event.category_name && event.category_name === selectedCategory) ||
@@ -134,7 +120,6 @@ const Events = () => {
       );
     }
     
-    // Filter by price range
     result = result.filter(event => {
       const eventPrice = typeof event.price === 'string' ? parseFloat(event.price) : event.price;
       return eventPrice >= priceRange[0] && eventPrice <= priceRange[1];
@@ -179,7 +164,6 @@ const Events = () => {
         <div className="container mx-auto px-4">
           {showFilters && (
             <div className="bg-white p-6 rounded-lg shadow-sm mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Category Filter */}
               <div>
                 <h3 className="font-medium mb-3 text-gray-800">Categories</h3>
                 <div className="space-y-2">
@@ -215,7 +199,6 @@ const Events = () => {
                 </div>
               </div>
               
-              {/* Price Range Filter */}
               <div>
                 <h3 className="font-medium mb-3 text-gray-800">Price Range</h3>
                 <div className="px-2">
@@ -234,7 +217,6 @@ const Events = () => {
                 </div>
               </div>
               
-              {/* Date Filter - In a real app, this would use a date picker */}
               <div>
                 <h3 className="font-medium mb-3 text-gray-800">Date</h3>
                 <Button variant="outline" className="w-full justify-start text-gray-700">
@@ -245,7 +227,6 @@ const Events = () => {
             </div>
           )}
           
-          {/* Display filtered results count with refresh button */}
           <div className="mb-6 flex justify-between items-center">
             <p className="text-gray-600">
               Showing {filteredEvents.length} events
@@ -268,7 +249,6 @@ const Events = () => {
             </Button>
           </div>
           
-          {/* Events Grid */}
           {isLoading ? (
             <div className="py-10 text-center">
               <RefreshCw className="h-10 w-10 animate-spin mx-auto mb-4 text-eventPurple-600" />
@@ -287,7 +267,7 @@ const Events = () => {
                   location={event.location} 
                   price={typeof event.price === 'string' ? parseFloat(event.price) : event.price} 
                   category={event.category_name || `Category ${event.category_id}`}
-                  is_free={event.is_free === true || event.is_free === 1}
+                  is_free={event.is_free === 1 || event.is_free === true}
                 />
               ))}
             </div>

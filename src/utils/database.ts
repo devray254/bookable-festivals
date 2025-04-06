@@ -1,12 +1,8 @@
 
 import { query } from './db-connection';
-import { 
-  fetchEvents, 
-  fetchEvent, 
-  fetchFeaturedEvents, 
-  searchEvents 
-} from './events';
+import { fetchEvents } from './events';
 import { logActivity } from './logs';
+import { resetUserPassword } from './auth/user-authentication';
 
 // Test the database connection
 export const testDatabaseConnection = async () => {
@@ -22,8 +18,18 @@ export const testDatabaseConnection = async () => {
 
 // Export events functions
 export { 
-  fetchEvents, 
-  fetchEvent, 
-  fetchFeaturedEvents, 
-  searchEvents 
+  fetchEvents
+};
+
+// Export the categories functions from the categories file
+export { 
+  fetchCategories,
+  createCategory,
+  updateCategory,
+  deleteCategory
+} from './categories';
+
+// Export auth functions
+export {
+  resetUserPassword
 };

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -12,7 +11,6 @@ import { fetchEvents } from "@/utils/events";
 import { getCurrentLogo } from "@/utils/image-upload";
 import { Event } from "@/utils/events/types";
 
-// Define Category type
 interface Category {
   id: number;
   name: string;
@@ -27,7 +25,6 @@ const Index = () => {
   const [isLoadingEvents, setIsLoadingEvents] = useState(true);
   const [logoUrl, setLogoUrl] = useState(getCurrentLogo());
   
-  // Load categories on component mount
   useEffect(() => {
     const loadCategories = async () => {
       setIsLoadingCategories(true);
@@ -37,7 +34,6 @@ const Index = () => {
         console.log('Categories loaded on homepage:', categoriesData);
       } catch (error) {
         console.error("Error loading categories:", error);
-        // Fallback to empty categories
         setCategories([]);
       } finally {
         setIsLoadingCategories(false);
@@ -46,7 +42,6 @@ const Index = () => {
     
     loadCategories();
     
-    // Update logo URL when it changes
     const intervalId = setInterval(() => {
       const currentLogo = getCurrentLogo();
       if (currentLogo !== logoUrl) {
@@ -57,7 +52,6 @@ const Index = () => {
     return () => clearInterval(intervalId);
   }, [logoUrl]);
 
-  // Load events on component mount
   useEffect(() => {
     const loadEvents = async () => {
       setIsLoadingEvents(true);
@@ -76,14 +70,12 @@ const Index = () => {
     loadEvents();
   }, []);
 
-  // Filter upcoming and past events based on East Africa Time (EAT)
   const { upcomingEvents, pastEvents } = separateEventsByDate(events);
 
-  // Function to convert date to East Africa Time and separate events
   function separateEventsByDate(allEvents: Event[]) {
     const now = new Date();
     const eatNow = convertToEAT(now);
-    eatNow.setHours(0, 0, 0, 0); // Remove time component for date comparison
+    eatNow.setHours(0, 0, 0, 0);
 
     const upcoming: Event[] = [];
     const past: Event[] = [];
@@ -91,7 +83,7 @@ const Index = () => {
     allEvents.forEach(event => {
       const eventDate = new Date(event.date);
       const eatEventDate = convertToEAT(eventDate);
-      eatEventDate.setHours(0, 0, 0, 0); // Remove time component for date comparison
+      eatEventDate.setHours(0, 0, 0, 0);
 
       if (eatEventDate >= eatNow) {
         upcoming.push(event);
@@ -100,16 +92,12 @@ const Index = () => {
       }
     });
 
-    // Sort upcoming events by date (closest first)
     upcoming.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-    
-    // Sort past events by date (most recent first)
     past.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
     return { upcomingEvents: upcoming, pastEvents: past };
   }
 
-  // Convert date to East Africa Time (EAT is UTC+3)
   function convertToEAT(date: Date) {
     return date;
   }
@@ -118,7 +106,6 @@ const Index = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      {/* Hero Section */}
       <div className="bg-gradient-to-r from-eventPurple-700 to-eventPurple-900 text-white py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
@@ -158,7 +145,6 @@ const Index = () => {
         </div>
       </div>
       
-      {/* Upcoming Events Section */}
       <section className="py-12">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-8">
@@ -185,7 +171,7 @@ const Index = () => {
                   location={event.location} 
                   price={typeof event.price === 'string' ? parseFloat(event.price as string) : event.price as number} 
                   category={event.category_name || `Category ${event.category_id}`}
-                  is_free={event.is_free === true || event.is_free === 1}
+                  is_free={event.is_free === 1 || event.is_free === true}
                 />
               ))}
             </div>
@@ -197,7 +183,6 @@ const Index = () => {
         </div>
       </section>
       
-      {/* Categories Section */}
       <section className="py-12 bg-gray-50">
         <div className="container mx-auto px-4">
           <h2 className="text-2xl md:text-3xl font-bold text-center mb-10">
@@ -241,7 +226,6 @@ const Index = () => {
         </div>
       </section>
       
-      {/* Past Events Section */}
       <section className="py-12">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-8">
@@ -268,7 +252,7 @@ const Index = () => {
                   location={event.location} 
                   price={typeof event.price === 'string' ? parseFloat(event.price as string) : event.price as number} 
                   category={event.category_name || `Category ${event.category_id}`}
-                  is_free={event.is_free === true || event.is_free === 1}
+                  is_free={event.is_free === 1 || event.is_free === true}
                 />
               ))}
             </div>

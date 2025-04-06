@@ -37,7 +37,7 @@ export function CertificateEmailSettings() {
           className="min-h-32"
         />
         <p className="text-sm text-muted-foreground">
-          Available variables: {{NAME}}, {{COURSE_NAME}}, {{EVENT_DATE}}, {{CERTIFICATE_ID}}
+          Available variables: {`{{NAME}}, {{COURSE_NAME}}, {{EVENT_DATE}}, {{CERTIFICATE_ID}}`}
         </p>
       </div>
       
