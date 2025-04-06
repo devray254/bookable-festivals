@@ -1,13 +1,11 @@
 
-import React from "react";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
 
 interface PaymentStepProps {
   phoneNumber: string;
-  setPhoneNumber: (value: string) => void;
+  setPhoneNumber: (phone: string) => void;
   totalAmount: number;
   serviceFee: number;
   serviceFeePercent: number;
@@ -30,52 +28,69 @@ const PaymentStep = ({
   eventPrice,
   isProcessing,
   onCancel,
-  onInitiatePayment,
+  onInitiatePayment
 }: PaymentStepProps) => {
   return (
-    <div className="grid gap-4 py-4">
-      <div className="grid gap-2">
-        <Label htmlFor="phone">M-Pesa Phone Number</Label>
-        <Input
-          id="phone"
-          placeholder="07XXXXXXXX"
-          value={phoneNumber}
-          onChange={(e) => setPhoneNumber(e.target.value)}
-        />
-        <p className="text-xs text-gray-500">Enter the phone number registered with M-Pesa</p>
-      </div>
-      
-      <div className="mt-2 space-y-2 text-sm">
-        <div className="flex justify-between">
-          <span className="text-gray-500">Ticket Price</span>
-          <span>KES {eventPrice.toLocaleString()} x {ticketQuantity}</span>
+    <div className="space-y-6">
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <label htmlFor="phoneNumber" className="block text-sm font-medium">
+            M-Pesa Phone Number
+          </label>
+          <Input
+            id="phoneNumber"
+            placeholder="Enter your M-Pesa number e.g. 07xxxxxxxx"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            className="w-full"
+            disabled={isProcessing}
+          />
+          <p className="text-xs text-gray-500">
+            You will receive an M-Pesa prompt on this number to complete payment
+          </p>
         </div>
-        <div className="flex justify-between">
-          <span className="text-gray-500">Subtotal</span>
+      </div>
+
+      <div className="space-y-3">
+        <div className="flex justify-between text-sm">
+          <span>Ticket price</span>
+          <span>KES {eventPrice.toLocaleString()}</span>
+        </div>
+        
+        <div className="flex justify-between text-sm">
+          <span>Quantity</span>
+          <span>{ticketQuantity}</span>
+        </div>
+        
+        <div className="flex justify-between text-sm">
+          <span>Subtotal</span>
           <span>KES {totalAmount.toLocaleString()}</span>
         </div>
-        <div className="flex justify-between">
-          <span className="text-gray-500">Service Fee ({serviceFeePercent}%)</span>
+        
+        <div className="flex justify-between text-sm">
+          <span>Service fee ({serviceFeePercent}%)</span>
           <span>KES {serviceFee.toLocaleString()}</span>
         </div>
-        <div className="flex justify-between font-medium pt-2 border-t">
+        
+        <Separator className="my-2" />
+        
+        <div className="flex justify-between font-bold">
           <span>Total</span>
           <span>KES {grandTotal.toLocaleString()}</span>
         </div>
       </div>
-      
-      <DialogFooter className="mt-4">
-        <Button variant="outline" onClick={onCancel}>
+
+      <div className="flex justify-end gap-2 pt-4">
+        <Button variant="outline" onClick={onCancel} disabled={isProcessing}>
           Cancel
         </Button>
-        <Button 
-          className="bg-eventPurple-700 hover:bg-eventPurple-800"
+        <Button
           onClick={onInitiatePayment}
-          disabled={isProcessing}
+          disabled={!phoneNumber || isProcessing}
         >
           {isProcessing ? "Processing..." : "Pay with M-Pesa"}
         </Button>
-      </DialogFooter>
+      </div>
     </div>
   );
 };

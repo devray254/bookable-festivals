@@ -21,43 +21,70 @@ const EventCard = ({ id, title, image, date, time, location, price, is_free, cat
   const isPastEvent = () => {
     try {
       // Parse the date string - support multiple formats
-      let eventDate: Date;
+      let eventDate: Date | null = null;
       
       if (typeof date === 'string') {
-        // Try standard format first
-        eventDate = new Date(date);
-        
-        // If date is invalid, try other formats
-        if (isNaN(eventDate.getTime())) {
-          // Try DD/MM/YYYY
-          const dateParts = date.split(/[\/\-\s,]+/);
-          if (dateParts.length >= 3) {
-            // Check if it's "Month Day, Year" format
-            const months = ["January", "February", "March", "April", "May", "June", 
-                           "July", "August", "September", "October", "November", "December"];
-            const monthIndex = months.findIndex(m => 
-              dateParts[0].toLowerCase().includes(m.toLowerCase()));
-            
-            if (monthIndex !== -1) {
-              // It's in "Month Day, Year" format
-              const day = parseInt(dateParts[1].replace(',', ''));
-              const year = parseInt(dateParts[2]);
-              eventDate = new Date(year, monthIndex, day);
-            } else {
-              // Assume DD/MM/YYYY or similar
+        // Try parsing with default Date constructor
+        const defaultDate = new Date(date);
+        if (!isNaN(defaultDate.getTime())) {
+          eventDate = defaultDate;
+        } else {
+          // Try parsing month name format like "Oct 15, 2023"
+          const monthNames = ["January", "February", "March", "April", "May", "June", 
+                             "July", "August", "September", "October", "November", "December"];
+          
+          // Try full month name format
+          for (let i = 0; i < monthNames.length; i++) {
+            if (date.toLowerCase().includes(monthNames[i].toLowerCase())) {
+              const parts = date.split(/[\s,]+/);
+              if (parts.length >= 3) {
+                const monthIndex = i;
+                let day = 1;
+                let year = new Date().getFullYear();
+                
+                // Find the day and year in the parts
+                for (const part of parts) {
+                  const num = parseInt(part.replace(/\D/g, ''));
+                  if (!isNaN(num)) {
+                    if (num >= 1000) {
+                      year = num;
+                    } else if (num >= 1 && num <= 31) {
+                      day = num;
+                    }
+                  }
+                }
+                
+                eventDate = new Date(year, monthIndex, day);
+                break;
+              }
+            }
+          }
+          
+          // If still null, try DD/MM/YYYY or similar formats
+          if (eventDate === null) {
+            const dateParts = date.split(/[\/\-\s]+/);
+            if (dateParts.length >= 3) {
               const day = parseInt(dateParts[0]);
               const month = parseInt(dateParts[1]) - 1; // Months are 0-indexed
               const year = parseInt(dateParts[2]);
-              eventDate = new Date(year, month, day);
+              
+              if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
+                eventDate = new Date(year, month, day);
+              }
             }
           }
         }
-      } else {
-        // If it's not a string, use current date (fallback)
-        eventDate = new Date();
       }
       
-      // Get current date without time for comparison
+      // If we still couldn't parse the date, use tomorrow as default
+      if (eventDate === null) {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        eventDate = tomorrow;
+        console.log("Could not parse date, using tomorrow as default:", tomorrow);
+      }
+      
+      // Compare dates
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       eventDate.setHours(0, 0, 0, 0);
@@ -155,7 +182,7 @@ const EventCard = ({ id, title, image, date, time, location, price, is_free, cat
               Event Completed
             </Button>
           ) : (
-            <Button className="w-full bg-blue-600 hover:bg-blue-700">
+            <Button className="w-full">
               Book Now
             </Button>
           )}

@@ -13,39 +13,39 @@ export function BookingSummaryCards({ filteredBookings, confirmedBookings, pendi
 
   return (
     <div className="grid gap-4 md:grid-cols-4">
-      <Card>
+      <Card className="border-blue-100">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{filteredBookings.length}</div>
+          <div className="text-2xl font-bold text-blue-700">{filteredBookings.length}</div>
         </CardContent>
       </Card>
       
-      <Card>
+      <Card className="border-blue-100">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium">Confirmed Bookings</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{confirmedBookings.length}</div>
+          <div className="text-2xl font-bold text-green-600">{confirmedBookings.length}</div>
         </CardContent>
       </Card>
       
-      <Card>
+      <Card className="border-blue-100">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium">Pending Bookings</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{pendingBookings.length}</div>
+          <div className="text-2xl font-bold text-orange-500">{pendingBookings.length}</div>
         </CardContent>
       </Card>
       
-      <Card>
+      <Card className="border-blue-100">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">
+          <div className="text-2xl font-bold text-blue-700">
             KES {totalRevenue.toLocaleString()}
           </div>
         </CardContent>
