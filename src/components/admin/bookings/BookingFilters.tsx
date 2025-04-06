@@ -85,16 +85,16 @@ export function BookingFilters({
             <div className="space-y-2">
               <Label htmlFor="event-filter">Event</Label>
               <Select
-                value={selectedEventId?.toString() || ""}
+                value={selectedEventId?.toString() || "all"}
                 onValueChange={(value) =>
-                  onEventSelect(value ? parseInt(value) : null)
+                  onEventSelect(value === "all" ? null : parseInt(value))
                 }
               >
                 <SelectTrigger id="event-filter">
                   <SelectValue placeholder="Select Event" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Events</SelectItem>
+                  <SelectItem value="all">All Events</SelectItem>
                   {events.map((event) => (
                     <SelectItem key={event.id} value={event.id.toString()}>
                       {event.title}
