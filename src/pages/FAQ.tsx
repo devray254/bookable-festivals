@@ -102,21 +102,21 @@ const FAQ = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-blue-50">
       <Navbar />
       
       <main className="flex-grow container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl md:text-4xl font-bold mb-3 text-eventPurple-700">Frequently Asked Questions</h1>
-          <p className="text-gray-600 mb-10">Find answers to common questions about Maabara Online and our CPD offerings.</p>
+          <h1 className="text-3xl md:text-4xl font-bold mb-3 text-blue-800">Frequently Asked Questions</h1>
+          <p className="text-gray-700 mb-10">Find answers to common questions about Maabara Online and our CPD offerings.</p>
           
           <Tabs defaultValue="general" className="w-full">
-            <TabsList className="w-full flex justify-start overflow-x-auto mb-6 p-1">
+            <TabsList className="w-full flex justify-start overflow-x-auto mb-6 p-1 bg-blue-100 rounded-lg">
               {faqCategories.map((category) => (
                 <TabsTrigger 
                   key={category.id} 
                   value={category.id}
-                  className="px-6 py-2 whitespace-nowrap"
+                  className="px-6 py-2 whitespace-nowrap text-blue-700 data-[state=active]:bg-blue-600 data-[state=active]:text-white"
                 >
                   {category.label}
                 </TabsTrigger>
@@ -130,12 +130,12 @@ const FAQ = () => {
                     <AccordionItem 
                       key={index} 
                       value={`${category.id}-item-${index}`} 
-                      className="bg-white rounded-lg shadow-sm border border-gray-100"
+                      className="bg-white rounded-lg shadow-sm border border-blue-100 overflow-hidden"
                     >
-                      <AccordionTrigger className="px-6 py-4 text-gray-900 hover:text-eventPurple-700">
+                      <AccordionTrigger className="px-6 py-4 text-blue-800 hover:text-blue-600 bg-blue-50 hover:bg-blue-100 transition-colors">
                         {item.question}
                       </AccordionTrigger>
-                      <AccordionContent className="px-6 pt-0 pb-4 text-gray-700">
+                      <AccordionContent className="px-6 pt-2 pb-4 text-gray-700 bg-white">
                         {item.answer}
                       </AccordionContent>
                     </AccordionItem>
@@ -145,16 +145,16 @@ const FAQ = () => {
             ))}
           </Tabs>
           
-          <div className="mt-12 bg-eventPurple-50 rounded-lg p-6 border border-eventPurple-100">
-            <h2 className="text-xl font-semibold mb-4 text-gray-800">Still have questions?</h2>
-            <p className="text-gray-600 mb-4">
+          <div className="mt-12 bg-blue-100 rounded-lg p-6 border border-blue-200">
+            <h2 className="text-xl font-semibold mb-4 text-blue-800">Still have questions?</h2>
+            <p className="text-gray-700 mb-4">
               If you couldn't find the answer to your question, please don't hesitate to contact our support team.
             </p>
             <div className="flex flex-wrap gap-4">
-              <a href="/contact" className="inline-flex items-center text-eventPurple-700 hover:text-eventPurple-800 font-medium">
+              <a href="/contact" className="inline-flex items-center text-blue-700 hover:text-blue-800 font-medium">
                 Contact Support →
               </a>
-              <a href="mailto:maabarahub@gmail.com" className="inline-flex items-center text-eventPurple-700 hover:text-eventPurple-800 font-medium">
+              <a href="mailto:maabarahub@gmail.com" className="inline-flex items-center text-blue-700 hover:text-blue-800 font-medium">
                 Email Us →
               </a>
             </div>
