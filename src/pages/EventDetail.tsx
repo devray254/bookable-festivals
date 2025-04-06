@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Navbar } from "@/components/layout/Navbar";
@@ -11,6 +10,7 @@ import EventLocation from "@/components/events/EventLocation";
 import BookingCard from "@/components/events/BookingCard";
 import BookingDialog from "@/components/events/BookingDialog";
 import { WebinarAccessCard } from "@/components/events/WebinarAccessCard";
+import { useToast } from "@/hooks/use-toast";
 
 // Mock event data (in a real app, we would fetch this from the backend)
 const eventsData = [
@@ -99,6 +99,7 @@ const eventsData = [
 const EventDetail = () => {
   const { id } = useParams();
   const eventId = Number(id);
+  const { toast } = useToast();
   
   // Find the event by ID
   const event = eventsData.find(e => e.id === eventId);
@@ -182,7 +183,11 @@ const EventDetail = () => {
   
   const handleBookNow = (quantity: number) => {
     if (isPastEvent) {
-      toast.error("Sorry, this event has already taken place. You cannot book tickets for past events.");
+      toast({
+        title: "Sorry, this event has already taken place.",
+        description: "You cannot book tickets for past events.",
+        variant: "destructive"
+      });
       return;
     }
     setTicketQuantity(quantity);
