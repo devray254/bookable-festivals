@@ -12,10 +12,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { getCurrentLogo } from "@/utils/image-upload";
 
 export function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
+  const [logoUrl, setLogoUrl] = useState(getCurrentLogo());
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -30,7 +32,27 @@ export function Navbar() {
         console.error("Error parsing user:", error);
       }
     }
-  }, []);
+    
+    // Set up logo URL update listener
+    const handleStorageChange = () => {
+      setLogoUrl(getCurrentLogo());
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Check for logo updates every 5 seconds (for demo purposes)
+    const intervalId = setInterval(() => {
+      const currentLogo = getCurrentLogo();
+      if (currentLogo !== logoUrl) {
+        setLogoUrl(currentLogo);
+      }
+    }, 5000);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(intervalId);
+    };
+  }, [logoUrl]);
 
   const handleLogout = () => {
     localStorage.removeItem('user');
@@ -63,7 +85,7 @@ export function Navbar() {
     <nav className="bg-background border-b sticky top-0 z-10">
       <div className="container flex items-center justify-between py-4">
         <Link to="/" className="flex items-center">
-          <img src="/logo.png" alt="Maabara Online Logo" className="h-10 mr-2" />
+          <img src={logoUrl} alt="Maabara Online Logo" className="h-10 max-w-[140px] object-contain mr-2" />
         </Link>
         
         {isMobile ? (
@@ -83,9 +105,14 @@ export function Navbar() {
                     <Link to="/profile" className="cursor-pointer">My Bookings</Link>
                   </DropdownMenuItem>
                   {localStorage.getItem('user') && JSON.parse(localStorage.getItem('user') || '{}').role === 'admin' && (
-                    <DropdownMenuItem asChild>
-                      <Link to="/admin" className="cursor-pointer">Admin Dashboard</Link>
-                    </DropdownMenuItem>
+                    <>
+                      <DropdownMenuItem asChild>
+                        <Link to="/admin" className="cursor-pointer">Admin Dashboard</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/admin/site-settings" className="cursor-pointer">Site Settings</Link>
+                      </DropdownMenuItem>
+                    </>
                   )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600">
@@ -149,9 +176,14 @@ export function Navbar() {
                     <Link to="/profile" className="cursor-pointer">My Bookings</Link>
                   </DropdownMenuItem>
                   {localStorage.getItem('user') && JSON.parse(localStorage.getItem('user') || '{}').role === 'admin' && (
-                    <DropdownMenuItem asChild>
-                      <Link to="/admin" className="cursor-pointer">Admin Dashboard</Link>
-                    </DropdownMenuItem>
+                    <>
+                      <DropdownMenuItem asChild>
+                        <Link to="/admin" className="cursor-pointer">Admin Dashboard</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/admin/site-settings" className="cursor-pointer">Site Settings</Link>
+                      </DropdownMenuItem>
+                    </>
                   )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600">

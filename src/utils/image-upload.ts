@@ -47,6 +47,36 @@ export const uploadEventImage = async (file: File): Promise<string> => {
   }
 };
 
+// Upload logo to the server
+export const uploadLogo = async (file: File): Promise<string> => {
+  try {
+    // Create form data for file upload
+    const formData = new FormData();
+    formData.append('logo', file);
+    
+    console.log('Uploading logo:', file.name);
+    
+    // Create a valid filename
+    const safeFileName = file.name.replace(/[^a-zA-Z0-9.]/g, '_');
+    const logoFileName = `logo-${safeFileName}`;
+    
+    // For demo, store in localStorage for persistence
+    // In a real app, this would be stored in a database
+    localStorage.setItem('siteLogoPath', `/uploads/${logoFileName}`);
+    
+    return `/uploads/${logoFileName}`;
+    
+  } catch (error) {
+    console.error('Logo upload failed:', error);
+    throw error;
+  }
+};
+
+// Get the current logo URL
+export const getCurrentLogo = (): string => {
+  return localStorage.getItem('siteLogoPath') || '/logo.png';
+};
+
 // Validate image before upload
 export const validateImage = (file: File): { valid: boolean; message?: string } => {
   // Check file size (max 5MB)
@@ -63,6 +93,28 @@ export const validateImage = (file: File): { valid: boolean; message?: string } 
     return { 
       valid: false, 
       message: 'Only JPG, PNG, GIF and WEBP images are allowed' 
+    };
+  }
+  
+  return { valid: true };
+};
+
+// Validate logo image (more restrictive than regular images)
+export const validateLogo = (file: File): { valid: boolean; message?: string } => {
+  // Check file size (max 2MB for logos)
+  if (file.size > 2 * 1024 * 1024) {
+    return { 
+      valid: false, 
+      message: 'Logo must be less than 2MB' 
+    };
+  }
+  
+  // Check file type (only PNG and SVG for logos)
+  const validTypes = ['image/png', 'image/svg+xml'];
+  if (!validTypes.includes(file.type)) {
+    return { 
+      valid: false, 
+      message: 'Only PNG and SVG formats are allowed for logos' 
     };
   }
   

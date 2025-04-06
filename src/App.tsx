@@ -22,6 +22,7 @@ import AdminLogs from "./pages/admin/Logs";
 import AdminUsers from "./pages/admin/Users";
 import AdminCertificates from "./pages/admin/Certificates";
 import MpesaSettings from "./pages/admin/MpesaSettings";
+import SiteSettings from "./pages/admin/SiteSettings";
 import AboutUs from "./pages/AboutUs";
 import ContactUs from "./pages/ContactUs";
 import FAQ from "./pages/FAQ";
@@ -64,6 +65,7 @@ const App: React.FC = () => {
               <Route path="/admin/payments" element={<AdminPayments />} />
               <Route path="/admin/certificates" element={<AdminCertificates />} />
               <Route path="/admin/mpesa-settings" element={<MpesaSettings />} />
+              <Route path="/admin/site-settings" element={<SiteSettings />} />
               <Route path="/admin/logs" element={<AdminLogs />} />
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

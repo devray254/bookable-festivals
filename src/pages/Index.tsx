@@ -9,6 +9,7 @@ import Footer from "@/components/layout/Footer";
 import EventCard from "@/components/events/EventCard";
 import { fetchCategories } from "@/utils/categories";
 import { fetchEvents } from "@/utils/events";
+import { getCurrentLogo } from "@/utils/image-upload";
 
 // Define Category type
 interface Category {
@@ -38,6 +39,7 @@ const Index = () => {
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoadingEvents, setIsLoadingEvents] = useState(true);
+  const [logoUrl, setLogoUrl] = useState(getCurrentLogo());
   
   // Load categories on component mount
   useEffect(() => {
@@ -57,7 +59,17 @@ const Index = () => {
     };
     
     loadCategories();
-  }, []);
+    
+    // Update logo URL when it changes
+    const intervalId = setInterval(() => {
+      const currentLogo = getCurrentLogo();
+      if (currentLogo !== logoUrl) {
+        setLogoUrl(currentLogo);
+      }
+    }, 5000);
+    
+    return () => clearInterval(intervalId);
+  }, [logoUrl]);
 
   // Load events on component mount
   useEffect(() => {
@@ -130,19 +142,21 @@ const Index = () => {
       <div className="bg-gradient-to-r from-eventPurple-700 to-eventPurple-900 text-white py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
-            <div className="flex justify-center mb-6">
+            <div className="flex justify-center mb-8">
               <img 
-                src="/logo.png" 
+                src={logoUrl} 
                 alt="Maabara Online Logo" 
-                className="h-24 md:h-32" 
+                className="h-28 md:h-36 object-contain" 
               />
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              Discover & Book Amazing Events
+            <h1 className="text-3xl md:text-4xl font-bold mb-8 leading-tight">
+              Welcome to Maabara Online™
             </h1>
-            <p className="text-xl md:text-2xl mb-8 text-eventPurple-100">
-              Find the perfect events to attend and create memories that last a lifetime
-            </p>
+            <div className="text-xl md:text-2xl mb-10 text-eventPurple-100 max-w-2xl mx-auto leading-relaxed">
+              <p className="mb-4">
+                A trade mark of Maabara Hub Africa LTD, a dedicated platform for Continuing Professional Development (CPD) to healthcare providers.
+              </p>
+            </div>
             
             <div className="relative max-w-2xl mx-auto">
               <Input
