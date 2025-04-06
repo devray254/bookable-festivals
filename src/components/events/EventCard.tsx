@@ -17,48 +17,56 @@ export interface EventCardProps {
 }
 
 const EventCard = ({ id, title, image, date, time, location, price, is_free, category }: EventCardProps) => {
-  // Check if the event date is in the past using East Africa Time (EAT)
+  // Check if the event date is in the past using current date
   const isPastEvent = () => {
-    // Parse the date string
-    const eventDate = new Date(date);
-    
-    // If parsing failed, try to extract date parts manually
-    if (isNaN(eventDate.getTime())) {
-      const dateParts = date.split(/[\/\-\s,]+/);
-      // Try different date formats
-      if (dateParts.length >= 3) {
-        // Handle "Month Day, Year" format
-        const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        const monthIndex = months.findIndex(m => dateParts[0].includes(m));
-        if (monthIndex !== -1) {
-          return convertToEAT(new Date(parseInt(dateParts[2]), monthIndex, parseInt(dateParts[1]))) < convertToEAT(new Date());
-        }
+    try {
+      // Parse the date string - support multiple formats
+      let eventDate: Date;
+      
+      if (typeof date === 'string') {
+        // Try standard format first
+        eventDate = new Date(date);
         
-        // Handle numeric formats
-        return convertToEAT(new Date(parseInt(dateParts[2]), parseInt(dateParts[1]) - 1, parseInt(dateParts[0]))) < convertToEAT(new Date());
+        // If date is invalid, try other formats
+        if (isNaN(eventDate.getTime())) {
+          // Try DD/MM/YYYY
+          const dateParts = date.split(/[\/\-\s,]+/);
+          if (dateParts.length >= 3) {
+            // Check if it's "Month Day, Year" format
+            const months = ["January", "February", "March", "April", "May", "June", 
+                           "July", "August", "September", "October", "November", "December"];
+            const monthIndex = months.findIndex(m => 
+              dateParts[0].toLowerCase().includes(m.toLowerCase()));
+            
+            if (monthIndex !== -1) {
+              // It's in "Month Day, Year" format
+              const day = parseInt(dateParts[1].replace(',', ''));
+              const year = parseInt(dateParts[2]);
+              eventDate = new Date(year, monthIndex, day);
+            } else {
+              // Assume DD/MM/YYYY or similar
+              const day = parseInt(dateParts[0]);
+              const month = parseInt(dateParts[1]) - 1; // Months are 0-indexed
+              const year = parseInt(dateParts[2]);
+              eventDate = new Date(year, month, day);
+            }
+          }
+        }
+      } else {
+        // If it's not a string, use current date (fallback)
+        eventDate = new Date();
       }
+      
+      // Get current date without time for comparison
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      eventDate.setHours(0, 0, 0, 0);
+      
+      return eventDate < today;
+    } catch (error) {
+      console.error("Error parsing date:", error);
+      return false; // Default to not past event if parsing fails
     }
-    
-    // Convert to East Africa Time for comparison
-    const eatEventDate = convertToEAT(eventDate);
-    const eatToday = convertToEAT(new Date());
-    
-    // Remove time part for accurate date comparison
-    eatEventDate.setHours(0, 0, 0, 0);
-    eatToday.setHours(0, 0, 0, 0);
-    
-    return eatEventDate < eatToday;
-  };
-  
-  // Convert date to East Africa Time (EAT is UTC+3)
-  const convertToEAT = (date: Date) => {
-    const eatDate = new Date(date);
-    // Get UTC time in milliseconds
-    const utcTime = date.getTime() + (date.getTimezoneOffset() * 60000);
-    // EAT is UTC+3
-    const eatTime = utcTime + (3 * 3600000);
-    eatDate.setTime(eatTime);
-    return eatDate;
   };
   
   const pastEvent = isPastEvent();
@@ -66,7 +74,16 @@ const EventCard = ({ id, title, image, date, time, location, price, is_free, cat
 
   // Handle potentially broken image paths
   const fallbackImage = '/placeholder.svg';
-  const imageUrl = image || fallbackImage;
+  
+  // Ensure image path is valid
+  let imageUrl = image;
+  if (!imageUrl) {
+    imageUrl = fallbackImage;
+  } else if (!imageUrl.startsWith('http://') && 
+             !imageUrl.startsWith('https://') && 
+             !imageUrl.startsWith('/')) {
+    imageUrl = `/${imageUrl}`;
+  }
 
   return (
     <div className="event-card bg-white rounded-lg overflow-hidden shadow border border-gray-100">

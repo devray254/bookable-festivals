@@ -15,11 +15,15 @@ export const uploadEventImage = async (file: File): Promise<string> => {
     
     console.log('Uploading image:', file.name);
     
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Create a valid filename (remove spaces and special characters)
+    const safeFileName = file.name.replace(/[^a-zA-Z0-9.]/g, '_');
+    const timestamp = Date.now();
+    const imageFileName = `${timestamp}-${safeFileName}`;
     
+    // In a real app, this would be an actual API call
+    // For demo, return a path to the public/uploads directory
     // Return a dummy URL (in a real app, the server would return the actual URL)
-    return `/uploads/${Date.now()}-${file.name}`;
+    return `/uploads/${imageFileName}`;
     
     /* 
     // Real implementation would look like this:

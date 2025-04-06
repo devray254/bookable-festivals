@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Upload, Image } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { validateImage } from "@/utils/image-upload";
+import { validateImage, uploadEventImage } from "@/utils/image-upload";
 
 interface EventImageUploadProps {
   form: any;
@@ -15,32 +15,56 @@ interface EventImageUploadProps {
 export function EventImageUpload({ form }: EventImageUploadProps) {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const validation = validateImage(file);
-      if (!validation.valid) {
-        toast({
-          title: "Invalid image",
-          description: validation.message,
-          variant: "destructive"
-        });
-        return;
-      }
+    if (!file) return;
+    
+    const validation = validateImage(file);
+    if (!validation.valid) {
+      toast({
+        title: "Invalid image",
+        description: validation.message,
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setSelectedImage(file);
+    
+    // Create preview URL
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+    
+    // Start upload process
+    setIsUploading(true);
+    
+    try {
+      // In a real app, this would upload the file to the server
+      // For now, we'll just simulate it
+      const imagePath = await uploadEventImage(file);
       
-      setSelectedImage(file);
+      // Set the image path in the form
+      form.setValue("image", imagePath);
       
-      // Create preview URL
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-      
-      // For demo purposes, set the image field to the file name
-      form.setValue("image", file.name);
+      toast({
+        title: "Image uploaded",
+        description: "Image has been uploaded successfully",
+      });
+    } catch (error) {
+      console.error("Image upload failed:", error);
+      toast({
+        title: "Upload failed",
+        description: "Failed to upload image. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -59,13 +83,23 @@ export function EventImageUpload({ form }: EventImageUploadProps) {
                 className="hidden"
                 accept="image/*"
                 onChange={handleImageChange}
+                disabled={isUploading}
               />
               <Label 
                 htmlFor="event-image" 
-                className="flex h-10 w-full cursor-pointer items-center justify-center rounded-md border border-input bg-background px-3 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className={`flex h-10 w-full cursor-pointer items-center justify-center rounded-md border border-input bg-background px-3 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
-                <Upload className="mr-2 h-4 w-4" />
-                {selectedImage ? "Change Image" : "Upload Image"}
+                {isUploading ? (
+                  <>
+                    <span className="animate-spin mr-2">⏳</span>
+                    Uploading...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="mr-2 h-4 w-4" />
+                    {selectedImage ? "Change Image" : "Upload Image"}
+                  </>
+                )}
               </Label>
               <Input 
                 {...field} 
@@ -92,6 +126,7 @@ export function EventImageUpload({ form }: EventImageUploadProps) {
                     setImagePreview(null);
                     form.setValue("image", "");
                   }}
+                  disabled={isUploading}
                 >
                   Remove
                 </Button>

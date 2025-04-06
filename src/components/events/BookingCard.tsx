@@ -27,33 +27,54 @@ const BookingCard = ({
   useEffect(() => {
     // Check if the event date is in the past
     const checkEventDate = () => {
-      const eventDate = new Date(date);
-      const today = new Date();
-      
-      // If parsing failed, try to extract date parts manually
-      if (isNaN(eventDate.getTime())) {
-        const dateParts = date.split(/[\/\-\s,]+/);
-        // Try different date formats
-        if (dateParts.length >= 3) {
-          // Handle "Month Day, Year" format
-          const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-          const monthIndex = months.findIndex(m => dateParts[0].includes(m));
-          if (monthIndex !== -1) {
-            setIsPastEvent(new Date(parseInt(dateParts[2]), monthIndex, parseInt(dateParts[1])) < today);
-            return;
-          }
+      try {
+        // Parse the date string - support multiple formats
+        let eventDate: Date;
+        
+        if (typeof date === 'string') {
+          // Try standard format first
+          eventDate = new Date(date);
           
-          // Handle numeric formats
-          setIsPastEvent(new Date(parseInt(dateParts[2]), parseInt(dateParts[1]) - 1, parseInt(dateParts[0])) < today);
-          return;
+          // If date is invalid, try other formats
+          if (isNaN(eventDate.getTime())) {
+            // Try DD/MM/YYYY
+            const dateParts = date.split(/[\/\-\s,]+/);
+            if (dateParts.length >= 3) {
+              // Check if it's "Month Day, Year" format
+              const months = ["January", "February", "March", "April", "May", "June", 
+                             "July", "August", "September", "October", "November", "December"];
+              const monthIndex = months.findIndex(m => 
+                dateParts[0].toLowerCase().includes(m.toLowerCase()));
+              
+              if (monthIndex !== -1) {
+                // It's in "Month Day, Year" format
+                const day = parseInt(dateParts[1].replace(',', ''));
+                const year = parseInt(dateParts[2]);
+                eventDate = new Date(year, monthIndex, day);
+              } else {
+                // Assume DD/MM/YYYY or similar
+                const day = parseInt(dateParts[0]);
+                const month = parseInt(dateParts[1]) - 1; // Months are 0-indexed
+                const year = parseInt(dateParts[2]);
+                eventDate = new Date(year, month, day);
+              }
+            }
+          }
+        } else {
+          // If it's not a string, use current date (fallback)
+          eventDate = new Date();
         }
+        
+        // Get current date without time for comparison
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        eventDate.setHours(0, 0, 0, 0);
+        
+        setIsPastEvent(eventDate < today);
+      } catch (error) {
+        console.error("Error parsing date:", error);
+        setIsPastEvent(false); // Default to not past event if parsing fails
       }
-      
-      // Remove time part for accurate date comparison
-      eventDate.setHours(0, 0, 0, 0);
-      today.setHours(0, 0, 0, 0);
-      
-      setIsPastEvent(eventDate < today);
     };
     
     checkEventDate();

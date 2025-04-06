@@ -36,6 +36,13 @@ export const createEvent = async (eventData: any, adminEmail: string) => {
     const isFree = eventData.priceType === 'free' || Number(eventData.price) === 0;
     const price = isFree ? 0 : eventData.price;
     
+    // Properly format the image path to ensure it can be retrieved
+    // If it doesn't start with http:// or https://, assume it's a local path
+    let imagePath = eventData.image_url || '/placeholder.svg';
+    if (!imagePath.startsWith('http://') && !imagePath.startsWith('https://') && !imagePath.startsWith('/')) {
+      imagePath = `/${imagePath}`;
+    }
+    
     const params = [
       eventData.title,
       eventData.description || '',
@@ -45,7 +52,7 @@ export const createEvent = async (eventData: any, adminEmail: string) => {
       price,
       isFree ? 1 : 0,
       eventData.category_id,
-      eventData.image_url || '/placeholder.svg',
+      imagePath,
       adminEmail
     ];
     
@@ -99,6 +106,12 @@ export const updateEvent = async (eventId: number, eventData: any, adminEmail: s
     const isFree = eventData.priceType === 'free' || Number(eventData.price) === 0;
     const price = isFree ? 0 : eventData.price;
     
+    // Properly format the image path
+    let imagePath = eventData.image_url || '/placeholder.svg';
+    if (!imagePath.startsWith('http://') && !imagePath.startsWith('https://') && !imagePath.startsWith('/')) {
+      imagePath = `/${imagePath}`;
+    }
+    
     const params = [
       eventData.title,
       eventData.description || '',
@@ -108,7 +121,7 @@ export const updateEvent = async (eventId: number, eventData: any, adminEmail: s
       price,
       isFree ? 1 : 0,
       eventData.category_id,
-      eventData.image_url || '/placeholder.svg',
+      imagePath,
       eventId
     ];
     

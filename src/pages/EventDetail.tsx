@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Navbar } from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -58,7 +59,7 @@ const eventsData = [
     id: 4,
     title: "Art Exhibition",
     image: "https://images.unsplash.com/photo-1531058020387-3be344556be6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=80",
-    date: "Oct 22, 2023",
+    date: "Apr 22, 2025",  // Future date
     time: "10:00 AM - 06:00 PM",
     location: "National Museum",
     price: 500,
@@ -71,7 +72,7 @@ const eventsData = [
     id: 5,
     title: "Business Networking",
     image: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=80",
-    date: "Nov 15, 2023",
+    date: "May 15, 2025",  // Future date
     time: "06:00 PM - 09:00 PM",
     location: "Kempinski Hotel",
     price: 2000,
@@ -82,9 +83,9 @@ const eventsData = [
   },
   {
     id: 6,
-    title: "Marathon 2023",
+    title: "Marathon 2025",
     image: "https://images.unsplash.com/photo-1530549387789-4c1017266635?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=80",
-    date: "Dec 3, 2023",
+    date: "Dec 3, 2025",  // Future date
     time: "06:00 AM - 12:00 PM",
     location: "City Stadium",
     price: 1000,
@@ -104,6 +105,61 @@ const EventDetail = () => {
   
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [ticketQuantity, setTicketQuantity] = useState(1);
+  const [isPastEvent, setIsPastEvent] = useState(false);
+
+  // Check if event date is in the past
+  useEffect(() => {
+    if (event) {
+      try {
+        // Parse the date string - support multiple formats
+        let eventDate: Date;
+        
+        if (typeof event.date === 'string') {
+          // Try standard format first
+          eventDate = new Date(event.date);
+          
+          // If date is invalid, try other formats
+          if (isNaN(eventDate.getTime())) {
+            // Try DD/MM/YYYY
+            const dateParts = event.date.split(/[\/\-\s,]+/);
+            if (dateParts.length >= 3) {
+              // Check if it's "Month Day, Year" format
+              const months = ["January", "February", "March", "April", "May", "June", 
+                            "July", "August", "September", "October", "November", "December"];
+              const monthIndex = months.findIndex(m => 
+                dateParts[0].toLowerCase().includes(m.toLowerCase()));
+              
+              if (monthIndex !== -1) {
+                // It's in "Month Day, Year" format
+                const day = parseInt(dateParts[1].replace(',', ''));
+                const year = parseInt(dateParts[2]);
+                eventDate = new Date(year, monthIndex, day);
+              } else {
+                // Assume DD/MM/YYYY or similar
+                const day = parseInt(dateParts[0]);
+                const month = parseInt(dateParts[1]) - 1; // Months are 0-indexed
+                const year = parseInt(dateParts[2]);
+                eventDate = new Date(year, month, day);
+              }
+            }
+          }
+        } else {
+          // If it's not a string, use current date (fallback)
+          eventDate = new Date();
+        }
+        
+        // Get current date without time for comparison
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        eventDate.setHours(0, 0, 0, 0);
+        
+        setIsPastEvent(eventDate < today);
+      } catch (error) {
+        console.error("Error parsing date:", error);
+        setIsPastEvent(false); // Default to not past event if parsing fails
+      }
+    }
+  }, [event]);
   
   // Handle when event is not found
   if (!event) {
@@ -125,6 +181,10 @@ const EventDetail = () => {
   }
   
   const handleBookNow = (quantity: number) => {
+    if (isPastEvent) {
+      toast.error("Sorry, this event has already taken place. You cannot book tickets for past events.");
+      return;
+    }
     setTicketQuantity(quantity);
     setIsBookingModalOpen(true);
   };
