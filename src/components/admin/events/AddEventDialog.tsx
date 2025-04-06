@@ -20,6 +20,7 @@ import { EventFormFields } from "./EventFormFields";
 import { EventImageUpload } from "./EventImageUpload";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { createEvent } from "@/utils/events";
+import { CreateEventData } from "@/utils/events/types";
 
 // Define the validation schema with Zod
 const eventFormSchema = z.object({
@@ -97,7 +98,7 @@ export function AddEventDialog({ onEventAdded, adminEmail = 'admin@maabara.co.ke
       const price = data.priceType === "free" ? 0 : data.price;
       
       // Format event data for the API
-      const eventData = {
+      const eventData: CreateEventData = {
         title: data.title,
         description: data.description,
         date: data.date,
@@ -106,7 +107,8 @@ export function AddEventDialog({ onEventAdded, adminEmail = 'admin@maabara.co.ke
         priceType: data.priceType,
         category_id: parseInt(data.category),
         price: price,
-        image_url: data.image || '/placeholder.svg'
+        image_url: data.image || '/placeholder.svg',
+        created_by: adminEmail
       };
       
       // Send to server

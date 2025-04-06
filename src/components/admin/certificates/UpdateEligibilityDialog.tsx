@@ -61,7 +61,8 @@ export function UpdateEligibilityDialog({
       const result = await updateAttendanceStatus(
         booking.id,
         status as "attended" | "partial" | "absent" | "unverified", 
-        enableCertificate
+        enableCertificate,
+        adminEmail
       );
       
       if (result.success) {

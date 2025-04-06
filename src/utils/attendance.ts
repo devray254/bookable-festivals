@@ -23,7 +23,7 @@ export const markAttendance = async (
     }
     
     // Update the attendance status
-    const result = await updateAttendanceStatus(bookingId, status, enableCertificate);
+    const result = await updateAttendanceStatus(bookingId, status, enableCertificate, adminEmail);
     
     if (!result.success) {
       return result;

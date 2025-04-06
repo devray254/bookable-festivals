@@ -28,6 +28,8 @@ export function AttendanceManager({ eventId }: AttendanceManagerProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState<number | null>(null);
+  // Mock admin email for now - in a real app this would come from context or props
+  const adminEmail = "admin@maabara.co.ke";
 
   // Fetch bookings for this event
   const {
@@ -68,7 +70,8 @@ export function AttendanceManager({ eventId }: AttendanceManagerProps) {
       const result = await updateAttendanceStatus(
         bookingId,
         status,
-        certificateEnabled
+        certificateEnabled,
+        adminEmail
       );
 
       if (result.success) {

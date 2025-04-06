@@ -17,8 +17,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CertificateEmailSettings } from "@/components/admin/gmail/CertificateEmailSettings";
 import { GmailAuthSettings } from "@/components/admin/gmail/GmailAuthSettings";
 
+// Create an interface that matches what the API returns
+interface GmailSettingsResponse {
+  enabled: boolean;
+  clientId?: string;
+  clientSecret?: string;
+  redirectUri?: string;
+  scope?: string;
+}
+
 export default function AdminGmailSettings() {
-  const { data: gmailSettings, isLoading, refetch } = useQuery({
+  const { data: gmailSettings, isLoading, refetch } = useQuery<GmailSettingsResponse>({
     queryKey: ['gmail-settings'],
     queryFn: fetchGmailSettings
   });

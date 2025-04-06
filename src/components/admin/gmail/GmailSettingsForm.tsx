@@ -10,14 +10,14 @@ import { Loader2, Save } from "lucide-react";
 import { saveGmailSettings } from "@/utils/gmail-settings";
 
 interface GmailSettings {
-  client_id: string;
-  client_secret: string;
-  redirect_uri: string;
+  clientId: string;
+  clientSecret: string;
+  redirectUri: string;
   enabled: boolean;
 }
 
 interface GmailSettingsFormProps {
-  existingSettings?: GmailSettings;
+  existingSettings?: Partial<GmailSettings>;
   onSuccess: () => void;
 }
 
@@ -26,9 +26,9 @@ export function GmailSettingsForm({ existingSettings, onSuccess }: GmailSettings
   
   const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<GmailSettings>({
     defaultValues: {
-      client_id: existingSettings?.client_id || '',
-      client_secret: existingSettings?.client_secret || '',
-      redirect_uri: existingSettings?.redirect_uri || window.location.origin + '/auth/callback',
+      clientId: existingSettings?.clientId || '',
+      clientSecret: existingSettings?.clientSecret || '',
+      redirectUri: existingSettings?.redirectUri || window.location.origin + '/auth/callback',
       enabled: existingSettings?.enabled || false
     }
   });
@@ -38,7 +38,7 @@ export function GmailSettingsForm({ existingSettings, onSuccess }: GmailSettings
   const onSubmit = async (data: GmailSettings) => {
     setIsSubmitting(true);
     try {
-      const result = await saveGmailSettings(data);
+      const result = await saveGmailSettings(data, 'admin@maabara.co.ke'); 
       
       if (result.success) {
         toast.success("Gmail settings saved successfully");

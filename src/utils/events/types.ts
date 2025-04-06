@@ -34,14 +34,16 @@ export interface CreateEventData {
   time: string;
   location: string;
   priceType: "free" | "paid";
-  price?: number;
+  price?: number | string; // Updated to accept string or number
   category_id: number;
   image_url?: string;
   has_webinar?: boolean;
   webinar_link?: string;
   webinar_time?: string;
+  created_by?: string; // Added created_by field
 }
 
 export interface UpdateEventData extends CreateEventData {
   id: number;
+  created_by?: string; // Added to match usage in EditEventDialog
 }

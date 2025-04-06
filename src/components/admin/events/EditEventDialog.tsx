@@ -9,6 +9,7 @@ import { Edit, Loader2, Save, CalendarIcon, Clock, MapPin, BanknoteIcon } from "
 import { toast } from "sonner";
 import { updateEvent } from "@/utils/events";
 import { fetchCategories } from "@/utils/categories";
+import { UpdateEventData } from "@/utils/events/types";
 
 interface Category {
   id: number;
@@ -89,10 +90,22 @@ export function EditEventDialog({ event, onEventUpdated, adminEmail }: EditEvent
     setIsSubmitting(true);
     
     try {
-      const result = await updateEvent(formData.id, {
-        ...formData,
+      // Convert formData to UpdateEventData format
+      const updateData: UpdateEventData = {
+        id: formData.id,
+        title: formData.title,
+        description: formData.description || "",
+        date: formData.date,
+        time: formData.time || "",
+        location: formData.location,
+        priceType: formData.is_free ? "free" : "paid",
+        category_id: Number(formData.category_id),
+        price: formData.price,
+        image_url: formData.image_url,
         created_by: adminEmail
-      }, adminEmail);
+      };
+      
+      const result = await updateEvent(formData.id, updateData, adminEmail);
       
       if (result.success) {
         toast.success("Event updated successfully");
