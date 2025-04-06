@@ -66,14 +66,14 @@ export function Navbar() {
       <Link to="/events">
         <Button variant="ghost">Events</Button>
       </Link>
-      <Link to="/virtual-academy">
-        <Button variant="ghost">Virtual Academy</Button>
-      </Link>
       <Link to="/about">
         <Button variant="ghost">About Us</Button>
       </Link>
       <Link to="/contact">
         <Button variant="ghost">Contact Us</Button>
+      </Link>
+      <Link to="/virtual-academy">
+        <Button variant="ghost">Virtual Academy</Button>
       </Link>
       <Link to="/faq">
         <Button variant="ghost">FAQs</Button>
@@ -134,13 +134,13 @@ export function Navbar() {
                     <Link to="/events" className="flex items-center py-2 px-3 rounded-md hover:bg-muted">Events</Link>
                   </SheetClose>
                   <SheetClose asChild>
-                    <Link to="/virtual-academy" className="flex items-center py-2 px-3 rounded-md hover:bg-muted">Virtual Academy</Link>
-                  </SheetClose>
-                  <SheetClose asChild>
                     <Link to="/about" className="flex items-center py-2 px-3 rounded-md hover:bg-muted">About Us</Link>
                   </SheetClose>
                   <SheetClose asChild>
                     <Link to="/contact" className="flex items-center py-2 px-3 rounded-md hover:bg-muted">Contact Us</Link>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <Link to="/virtual-academy" className="flex items-center py-2 px-3 rounded-md hover:bg-muted">Virtual Academy</Link>
                   </SheetClose>
                   <SheetClose asChild>
                     <Link to="/faq" className="flex items-center py-2 px-3 rounded-md hover:bg-muted">FAQs</Link>

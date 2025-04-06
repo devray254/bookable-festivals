@@ -9,8 +9,7 @@ const Footer = () => {
           <div className="md:col-span-2">
             <h3 className="text-lg font-bold text-eventPurple-700 mb-4">Maabara Online</h3>
             <p className="text-gray-600 mb-4 max-w-md">
-              The easiest way to discover and book events in Kenya. 
-              We connect event organizers with passionate attendees.
+              At Maabara Online™, our mission is to empower healthcare professionals with continuous learning opportunities that enhance their knowledge, skills, and professional growth.
             </p>
           </div>
           
