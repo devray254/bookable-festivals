@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,7 +7,7 @@ import GmailStatus from '@/components/admin/gmail/GmailStatus';
 import { CertificateEmailSettings } from '@/components/admin/gmail/CertificateEmailSettings';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/components/ui/use-toast';
-import { fetchGmailSettings, updateGmailSettings, GmailSettings } from '@/utils/gmail-settings';
+import { GmailSettings, fetchGmailSettings, updateGmailSettings } from '@/utils/gmail-settings';
 
 const initialSettings: GmailSettings = {
   client_id: '',
@@ -59,7 +58,7 @@ const GmailSettingsPage = () => {
   const handleSettingsSave = async (newSettings: GmailSettings) => {
     try {
       setSaving(true);
-      await updateGmailSettings(newSettings, 'admin@example.com');
+      await updateGmailSettings(newSettings);
       setSettings(newSettings);
       toast({
         title: 'Success',
