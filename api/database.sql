@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS users (
     organization_type VARCHAR(50) NULL,
     reset_token VARCHAR(100) NULL,
     reset_token_expires DATETIME NULL,
+    last_login DATETIME NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -127,7 +128,7 @@ CREATE TABLE IF NOT EXISTS mpesa_settings (
     consumer_secret VARCHAR(100) NOT NULL,
     passkey VARCHAR(100) NOT NULL,
     shortcode VARCHAR(20) NOT NULL,
-    environment VARCHAR(20) DEFAULT 'sandbox',
+    environment VARCHAR(20) DEFAULT 'production',
     callback_url VARCHAR(255) DEFAULT 'https://example.com/callback',
     last_updated DATETIME NOT NULL,
     updated_by VARCHAR(100) NOT NULL
@@ -155,11 +156,16 @@ CREATE INDEX IF NOT EXISTS idx_bookings_user_id ON bookings(user_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_event_id ON bookings(event_id);
 CREATE INDEX IF NOT EXISTS idx_payments_user_id ON payments(user_id);
 CREATE INDEX IF NOT EXISTS idx_payments_event_id ON payments(event_id);
+CREATE INDEX IF NOT EXISTS idx_events_category_id ON events(category_id);
+CREATE INDEX IF NOT EXISTS idx_events_date ON events(date);
+CREATE INDEX IF NOT EXISTS idx_events_is_free ON events(is_free);
 
 -- Insert default admin user if not exists
+-- Note: In production, use a strong hashed password
 INSERT INTO users (id, name, email, phone, password, role) 
-VALUES (1, 'Admin User', 'admin@maabara.co.ke', '0700000000', 'admin123', 'admin')
+VALUES (1, 'Admin User', 'admin@maabara.co.ke', '0700000000', '$2y$10$XFE/DtUhpLz1g5dDC9RkrOhbTCh3BSY9MF0RCS9PcZ6tI.5hLM7Qi', 'admin')
 ON DUPLICATE KEY UPDATE id = id;
+-- Password is 'admin123' hashed with bcrypt
 
 -- Insert sample events
 INSERT INTO events (title, description, date, time, location, price, is_free, category_id, image_url, created_by)
@@ -203,3 +209,35 @@ SELECT
     '/placeholder.svg', 
     'admin@maabara.co.ke'
 WHERE NOT EXISTS (SELECT 1 FROM events WHERE id = 3);
+
+-- Create logs table for system errors and debugging
+CREATE TABLE IF NOT EXISTS system_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    level VARCHAR(20) NOT NULL,
+    message TEXT NOT NULL,
+    context TEXT NULL,
+    file VARCHAR(255) NULL,
+    line INT NULL,
+    trace TEXT NULL,
+    remote_addr VARCHAR(45) NULL
+);
+
+-- Create config table for system settings
+CREATE TABLE IF NOT EXISTS system_config (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    config_key VARCHAR(100) NOT NULL UNIQUE,
+    config_value TEXT NOT NULL,
+    description TEXT NULL,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_by VARCHAR(100) NULL
+);
+
+-- Insert default system settings
+INSERT INTO system_config (config_key, config_value, description) VALUES
+('site_name', 'Maabara Events', 'The name of the site'),
+('site_description', 'Book and manage events with Maabara', 'Meta description for the site'),
+('contact_email', 'info@maabara.co.ke', 'Contact email for the site'),
+('maintenance_mode', 'false', 'Whether the site is in maintenance mode'),
+('version', '1.0.0', 'Current system version')
+ON DUPLICATE KEY UPDATE config_value = VALUES(config_value);

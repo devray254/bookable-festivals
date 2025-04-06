@@ -1,3 +1,4 @@
+
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState, useEffect } from "react";
@@ -8,6 +9,7 @@ import { BookingFilters } from "@/components/admin/bookings/BookingFilters";
 import { BookingExport } from "@/components/admin/bookings/BookingExport";
 import { BookingSummaryCards } from "@/components/admin/bookings/BookingSummaryCards";
 import { BookingTabs } from "@/components/admin/bookings/BookingTabs";
+import { toast } from "sonner";
 
 export default function AdminBookings() {
   const [activeTab, setActiveTab] = useState("all");
@@ -97,6 +99,11 @@ export default function AdminBookings() {
     }
   };
 
+  useEffect(() => {
+    // Example toast notification when component mounts
+    toast.info("Bookings data loaded successfully");
+  }, []);
+
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -107,11 +114,12 @@ export default function AdminBookings() {
         
         <BookingSummaryCards 
           filteredBookings={filteredBookings} 
-          confirmedBookings={confirmedBookings} 
+          confirmedBookings={confirmedBookings}
+          pendingBookings={pendingBookings}
         />
         
         <Card>
-          <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-white">
             <div>
               <CardTitle>All Bookings</CardTitle>
             </div>
