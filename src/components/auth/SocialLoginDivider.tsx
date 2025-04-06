@@ -31,7 +31,7 @@ export const SocialLoginDivider = ({
       <div className="mt-6">
         <Button 
           variant="outline" 
-          className="w-full flex items-center justify-center border-blue-200 text-blue-700 hover:bg-blue-50"
+          className="w-full flex items-center justify-center border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:border-blue-300 transition-all"
           onClick={onGmailLogin}
           disabled={isGmailLoading || isLoginLoading || !isGmailEnabled}
         >

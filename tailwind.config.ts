@@ -89,25 +89,6 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Custom colors for our event booking app
-				eventPurple: {
-					50: '#f5f3ff',
-					100: '#ede9fe',
-					200: '#ddd6fe',
-					300: '#c4b5fd',
-					400: '#a78bfa',
-					500: '#8b5cf6',
-					600: '#7c3aed',
-					700: '#6d28d9',
-					800: '#5b21b6',
-					900: '#4c1d95',
-				},
-				eventPink: {
-					400: '#f472b6',
-					500: '#ec4899',
-					600: '#db2777',
-				},
-				// Added blue color shades - now correctly configured
 				blue: {
 					50: 'hsl(var(--blue-50))',
 					100: 'hsl(var(--blue-100))',
@@ -121,7 +102,6 @@ export default {
 					900: 'hsl(var(--blue-900))',
 					950: 'hsl(var(--blue-950))',
 				},
-				// Added red color shades - now correctly configured
 				red: {
 					50: 'hsl(var(--red-50))',
 					100: 'hsl(var(--red-100))',
@@ -135,7 +115,6 @@ export default {
 					900: 'hsl(var(--red-900))',
 					950: 'hsl(var(--red-950))',
 				},
-				// Added cyan color shades - now correctly configured
 				cyan: {
 					50: 'hsl(var(--cyan-50))',
 					100: 'hsl(var(--cyan-100))',

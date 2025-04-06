@@ -8,7 +8,8 @@ import {
   DialogContent, 
   DialogHeader, 
   DialogTitle, 
-  DialogFooter 
+  DialogFooter,
+  DialogDescription
 } from "@/components/ui/dialog";
 import { 
   Form, 
@@ -30,6 +31,8 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from "@/components/ui/drawer";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Form schema
 const formSchema = z.object({
@@ -51,6 +54,7 @@ interface EditUserDialogProps {
 
 export function EditUserDialog({ open, onOpenChange, user, onSuccess, adminEmail }: EditUserDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isMobile = useIsMobile();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -94,96 +98,140 @@ export function EditUserDialog({ open, onOpenChange, user, onSuccess, adminEmail
     }
   };
 
+  const UserForm = () => (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-2">
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Full Name</FormLabel>
+              <FormControl>
+                <Input placeholder="John Doe" {...field} className="border-blue-200 focus:border-blue-500" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="phone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Phone Number</FormLabel>
+              <FormControl>
+                <Input type="tel" placeholder="0712345678" {...field} className="border-blue-200 focus:border-blue-500" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="role"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>User Role</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger className="border-blue-200 focus:border-blue-500">
+                    <SelectValue placeholder="Select user role" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="attendee">Attendee</SelectItem>
+                  <SelectItem value="organizer">Organizer</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>New Password (leave blank to keep current)</FormLabel>
+              <FormControl>
+                <Input type="password" placeholder="******" {...field} className="border-blue-200 focus:border-blue-500" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </form>
+    </Form>
+  );
+
+  if (isMobile) {
+    return (
+      <Drawer open={open} onOpenChange={onOpenChange}>
+        <DrawerContent className="px-4">
+          <DrawerHeader className="text-left">
+            <DrawerTitle>Edit User: {user.email}</DrawerTitle>
+          </DrawerHeader>
+          <div className="px-4 py-2">
+            <UserForm />
+          </div>
+          <DrawerFooter className="pt-2">
+            <Button
+              onClick={form.handleSubmit(onSubmit)}
+              disabled={isSubmitting}
+              className="w-full bg-blue-600 hover:bg-blue-700"
+            >
+              {isSubmitting ? "Saving..." : "Save Changes"}
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => onOpenChange(false)} 
+              className="w-full border-blue-200 text-blue-700 hover:bg-blue-50"
+            >
+              Cancel
+            </Button>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+    );
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px] max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>Edit User: {user.email}</DialogTitle>
+          <DialogDescription>
+            Make changes to the user profile below.
+          </DialogDescription>
         </DialogHeader>
         
         <ScrollArea className="max-h-[calc(90vh-180px)] pr-4">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-2">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Full Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="John Doe" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="phone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Phone Number</FormLabel>
-                    <FormControl>
-                      <Input type="tel" placeholder="0712345678" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="role"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>User Role</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select user role" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="attendee">Attendee</SelectItem>
-                        <SelectItem value="organizer">Organizer</SelectItem>
-                        <SelectItem value="admin">Admin</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>New Password (leave blank to keep current)</FormLabel>
-                    <FormControl>
-                      <Input type="password" placeholder="******" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <DialogFooter className="pt-4">
-                <Button 
-                  variant="outline" 
-                  onClick={() => onOpenChange(false)} 
-                  type="button"
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Saving..." : "Save Changes"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
+          <UserForm />
         </ScrollArea>
+
+        <DialogFooter className="pt-4 flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
+          <Button 
+            variant="outline" 
+            onClick={() => onOpenChange(false)} 
+            type="button"
+            className="border-blue-200 text-blue-700 hover:bg-blue-50 w-full sm:w-auto"
+          >
+            Cancel
+          </Button>
+          <Button 
+            type="submit" 
+            disabled={isSubmitting}
+            onClick={form.handleSubmit(onSubmit)}
+            className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto"
+          >
+            {isSubmitting ? "Saving..." : "Save Changes"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -29,7 +30,7 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Drawer, DrawerContent, DrawerTrigger, DrawerClose, DrawerHeader, DrawerTitle, DrawerFooter } from "@/components/ui/drawer";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { addUser } from "@/utils/auth/user-management";
 
@@ -108,7 +109,7 @@ export function AddUserDialog({ open, onOpenChange, onSuccess, adminEmail }: Add
             <FormItem>
               <FormLabel>Full Name</FormLabel>
               <FormControl>
-                <Input placeholder="John Doe" {...field} />
+                <Input placeholder="John Doe" {...field} className="border-blue-200 focus:border-blue-500" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -122,7 +123,7 @@ export function AddUserDialog({ open, onOpenChange, onSuccess, adminEmail }: Add
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="user@example.com" {...field} />
+                <Input type="email" placeholder="user@example.com" {...field} className="border-blue-200 focus:border-blue-500" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -136,7 +137,7 @@ export function AddUserDialog({ open, onOpenChange, onSuccess, adminEmail }: Add
             <FormItem>
               <FormLabel>Phone Number</FormLabel>
               <FormControl>
-                <Input type="tel" placeholder="0712345678" {...field} />
+                <Input type="tel" placeholder="0712345678" {...field} className="border-blue-200 focus:border-blue-500" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -151,7 +152,7 @@ export function AddUserDialog({ open, onOpenChange, onSuccess, adminEmail }: Add
               <FormLabel>User Role</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger className="border-blue-200 focus:border-blue-500">
                     <SelectValue placeholder="Select user role" />
                   </SelectTrigger>
                 </FormControl>
@@ -173,7 +174,7 @@ export function AddUserDialog({ open, onOpenChange, onSuccess, adminEmail }: Add
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="******" {...field} />
+                <Input type="password" placeholder="******" {...field} className="border-blue-200 focus:border-blue-500" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -197,13 +198,17 @@ export function AddUserDialog({ open, onOpenChange, onSuccess, adminEmail }: Add
             <Button
               onClick={form.handleSubmit(onSubmit)}
               disabled={isSubmitting}
-              className="w-full"
+              className="w-full bg-blue-600 hover:bg-blue-700"
             >
               {isSubmitting ? "Creating..." : "Create User"}
             </Button>
-            <DrawerClose asChild>
-              <Button variant="outline" className="w-full">Cancel</Button>
-            </DrawerClose>
+            <Button 
+              variant="outline" 
+              onClick={() => onOpenChange(false)} 
+              className="w-full border-blue-200 text-blue-700 hover:bg-blue-50"
+            >
+              Cancel
+            </Button>
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
@@ -212,7 +217,7 @@ export function AddUserDialog({ open, onOpenChange, onSuccess, adminEmail }: Add
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] max-h-[90vh]">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>Add New User</DialogTitle>
           <DialogDescription>
@@ -224,11 +229,12 @@ export function AddUserDialog({ open, onOpenChange, onSuccess, adminEmail }: Add
           <UserForm />
         </ScrollArea>
 
-        <DialogFooter className="mt-6">
+        <DialogFooter className="mt-6 flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
           <Button 
             variant="outline" 
             onClick={() => onOpenChange(false)} 
             type="button"
+            className="border-blue-200 text-blue-700 hover:bg-blue-50 w-full sm:w-auto"
           >
             Cancel
           </Button>
@@ -236,6 +242,7 @@ export function AddUserDialog({ open, onOpenChange, onSuccess, adminEmail }: Add
             type="button" 
             disabled={isSubmitting}
             onClick={form.handleSubmit(onSubmit)}
+            className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto"
           >
             {isSubmitting ? "Creating..." : "Create User"}
           </Button>

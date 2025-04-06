@@ -23,7 +23,7 @@
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 326 73% 60%;
+    --accent: 226 71% 40%;
     --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%; /* Red 500 */
@@ -44,44 +44,44 @@
     --sidebar-border: 211.7 96.4% 78.4%; /* Light blue-300 */
     --sidebar-ring: 221.2 83.2% 53.3%; /* Blue 600 */
     
-    /* Blue shades */
-    --blue-50: 213.8 100% 96.9%;
-    --blue-100: 214.3 94.6% 92.7%;
-    --blue-200: 213.3 96.9% 87.3%;
-    --blue-300: 211.7 96.4% 78.4%;
-    --blue-400: 213.1 93.9% 67.8%;
-    --blue-500: 217.2 91.2% 59.8%;
-    --blue-600: 221.2 83.2% 53.3%;
-    --blue-700: 224.3 76.3% 48%;
-    --blue-800: 225.9 70.7% 40.2%;
-    --blue-900: 224.4 64.3% 32.9%;
-    --blue-950: 226.2 57.9% 21.0%;
+    /* Blue shades - brighter and more vivid */
+    --blue-50: 213.8 100% 97.5%;
+    --blue-100: 214.3 94.6% 93.5%;
+    --blue-200: 213.3 96.9% 88.5%;
+    --blue-300: 211.7 96.4% 80.0%;
+    --blue-400: 213.1 93.9% 70.0%;
+    --blue-500: 217.2 91.2% 62.0%;
+    --blue-600: 221.2 83.2% 55.0%;
+    --blue-700: 224.3 76.3% 48.0%;
+    --blue-800: 225.9 70.7% 42.0%;
+    --blue-900: 224.4 64.3% 34.0%;
+    --blue-950: 226.2 57.9% 22.0%;
     
-    /* Cyan shades */
-    --cyan-50: 183.2 100% 96.3%;
-    --cyan-100: 185.1 95.9% 90.4%;
-    --cyan-200: 186.2 93.5% 81.8%;
-    --cyan-300: 187 92.4% 69%;
-    --cyan-400: 187.9 85.7% 53.3%;
-    --cyan-500: 188.7 94.5% 42.7%;
-    --cyan-600: 191.6 91.4% 36.5%;
-    --cyan-700: 192.9 82.3% 31%;
-    --cyan-800: 194.7 70.6% 27.5%;
-    --cyan-900: 196.3 63.6% 23.7%;
-    --cyan-950: 197 78.9% 14.9%;
+    /* Cyan shades - fresher and more vibrant */
+    --cyan-50: 183.2 100% 97.0%;
+    --cyan-100: 185.1 95.9% 91.5%;
+    --cyan-200: 186.2 93.5% 83.0%;
+    --cyan-300: 187 92.4% 72.0%;
+    --cyan-400: 187.9 85.7% 58.0%;
+    --cyan-500: 188.7 94.5% 47.0%;
+    --cyan-600: 191.6 91.4% 40.0%;
+    --cyan-700: 192.9 82.3% 34.0%;
+    --cyan-800: 194.7 70.6% 29.0%;
+    --cyan-900: 196.3 63.6% 25.0%;
+    --cyan-950: 197 78.9% 16.0%;
     
-    /* Red shades */
-    --red-50: 0 85.7% 97.3%;
-    --red-100: 0 93.3% 94.1%;
-    --red-200: 0 96.3% 89.4%;
-    --red-300: 0 93.5% 81.8%;
-    --red-400: 0 90.6% 70.8%;
-    --red-500: 0 84.2% 60.2%;
-    --red-600: 0 72.2% 50.6%;
-    --red-700: 0 73.7% 41.8%;
-    --red-800: 0 70% 35.3%;
-    --red-900: 0 62.8% 30.6%;
-    --red-950: 0 74.7% 15.5%;
+    /* Red shades - bolder and more vivid */
+    --red-50: 0 85.7% 98.0%;
+    --red-100: 0 93.3% 95.0%;
+    --red-200: 0 96.3% 90.5%;
+    --red-300: 0 93.5% 83.0%;
+    --red-400: 0 90.6% 73.0%;
+    --red-500: 0 84.2% 63.0%;
+    --red-600: 0 72.2% 53.0%;
+    --red-700: 0 73.7% 44.0%;
+    --red-800: 0 70% 37.0%;
+    --red-900: 0 62.8% 32.0%;
+    --red-950: 0 74.7% 16.5%;
   }
 
   .dark {
@@ -103,7 +103,7 @@
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 326 73% 60%;
+    --accent: 226 71% 40%;
     --accent-foreground: 210 40% 98%;
 
     --destructive: 0 62.8% 30.6%; /* Red-900 */
@@ -122,7 +122,7 @@
     --sidebar-border: 224.4 64.3% 32.9%; /* Blue-900 */
     --sidebar-ring: 217.2 91.2% 59.8%; /* Blue-500 */
     
-    /* Blue shades (same as light mode) */
+    /* Blue shades (same as light mode, but with higher saturation for dark mode) */
     --blue-50: 213.8 100% 96.9%;
     --blue-100: 214.3 94.6% 92.7%;
     --blue-200: 213.3 96.9% 87.3%;
@@ -135,7 +135,7 @@
     --blue-900: 224.4 64.3% 32.9%;
     --blue-950: 226.2 57.9% 21.0%;
     
-    /* Cyan shades (same as light mode) */
+    /* Cyan shades (same as light mode, but with higher saturation for dark mode) */
     --cyan-50: 183.2 100% 96.3%;
     --cyan-100: 185.1 95.9% 90.4%;
     --cyan-200: 186.2 93.5% 81.8%;
@@ -148,7 +148,7 @@
     --cyan-900: 196.3 63.6% 23.7%;
     --cyan-950: 197 78.9% 14.9%;
     
-    /* Red shades (same as light mode) */
+    /* Red shades (same as light mode, but with higher saturation for dark mode) */
     --red-50: 0 85.7% 97.3%;
     --red-100: 0 93.3% 94.1%;
     --red-200: 0 96.3% 89.4%;
@@ -209,6 +209,27 @@
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
+/* Blue gradient backgrounds */
+.bg-blue-gradient {
+  background: linear-gradient(135deg, hsl(var(--blue-500)) 0%, hsl(var(--blue-700)) 100%);
+}
+
+.bg-cyan-gradient {
+  background: linear-gradient(135deg, hsl(var(--cyan-400)) 0%, hsl(var(--cyan-600)) 100%);
+}
+
+.bg-red-gradient {
+  background: linear-gradient(135deg, hsl(var(--red-400)) 0%, hsl(var(--red-600)) 100%);
+}
+
+/* Glass effect for cards */
+.glass-card {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
 /* Responsive container improvements */
 .container {
   width: 100%;
@@ -244,5 +265,15 @@
     --tw-space-y-reverse: 0;
     margin-top: calc(1rem * calc(1 - var(--tw-space-y-reverse)));
     margin-bottom: calc(1rem * var(--tw-space-y-reverse));
+  }
+}
+
+/* Dialog content improvements for mobile */
+@media (max-width: 640px) {
+  .dialog-content {
+    width: 95%;
+    max-width: none;
+    margin: 0 auto;
+    padding: 1rem;
   }
 }

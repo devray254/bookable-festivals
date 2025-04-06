@@ -12,6 +12,16 @@ import {
   DialogTitle, 
   DialogTrigger 
 } from "@/components/ui/dialog";
+import { 
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger
+} from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Plus, Loader2 } from "lucide-react";
 import { Form } from "@/components/ui/form";
@@ -21,6 +31,7 @@ import { EventImageUpload } from "./EventImageUpload";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { createEvent } from "@/utils/events";
 import { CreateEventData } from "@/utils/events/types";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Define the validation schema with Zod
 const eventFormSchema = z.object({
@@ -63,8 +74,9 @@ interface AddEventDialogProps {
 }
 
 export function AddEventDialog({ onEventAdded, adminEmail = 'admin@maabara.co.ke' }: AddEventDialogProps) {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isMobile = useIsMobile();
   
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventFormSchema),
@@ -125,7 +137,7 @@ export function AddEventDialog({ onEventAdded, adminEmail = 'admin@maabara.co.ke
         });
         
         // Reset form and dialog state
-        setIsDialogOpen(false);
+        setIsOpen(false);
         form.reset();
       } else {
         toast.error(result.message || "Failed to create event");
@@ -138,10 +150,67 @@ export function AddEventDialog({ onEventAdded, adminEmail = 'admin@maabara.co.ke
     }
   };
 
+  const EventForm = () => (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <EventFormFields form={form} />
+        <EventImageUpload form={form} />
+      </form>
+    </Form>
+  );
+
+  if (isMobile) {
+    return (
+      <Drawer open={isOpen} onOpenChange={setIsOpen}>
+        <DrawerTrigger asChild>
+          <Button className="bg-blue-600 hover:bg-blue-700">
+            <Plus className="mr-2 h-4 w-4" />
+            Add Event
+          </Button>
+        </DrawerTrigger>
+        <DrawerContent className="px-4 max-h-[95vh]">
+          <DrawerHeader>
+            <DrawerTitle>Add New Event</DrawerTitle>
+            <DrawerDescription>
+              Create a new event for Maabara Online. Fill in all the required fields below.
+            </DrawerDescription>
+          </DrawerHeader>
+          <ScrollArea className="max-h-[calc(95vh-250px)] px-4">
+            <EventForm />
+          </ScrollArea>
+          <DrawerFooter className="pt-2">
+            <Button
+              onClick={form.handleSubmit(onSubmit)}
+              disabled={isSubmitting}
+              className="w-full bg-blue-600 hover:bg-blue-700"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                "Create Event"
+              )}
+            </Button>
+            <DrawerClose asChild>
+              <Button 
+                variant="outline" 
+                className="w-full border-blue-200 text-blue-700 hover:bg-blue-50"
+              >
+                Cancel
+              </Button>
+            </DrawerClose>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+    );
+  }
+
   return (
-    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button>
+        <Button className="bg-blue-600 hover:bg-blue-700">
           <Plus className="mr-2 h-4 w-4" />
           Add Event
         </Button>
@@ -154,26 +223,32 @@ export function AddEventDialog({ onEventAdded, adminEmail = 'admin@maabara.co.ke
           </DialogDescription>
         </DialogHeader>
         <ScrollArea className="max-h-[calc(90vh-180px)] pr-4">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <EventFormFields form={form} />
-              <EventImageUpload form={form} />
-              
-              <DialogFooter className="pt-4 sticky bottom-0 bg-white">
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Creating...
-                    </>
-                  ) : (
-                    "Create Event"
-                  )}
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
+          <EventForm />
         </ScrollArea>
+        <DialogFooter className="pt-4 flex flex-col sm:flex-row gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setIsOpen(false)}
+            className="border-blue-200 text-blue-700 hover:bg-blue-50 w-full sm:w-auto"
+          >
+            Cancel
+          </Button>
+          <Button 
+            type="submit" 
+            disabled={isSubmitting}
+            onClick={form.handleSubmit(onSubmit)}
+            className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Creating...
+              </>
+            ) : (
+              "Create Event"
+            )}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
