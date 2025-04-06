@@ -20,12 +20,13 @@ const Login = () => {
   const navigate = useNavigate();
 
   // Fetch Gmail settings to check if Gmail login is enabled
-  const { data: gmailSettings } = useQuery({
+  const { data: gmailSettings, isLoading: isSettingsLoading } = useQuery({
     queryKey: ['gmail-settings'],
     queryFn: fetchGmailSettings
   });
 
-  const isGmailEnabled = gmailSettings?.enabled;
+  // Default to true while loading to show the Gmail button
+  const isGmailEnabled = isSettingsLoading ? true : gmailSettings?.enabled;
 
   // Check if user is already logged in
   useEffect(() => {
@@ -127,7 +128,7 @@ const Login = () => {
 
       <div className="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
         <div className="w-full max-w-md">
-          <div className="bg-white p-8 rounded-lg shadow-sm">
+          <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-100">
             <div className="text-center mb-6">
               <h1 className="text-2xl font-bold text-gray-900">Welcome back</h1>
               <p className="text-gray-600 mt-1">Sign in to your account</p>
@@ -143,6 +144,7 @@ const Login = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
                   required
+                  className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
 
@@ -151,7 +153,7 @@ const Login = () => {
                   <Label htmlFor="password">Password</Label>
                   <Link
                     to="/forgot-password"
-                    className="text-sm font-medium text-eventPurple-700 hover:text-eventPurple-600"
+                    className="text-sm font-medium text-blue-600 hover:text-blue-700"
                   >
                     Forgot password?
                   </Link>
@@ -163,51 +165,50 @@ const Login = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
+                  className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
 
               <Button
                 type="submit"
-                className="w-full bg-eventPurple-700 hover:bg-eventPurple-800"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                 disabled={isLoading}
               >
                 {isLoading ? "Signing in..." : "Sign in"}
               </Button>
             </form>
 
-            {isGmailEnabled && (
-              <div className="mt-6">
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-200" />
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white text-gray-500">
-                      Or continue with
-                    </span>
-                  </div>
+            <div className="mt-6">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-200" />
                 </div>
-
-                <div className="mt-6">
-                  <Button 
-                    variant="outline" 
-                    className="w-full flex items-center justify-center"
-                    onClick={handleGmailLogin}
-                    disabled={isGmailLoading || isLoading}
-                  >
-                    <Mail className="mr-2 h-4 w-4" />
-                    {isGmailLoading ? "Signing in..." : "Sign in with Gmail"}
-                  </Button>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">
+                    Or continue with
+                  </span>
                 </div>
               </div>
-            )}
+
+              <div className="mt-6">
+                <Button 
+                  variant="outline" 
+                  className="w-full flex items-center justify-center border-blue-200 text-blue-700 hover:bg-blue-50"
+                  onClick={handleGmailLogin}
+                  disabled={isGmailLoading || isLoading}
+                >
+                  <Mail className="mr-2 h-4 w-4" />
+                  {isGmailLoading ? "Signing in..." : "Sign in with Gmail"}
+                </Button>
+              </div>
+            </div>
 
             <div className="mt-6 text-center text-sm">
               <p className="text-gray-600">
                 Don't have an account?{" "}
                 <Link
                   to="/register"
-                  className="font-medium text-eventPurple-700 hover:text-eventPurple-600"
+                  className="font-medium text-blue-600 hover:text-blue-700"
                 >
                   Sign up
                 </Link>

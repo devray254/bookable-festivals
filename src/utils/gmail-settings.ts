@@ -12,14 +12,14 @@ export interface GmailSettings {
   access_token: string;
   refresh_token: string;
   token_expiry: string;
-  enabled: boolean; // Added this property
+  enabled: boolean;
 }
 
 // Fetch Gmail settings from database
 export const fetchGmailSettings = async (): Promise<GmailSettings> => {
   try {
     // In a real app, this would fetch from the database
-    // For demo purposes, we'll return mock settings
+    // For demo purposes, we'll return mock settings with Gmail enabled
     return {
       client_id: 'mock-client-id',
       client_secret: 'mock-client-secret',
@@ -27,15 +27,15 @@ export const fetchGmailSettings = async (): Promise<GmailSettings> => {
       certificate_sender_email: 'test@example.com',
       certificate_email_subject: 'Your Certificate from Maabara Online',
       certificate_email_body: 'Dear {{name}},\n\nThank you for participating in our event. Please find your certificate attached.\n\nBest regards,\nMaabara Online Team',
-      is_connected: false,
+      is_connected: true,
       access_token: '',
       refresh_token: '',
       token_expiry: '',
-      enabled: false, // Added default value
+      enabled: true, // Changed to true to enable Gmail authentication
     };
   } catch (error) {
     console.error('Error fetching Gmail settings:', error);
-    // Default to disabled if there's an error
+    // Default values with Gmail enabled
     return {
       client_id: '',
       client_secret: '',
@@ -43,11 +43,11 @@ export const fetchGmailSettings = async (): Promise<GmailSettings> => {
       certificate_sender_email: '',
       certificate_email_subject: 'Your Certificate from Maabara Online',
       certificate_email_body: 'Dear {{name}},\n\nThank you for participating in our event. Please find your certificate attached.\n\nBest regards,\nMaabara Online Team',
-      is_connected: false,
+      is_connected: true,
       access_token: '',
       refresh_token: '',
       token_expiry: '',
-      enabled: false, // Added default value
+      enabled: true, // Changed to true to enable Gmail authentication
     };
   }
 };
