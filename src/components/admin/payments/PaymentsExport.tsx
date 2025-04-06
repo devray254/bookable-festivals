@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { FileSpreadsheet, FilePdf, Download } from "lucide-react";
+import { FileSpreadsheet, FileText, Download } from "lucide-react";
 import { exportPaymentsToExcel, exportPaymentsToPDF } from "@/utils/payments/exports";
 import { UIPayment } from "./types";
 import {
@@ -69,7 +69,7 @@ export function PaymentsExport({ payments }: PaymentsExportProps) {
             Export to Excel
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handleExportToPDF} className="cursor-pointer">
-            <FilePdf className="h-4 w-4 mr-2" />
+            <FileText className="h-4 w-4 mr-2" />
             Export to PDF
           </DropdownMenuItem>
         </DropdownMenuContent>
