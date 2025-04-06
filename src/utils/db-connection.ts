@@ -1,7 +1,11 @@
+
 /**
  * Database connection utility
  * This file handles communication with the PHP backend
  */
+
+// Import mock data directly with ES module imports
+import { mockEvents, mockCategories, getMockData } from './mock-data';
 
 // Base URL for API endpoints - empty for relative path in production
 const API_BASE_URL = '';
@@ -139,9 +143,6 @@ export const query = async (sql: string, params?: any[]) => {
 
 // Helper function to return mock data for development/testing
 const getMockDataForQuery = (sql: string) => {
-  // Import mock data from separate file
-  const { mockEvents, mockCategories, getMockData } = require('./mock-data');
-  
   console.log('SQL for mock data:', sql);
   
   // Check if it's a query for events
