@@ -1,102 +1,141 @@
 
 import { Button } from "@/components/ui/button";
-import { Download, Mail, Eye, Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Eye, 
+  Download, 
+  Mail, 
+  Loader2,
+  CheckCircle,
+  XCircle
+} from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { sendCertificateEmail } from "@/utils/certificates";
 
 interface Certificate {
   id: string;
-  event_id: number;
-  user_id: number;
-  user_name?: string;
-  user_email?: string;
-  event_title?: string;
+  user_name: string;
+  user_email: string;
+  event_title: string;
   issued_date: string;
-  issued_by: string;
-  sent_email: boolean;
   downloaded: boolean;
+  sent_email: boolean;
 }
 
 interface CertificatesTableProps {
   certificates: Certificate[];
   isLoading: boolean;
-  onPreview: (certificate: any) => void;
-  onDownload: (certificateId: string) => void;
+  onPreview: (certificate: Certificate) => void;
+  onDownload: (certificateId: string, userName?: string, content?: string) => void;
   onSendEmail: (certificateId: string, email: string) => void;
 }
 
-export function CertificatesTable({
-  certificates,
-  isLoading,
-  onPreview,
+export function CertificatesTable({ 
+  certificates, 
+  isLoading, 
+  onPreview, 
   onDownload,
-  onSendEmail
+  onSendEmail 
 }: CertificatesTableProps) {
+  const [sendingEmail, setSendingEmail] = useState<string | null>(null);
+
+  const handleSendEmail = async (certificateId: string, email: string) => {
+    setSendingEmail(certificateId);
+    try {
+      await onSendEmail(certificateId, email);
+    } finally {
+      setSendingEmail(null);
+    }
+  };
+
   if (isLoading) {
     return (
-      <div className="flex justify-center p-8">
-        <Loader2 className="h-8 w-8 animate-spin text-eventPurple-700" />
+      <div className="flex justify-center py-8">
+        <div className="animate-spin h-8 w-8 border-4 border-eventPurple-700 rounded-full border-t-transparent"></div>
       </div>
     );
   }
-  
+
   if (certificates.length === 0) {
     return (
-      <div className="p-8 text-center text-muted-foreground">
+      <div className="text-center py-8 text-muted-foreground">
         No certificates have been issued for this event yet.
       </div>
     );
   }
-  
+
   return (
-    <div className="border rounded-md">
-      <div className="grid grid-cols-1 p-4 font-medium border-b">
-        <div className="grid grid-cols-12 gap-2">
-          <div className="col-span-3">Certificate ID</div>
-          <div className="col-span-3">Attendee</div>
-          <div className="col-span-2">Email</div>
-          <div className="col-span-2">Issued Date</div>
-          <div className="col-span-2">Actions</div>
-        </div>
-      </div>
-      
-      <div className="divide-y">
-        {certificates.map(cert => (
-          <div key={cert.id} className="p-4 hover:bg-gray-50">
-            <div className="grid grid-cols-12 gap-2 items-center">
-              <div className="col-span-3 truncate">
-                <span className="font-mono text-sm">{cert.id}</span>
-              </div>
-              <div className="col-span-3 truncate">{cert.user_name}</div>
-              <div className="col-span-2 truncate">{cert.user_email}</div>
-              <div className="col-span-2">
-                {new Date(cert.issued_date).toLocaleDateString()}
-              </div>
-              <div className="col-span-2 flex space-x-2">
-                <Button 
-                  size="sm"
-                  variant="outline"
-                  onClick={() => onPreview(cert)}
-                >
-                  <Eye className="h-4 w-4" />
-                </Button>
-                <Button 
-                  size="sm"
-                  variant="outline"
-                  onClick={() => onDownload(cert.id)}
-                >
-                  <Download className="h-4 w-4" />
-                </Button>
-                <Button 
-                  size="sm"
-                  variant="outline"
-                  onClick={() => onSendEmail(cert.id, cert.user_email as string)}
-                >
-                  <Mail className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+    <div className="overflow-x-auto">
+      <table className="w-full">
+        <thead>
+          <tr className="border-b">
+            <th className="text-left py-2 px-3">Certificate ID</th>
+            <th className="text-left py-2 px-3">Recipient</th>
+            <th className="text-left py-2 px-3">Email</th>
+            <th className="text-left py-2 px-3">Issued Date</th>
+            <th className="text-left py-2 px-3">Status</th>
+            <th className="text-left py-2 px-3">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {certificates.map((certificate) => (
+            <tr key={certificate.id} className="border-b hover:bg-gray-50">
+              <td className="py-2 px-3 font-mono text-xs">{certificate.id}</td>
+              <td className="py-2 px-3">{certificate.user_name}</td>
+              <td className="py-2 px-3">{certificate.user_email}</td>
+              <td className="py-2 px-3">
+                {new Date(certificate.issued_date).toLocaleDateString()}
+              </td>
+              <td className="py-2 px-3">
+                <div className="flex flex-col gap-1">
+                  <Badge variant={certificate.downloaded ? "default" : "outline"} className="w-fit">
+                    {certificate.downloaded ? "Downloaded" : "Not Downloaded"}
+                  </Badge>
+                  <Badge variant={certificate.sent_email ? "success" : "outline"} className="w-fit">
+                    {certificate.sent_email ? "Email Sent" : "No Email Sent"}
+                  </Badge>
+                </div>
+              </td>
+              <td className="py-2 px-3">
+                <div className="flex space-x-1">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={() => onPreview(certificate)}
+                    title="Preview Certificate"
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={() => onDownload(certificate.id)}
+                    title="Download Certificate"
+                  >
+                    <Download className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={() => handleSendEmail(certificate.id, certificate.user_email)}
+                    disabled={sendingEmail === certificate.id}
+                    title="Send by Email"
+                  >
+                    {sendingEmail === certificate.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : certificate.sent_email ? (
+                      <CheckCircle className="h-4 w-4 text-green-600" />
+                    ) : (
+                      <Mail className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

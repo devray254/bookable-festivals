@@ -2,14 +2,19 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { 
   fetchCertificatesByEvent, 
-  generateCertificateContent 
+  generateCertificateContent,
+  sendCertificateEmail,
+  sendBulkCertificateEmails
 } from "@/utils/certificates";
 import { CertificatesTable } from "./CertificatesTable";
 import { CertificatePreviewDialog } from "./CertificatePreviewDialog";
 import { generateCertificatePDF } from "@/utils/pdf-generator";
+import { EmailBulkDialog } from "./EmailBulkDialog";
+import { Mail, Loader2 } from "lucide-react";
 
 interface CertificatesListProps {
   eventId: number;
@@ -21,6 +26,9 @@ export function CertificatesList({ eventId }: CertificatesListProps) {
     content: string;
     userName: string;
   } | null>(null);
+  
+  const [showBulkEmailDialog, setShowBulkEmailDialog] = useState(false);
+  const [isSendingBulkEmail, setIsSendingBulkEmail] = useState(false);
 
   const { data: certificates = [], isLoading, refetch } = useQuery({
     queryKey: ['certificates', eventId],
@@ -114,21 +122,80 @@ export function CertificatesList({ eventId }: CertificatesListProps) {
     }
   };
 
-  const handleSendEmail = (certificateId: string, email: string) => {
+  const handleSendEmail = async (certificateId: string, email: string) => {
     try {
-      console.log("Sending certificate to:", email);
-      toast.success(`Certificate would be emailed to ${email} in production`);
+      const certificate = certificates.find(cert => cert.id === certificateId);
+      
+      if (!certificate) {
+        toast.error("Certificate not found");
+        return;
+      }
+      
+      const result = await sendCertificateEmail(certificateId, email);
+      
+      if (result.success) {
+        toast.success(`Certificate sent to ${email}`);
+        refetch(); // Refresh the list to update sent status
+      } else {
+        toast.error(result.message || "Failed to send certificate");
+      }
     } catch (error) {
       console.error("Error sending email:", error);
       toast.error("Error sending email");
+    }
+  };
+  
+  const handleSendBulkEmails = async (customMessage: string) => {
+    setIsSendingBulkEmail(true);
+    try {
+      // Filter certificates that haven't been emailed yet
+      const certificatesToSend = certificates.filter(cert => !cert.sent_email);
+      
+      if (certificatesToSend.length === 0) {
+        toast.info("No certificates to send. All certificates have already been emailed.");
+        return;
+      }
+      
+      const result = await sendBulkCertificateEmails(eventId, customMessage);
+      
+      if (result.success) {
+        toast.success(`Successfully sent ${result.sent} out of ${result.total} certificates`);
+        setShowBulkEmailDialog(false);
+        refetch(); // Refresh the list to update sent status
+      } else {
+        toast.error(result.message || "Failed to send bulk emails");
+      }
+    } catch (error) {
+      console.error("Error sending bulk emails:", error);
+      toast.error("Error sending bulk emails");
+    } finally {
+      setIsSendingBulkEmail(false);
     }
   };
 
   return (
     <>
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Issued Certificates</CardTitle>
+          <Button 
+            onClick={() => setShowBulkEmailDialog(true)}
+            variant="outline"
+            className="flex items-center gap-2"
+            disabled={isSendingBulkEmail || certificates.length === 0}
+          >
+            {isSendingBulkEmail ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Sending...
+              </>
+            ) : (
+              <>
+                <Mail className="h-4 w-4" />
+                Send All by Email
+              </>
+            )}
+          </Button>
         </CardHeader>
         <CardContent>
           <CertificatesTable 
@@ -146,6 +213,14 @@ export function CertificatesList({ eventId }: CertificatesListProps) {
         onOpenChange={(open) => !open && setPreviewCertificate(null)}
         previewCertificate={previewCertificate}
         onDownload={handleDownload}
+      />
+      
+      <EmailBulkDialog
+        open={showBulkEmailDialog}
+        onOpenChange={setShowBulkEmailDialog}
+        onSend={handleSendBulkEmails}
+        isSending={isSendingBulkEmail}
+        certificateCount={certificates.filter(cert => !cert.sent_email).length}
       />
     </>
   );

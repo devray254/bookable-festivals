@@ -4,12 +4,14 @@ import { useState, useEffect } from "react";
 interface User {
   name: string;
   role?: string;
+  email?: string;
 }
 
 export function useNavAuth() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
   const [userRole, setUserRole] = useState<string | undefined>(undefined);
+  const [userEmail, setUserEmail] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     // Check if user is logged in
@@ -20,6 +22,7 @@ export function useNavAuth() {
         setIsLoggedIn(true);
         setUserName(user.name || "User");
         setUserRole(user.role);
+        setUserEmail(user.email);
       } catch (error) {
         console.error("Error parsing user:", error);
       }
@@ -31,6 +34,7 @@ export function useNavAuth() {
     setIsLoggedIn(false);
     setUserName("");
     setUserRole(undefined);
+    setUserEmail(undefined);
     window.location.href = "/";
   };
 
@@ -38,6 +42,7 @@ export function useNavAuth() {
     isLoggedIn,
     userName,
     userRole,
+    userEmail,
     handleLogout
   };
 }

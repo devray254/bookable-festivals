@@ -3,6 +3,7 @@
 import { authenticateUser, createUser } from './user-authentication';
 import { createAdminUser, updateUser, resetUserPassword } from './admin-functions';
 import { getAllUsers, addUser } from './user-management';
+import { authenticateWithGmail, linkGmailAccount } from './gmail-authentication';
 
 // Export all auth functions
 export {
@@ -17,5 +18,9 @@ export {
   
   // User management
   getAllUsers,
-  addUser
+  addUser,
+  
+  // Gmail authentication
+  authenticateWithGmail,
+  linkGmailAccount
 };
