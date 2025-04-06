@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
@@ -7,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authenticateUser } from "@/utils/auth";
 import { toast } from "sonner";
-import { Mail } from "lucide-react";
+import { SocialLoginDivider } from "./SocialLoginDivider";
 
 interface LoginFormProps {
   onGmailLogin: () => void;
@@ -106,30 +105,12 @@ export const LoginForm = ({
         </Button>
       </form>
 
-      <div className="mt-6">
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-200" />
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white text-gray-500">
-              Or continue with
-            </span>
-          </div>
-        </div>
-
-        <div className="mt-6">
-          <Button 
-            variant="outline" 
-            className="w-full flex items-center justify-center border-blue-200 text-blue-700 hover:bg-blue-50"
-            onClick={onGmailLogin}
-            disabled={isGmailLoading || isLoading || !isGmailEnabled}
-          >
-            <Mail className="mr-2 h-4 w-4" />
-            {isGmailLoading ? "Signing in..." : "Sign in with Gmail"}
-          </Button>
-        </div>
-      </div>
+      <SocialLoginDivider 
+        onGmailLogin={onGmailLogin}
+        isGmailEnabled={isGmailEnabled}
+        isGmailLoading={isGmailLoading}
+        isLoginLoading={isLoading}
+      />
 
       <div className="mt-6 text-center text-sm">
         <p className="text-gray-600">
