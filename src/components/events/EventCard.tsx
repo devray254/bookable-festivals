@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { CalendarIcon, MapPinIcon, ClockIcon, BanknoteIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -85,6 +84,9 @@ const EventCard = ({ id, title, image, date, time, location, price, is_free, cat
     imageUrl = `/${imageUrl}`;
   }
 
+  // Format price as a number for display
+  const formattedPrice = typeof price === 'number' ? price : parseFloat(String(price));
+
   return (
     <div className="event-card bg-white rounded-lg overflow-hidden shadow border border-gray-100">
       <div className="h-48 overflow-hidden relative">
@@ -139,7 +141,7 @@ const EventCard = ({ id, title, image, date, time, location, price, is_free, cat
           <div className="flex items-center text-gray-800 font-medium">
             <BanknoteIcon className="h-4 w-4 mr-2" />
             <span className="text-sm">
-              {isFree ? "Free Event" : `KES ${price.toLocaleString()}`}
+              {isFree ? "Free Event" : `KES ${formattedPrice.toLocaleString()}`}
             </span>
           </div>
         </div>

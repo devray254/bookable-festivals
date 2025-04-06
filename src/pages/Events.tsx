@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { Navbar } from "@/components/layout/Navbar";
@@ -14,21 +13,7 @@ import { CalendarIcon, MapPinIcon, Search, SlidersHorizontal, RefreshCw } from "
 import { fetchEvents } from "@/utils/events";
 import { fetchCategories } from "@/utils/categories";
 import { checkInactivity } from "@/utils/db-connection";
-
-// Define Event type
-interface Event {
-  id: number;
-  title: string;
-  description?: string;
-  date: string;
-  time?: string;
-  location: string;
-  price: number;
-  is_free?: number;
-  category_id: number;
-  category_name?: string;
-  image_url?: string;
-}
+import { Event } from "@/utils/events/types";
 
 // Define Category type
 interface Category {
@@ -149,9 +134,10 @@ const Events = () => {
     }
     
     // Filter by price range
-    result = result.filter(event => 
-      event.price >= priceRange[0] && event.price <= priceRange[1]
-    );
+    result = result.filter(event => {
+      const eventPrice = typeof event.price === 'string' ? parseFloat(event.price) : event.price;
+      return eventPrice >= priceRange[0] && eventPrice <= priceRange[1];
+    });
     
     setFilteredEvents(result);
   }, [events, searchTerm, selectedCategory, priceRange]);
@@ -298,7 +284,7 @@ const Events = () => {
                   date={new Date(event.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} 
                   time={event.time || '00:00'} 
                   location={event.location} 
-                  price={event.price} 
+                  price={typeof event.price === 'string' ? parseFloat(event.price) : event.price} 
                   category={event.category_name || `Category ${event.category_id}`}
                   is_free={event.is_free === 1}
                 />

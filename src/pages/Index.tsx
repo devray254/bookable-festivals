@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -10,27 +9,13 @@ import EventCard from "@/components/events/EventCard";
 import { fetchCategories } from "@/utils/categories";
 import { fetchEvents } from "@/utils/events";
 import { getCurrentLogo } from "@/utils/image-upload";
+import { Event } from "@/utils/events/types";
 
 // Define Category type
 interface Category {
   id: number;
   name: string;
   events_count?: number;
-}
-
-// Define Event type
-interface Event {
-  id: number;
-  title: string;
-  description?: string;
-  date: string;
-  time?: string;
-  location: string;
-  price: number;
-  is_free?: number;
-  category_id: number;
-  category_name?: string;
-  image_url?: string;
 }
 
 const Index = () => {
@@ -125,13 +110,7 @@ const Index = () => {
 
   // Convert date to East Africa Time (EAT is UTC+3)
   function convertToEAT(date: Date) {
-    const eatDate = new Date(date);
-    // Get UTC time in milliseconds
-    const utcTime = date.getTime() + (date.getTimezoneOffset() * 60000);
-    // EAT is UTC+3
-    const eatTime = utcTime + (3 * 3600000);
-    eatDate.setTime(eatTime);
-    return eatDate;
+    return date;
   }
   
   return (
@@ -203,7 +182,7 @@ const Index = () => {
                   date={new Date(event.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} 
                   time={event.time || '00:00'} 
                   location={event.location} 
-                  price={event.price} 
+                  price={typeof event.price === 'string' ? parseFloat(event.price as string) : event.price as number} 
                   category={event.category_name || `Category ${event.category_id}`}
                   is_free={event.is_free === 1}
                 />
@@ -226,7 +205,6 @@ const Index = () => {
           
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {isLoadingCategories ? (
-              // Loading state
               Array(6).fill(0).map((_, index) => (
                 <div 
                   key={index}
@@ -238,7 +216,6 @@ const Index = () => {
                 </div>
               ))
             ) : categories.length > 0 ? (
-              // Show real categories
               categories.map((category) => (
                 <Link 
                   to={`/events?category=${category.name}`}
@@ -255,7 +232,6 @@ const Index = () => {
                 </Link>
               ))
             ) : (
-              // Fallback for no categories
               <div className="col-span-full text-center py-8 text-gray-500">
                 No categories available
               </div>
@@ -289,7 +265,7 @@ const Index = () => {
                   date={new Date(event.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} 
                   time={event.time || '00:00'} 
                   location={event.location} 
-                  price={event.price} 
+                  price={typeof event.price === 'string' ? parseFloat(event.price as string) : event.price as number} 
                   category={event.category_name || `Category ${event.category_id}`}
                   is_free={event.is_free === 1}
                 />
