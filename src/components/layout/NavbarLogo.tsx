@@ -14,13 +14,14 @@ export function NavbarLogo() {
     
     window.addEventListener('storage', handleStorageChange);
     
-    // Check for logo updates every 5 seconds (for demo purposes)
+    // Check for logo updates every 2 seconds to ensure logo changes are reflected
     const intervalId = setInterval(() => {
       const currentLogo = getCurrentLogo();
       if (currentLogo !== logoUrl) {
         setLogoUrl(currentLogo);
+        console.log("Logo updated to:", currentLogo);
       }
-    }, 5000);
+    }, 2000);
     
     return () => {
       window.removeEventListener('storage', handleStorageChange);
