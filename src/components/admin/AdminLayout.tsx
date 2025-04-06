@@ -38,7 +38,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   return (
     <div className="h-screen">
       <SidebarProvider defaultOpen={true}>
-        <Sidebar className="bg-sidebar">
+        <Sidebar className="border-r border-sidebar-border">
           <SidebarHeader>
             <h1 className="text-xl font-bold px-4 py-2 text-sidebar-foreground">Maabara Online</h1>
             <p className="text-xs text-sidebar-foreground/70 px-4">Admin Panel</p>

@@ -153,10 +153,10 @@ export default function AdminLogs() {
     <AdminLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Activity Logs</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-blue-900">Activity Logs</h1>
           <p className="text-muted-foreground">Monitor all system activities</p>
           <div className="mt-2">
-            <Badge variant={apiConnected ? "default" : "outline"} className={apiConnected ? "bg-green-50" : "bg-yellow-50"}>
+            <Badge variant={apiConnected ? "default" : "outline"} className={apiConnected ? "bg-green-50 text-green-700 border-green-200" : "bg-yellow-50 text-yellow-700 border-yellow-200"}>
               {apiConnected ? "Connected to Backend API" : "Using Mock Data"}
             </Badge>
             {!apiConnected && (
@@ -167,68 +167,76 @@ export default function AdminLogs() {
           </div>
         </div>
         
-        <div className="flex justify-between">
-          <div className="relative w-1/3">
+        <div className="flex flex-col sm:flex-row sm:justify-between gap-4">
+          <div className="relative w-full sm:w-1/3">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input 
               type="search" 
               placeholder="Search logs..." 
-              className="pl-8" 
+              className="pl-8 border-blue-200 focus:border-blue-400" 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <div className="space-x-2">
-            <Button onClick={handleRefresh} variant="outline">Refresh</Button>
-            <Button onClick={handleTestLog} variant="outline">Create Test Log</Button>
-            <Button onClick={handleExport}>
+          <div className="flex flex-wrap gap-2 justify-end">
+            <Button onClick={handleRefresh} variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50">
+              Refresh
+            </Button>
+            <Button onClick={handleTestLog} variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50">
+              Create Test Log
+            </Button>
+            <Button onClick={handleExport} className="bg-blue-600 hover:bg-blue-700">
               <Download className="mr-2 h-4 w-4" />
               Export Logs
             </Button>
           </div>
         </div>
         
-        <Card>
-          <CardHeader>
-            <CardTitle>System Logs</CardTitle>
+        <Card className="dashboard-card dashboard-card-blue overflow-hidden">
+          <CardHeader className="bg-blue-50 border-b border-blue-100">
+            <CardTitle className="text-blue-800">System Logs</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0">
             {loading ? (
-              <p>Loading logs...</p>
+              <div className="flex justify-center items-center h-40">
+                <div className="animate-spin h-8 w-8 border-4 border-blue-600 rounded-full border-t-transparent"></div>
+              </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="admin-table">
                   <thead>
-                    <tr className="border-b">
-                      <th className="text-left p-2 whitespace-nowrap">Timestamp</th>
-                      <th className="text-left p-2 whitespace-nowrap">Action</th>
-                      <th className="text-left p-2 whitespace-nowrap">User</th>
-                      <th className="text-left p-2">Details</th>
-                      <th className="text-left p-2 whitespace-nowrap">IP Address</th>
-                      <th className="text-left p-2 whitespace-nowrap">Level</th>
-                      <th className="text-left p-2 whitespace-nowrap">Actions</th>
+                    <tr>
+                      <th className="rounded-tl-lg">Timestamp</th>
+                      <th>Action</th>
+                      <th>User</th>
+                      <th>Details</th>
+                      <th>IP Address</th>
+                      <th>Level</th>
+                      <th className="rounded-tr-lg">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredLogs.length > 0 ? (
                       filteredLogs.map((log: any) => (
-                        <tr key={log.id} className="border-b">
-                          <td className="p-2 whitespace-nowrap">{log.timestamp}</td>
-                          <td className="p-2 whitespace-nowrap">{log.action}</td>
-                          <td className="p-2 whitespace-nowrap">{log.user}</td>
-                          <td className="p-2 max-w-xs truncate">{log.details}</td>
-                          <td className="p-2 whitespace-nowrap">{log.ip}</td>
-                          <td className="p-2 whitespace-nowrap">
-                            <Badge variant={log.level === "info" ? "default" : "destructive"}>
+                        <tr key={log.id}>
+                          <td className="whitespace-nowrap">{log.timestamp}</td>
+                          <td className="whitespace-nowrap">{log.action}</td>
+                          <td className="whitespace-nowrap">{log.user}</td>
+                          <td className="max-w-xs truncate">{log.details}</td>
+                          <td className="whitespace-nowrap">{log.ip}</td>
+                          <td className="whitespace-nowrap">
+                            <Badge variant={log.level === "info" ? "default" : "destructive"} 
+                                  className={log.level === "info" ? "bg-blue-100 text-blue-800 border-blue-200" : "bg-red-100 text-red-800 border-red-200"}>
                               {log.level}
                             </Badge>
                           </td>
-                          <td className="p-2 whitespace-nowrap">
+                          <td className="whitespace-nowrap">
                             <Button 
                               variant="ghost" 
                               size="icon"
                               onClick={() => handleViewLogDetails(log.id)}
                               title="View Details"
+                              className="text-blue-600 hover:text-blue-800 hover:bg-blue-50"
                             >
                               <Info className="h-4 w-4" />
                             </Button>
@@ -250,10 +258,10 @@ export default function AdminLogs() {
 
       {/* Log Details Dialog */}
       <Dialog open={logDetailsOpen} onOpenChange={setLogDetailsOpen}>
-        <DialogContent className="max-w-3xl">
+        <DialogContent className="max-w-3xl bg-white">
           <DialogHeader>
-            <DialogTitle>Log Details</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-blue-900">Log Details</DialogTitle>
+            <DialogDescription className="text-blue-600">
               Complete information about this activity log
             </DialogDescription>
           </DialogHeader>
@@ -267,39 +275,40 @@ export default function AdminLogs() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">Log ID</h3>
-                  <p>{selectedLog.id}</p>
+                  <p className="font-medium">{selectedLog.id}</p>
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">Timestamp</h3>
-                  <p>{selectedLog.timestamp}</p>
+                  <p className="font-medium">{selectedLog.timestamp}</p>
                 </div>
               </div>
 
               <div>
                 <h3 className="text-sm font-medium text-gray-500">User</h3>
-                <p>{selectedLog.user}</p>
+                <p className="font-medium">{selectedLog.user}</p>
               </div>
 
               <div>
                 <h3 className="text-sm font-medium text-gray-500">Action</h3>
-                <p>{selectedLog.action}</p>
+                <p className="font-medium">{selectedLog.action}</p>
               </div>
 
               <div>
                 <h3 className="text-sm font-medium text-gray-500">IP Address</h3>
-                <p>{selectedLog.ip}</p>
+                <p className="font-medium">{selectedLog.ip}</p>
               </div>
 
               <div>
                 <h3 className="text-sm font-medium text-gray-500">Level</h3>
-                <Badge variant={selectedLog.level === "info" ? "default" : "destructive"}>
+                <Badge variant={selectedLog.level === "info" ? "default" : "destructive"} 
+                      className={selectedLog.level === "info" ? "bg-blue-100 text-blue-800 border-blue-200" : "bg-red-100 text-red-800 border-red-200"}>
                   {selectedLog.level}
                 </Badge>
               </div>
 
               <div>
                 <h3 className="text-sm font-medium text-gray-500">Details</h3>
-                <div className="p-3 bg-gray-50 rounded-md mt-1 whitespace-pre-wrap">
+                <div className="p-3 bg-gray-50 rounded-md mt-1 whitespace-pre-wrap border border-blue-100">
                   {selectedLog.details}
                 </div>
               </div>
@@ -309,7 +318,7 @@ export default function AdminLogs() {
           )}
           
           <DialogFooter>
-            <Button variant="outline" onClick={() => setLogDetailsOpen(false)}>Close</Button>
+            <Button variant="outline" onClick={() => setLogDetailsOpen(false)} className="border-blue-200 text-blue-700 hover:bg-blue-50">Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
