@@ -120,7 +120,7 @@ export const exportPaymentsToPDF = (payments: UIPayment[], eventFilter?: string)
         6: { cellWidth: 20 }, // Method
         7: { cellWidth: 20 }  // Status
       },
-      headStyles: { fillColor: [123, 58, 237] } // Purple color
+      headStyles: { fillColor: [217, 37, 42] } // Red color
     });
     
     // Add summary at the bottom

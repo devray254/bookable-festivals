@@ -4,13 +4,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { exportToExcel, exportToPDF } from "@/utils/exports";
-import { FileDown, Eye, Filter } from "lucide-react";
+import { Eye } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Booking } from "@/utils/bookings";
 import { useQuery } from "@tanstack/react-query";
 import { getAllEvents, Event } from "@/utils/events";
 import { BookingFilters } from "@/components/admin/bookings/BookingFilters";
+import { BookingExport } from "@/components/admin/bookings/BookingExport";
 
 export default function AdminBookings() {
   const [activeTab, setActiveTab] = useState("all");
@@ -98,14 +98,6 @@ export default function AdminBookings() {
       case "cancelled": return cancelledBookings;
       default: return filteredBookings;
     }
-  };
-
-  const handleExportToExcel = () => {
-    exportToExcel(getCurrentBookings());
-  };
-
-  const handleExportToPDF = () => {
-    exportToPDF(getCurrentBookings());
   };
 
   const renderBookingTable = (bookingsList: typeof bookings) => (
@@ -199,24 +191,7 @@ export default function AdminBookings() {
               <CardTitle>All Bookings</CardTitle>
             </div>
             <div className="flex items-center gap-2 mt-4 sm:mt-0">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="flex items-center gap-2"
-                onClick={handleExportToExcel}
-              >
-                <FileDown className="h-4 w-4" />
-                Export to Excel
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="flex items-center gap-2"
-                onClick={handleExportToPDF}
-              >
-                <FileDown className="h-4 w-4" />
-                Export to PDF
-              </Button>
+              <BookingExport bookings={getCurrentBookings()} />
             </div>
           </CardHeader>
           <CardContent>
