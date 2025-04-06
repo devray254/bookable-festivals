@@ -1,3 +1,4 @@
+
 // Events related utilities
 import { query } from './db-connection';
 import { logActivity } from './logs';
@@ -37,8 +38,10 @@ export const fetchEvents = async () => {
   }
 };
 
-// Get all events (alias for fetchEvents to match the import in Bookings.tsx)
-export const getAllEvents = fetchEvents;
+// Get all events - explicit export to prevent runtime issues
+export const getAllEvents = async () => {
+  return await fetchEvents();
+};
 
 // Create a new event
 export const createEvent = async (eventData: any, adminEmail: string) => {

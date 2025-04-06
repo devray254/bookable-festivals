@@ -1,3 +1,4 @@
+
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ export default function AdminBookings() {
   const [activeTab, setActiveTab] = useState("all");
   const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
   
+  // Add a fallback empty array to ensure events is never undefined
   const { data: events = [], isLoading } = useQuery({
     queryKey: ['events'],
     queryFn: getAllEvents
