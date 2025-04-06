@@ -20,3 +20,7 @@ export {
   authenticateWithGmail,
   linkGmailAccount
 };
+
+// Add these exports for backward compatibility with other code using these functions
+export const authenticateUser = authenticateWithGmail;
+export const createUser = addUser;

@@ -1,9 +1,8 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { resetUserPassword } from "@/utils/auth";
+import { resetUserPassword, updateUser } from "@/utils/auth";
 import { RefreshCw, Edit, UserX, LogIn } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 

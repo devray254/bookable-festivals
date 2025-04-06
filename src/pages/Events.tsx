@@ -267,7 +267,7 @@ const Events = () => {
                   location={event.location} 
                   price={typeof event.price === 'string' ? parseFloat(event.price) : event.price} 
                   category={event.category_name || `Category ${event.category_id}`}
-                  is_free={event.is_free === 1 || event.is_free === true}
+                  is_free={Boolean(event.is_free)}
                 />
               ))}
             </div>
