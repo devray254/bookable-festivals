@@ -1,4 +1,3 @@
-
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,14 +8,14 @@ import { FileDown, Eye, Filter } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Booking } from "@/utils/bookings";
 import { useQuery } from "@tanstack/react-query";
-import { getAllEvents } from "@/utils/events";
+import { getAllEvents, Event } from "@/utils/events";
 import { BookingFilters } from "@/components/admin/bookings/BookingFilters";
 
 export default function AdminBookings() {
   const [activeTab, setActiveTab] = useState("all");
   const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
   
-  const { data: events = [] } = useQuery({
+  const { data: events = [], isLoading } = useQuery({
     queryKey: ['events'],
     queryFn: getAllEvents
   });
@@ -72,17 +71,14 @@ export default function AdminBookings() {
     }
   ];
 
-  // Filter bookings based on active tab and selected event
   const filteredBookings = bookings
     .filter(booking => {
-      // Filter by status
       if (activeTab !== "all") {
         return booking.status === activeTab;
       }
       return true;
     })
     .filter(booking => {
-      // Filter by event ID
       if (selectedEventId) {
         return booking.event_id === selectedEventId;
       }

@@ -1,7 +1,22 @@
-
 // Events related utilities
 import { query } from './db-connection';
 import { logActivity } from './logs';
+
+// Define Event type
+export interface Event {
+  id: number;
+  title: string;
+  description?: string;
+  date: string;
+  time?: string;
+  location: string;
+  price: number | string;
+  is_free?: boolean;
+  category_id: number;
+  category_name?: string;
+  image_url?: string;
+  created_by?: string;
+}
 
 // Fetch events from database
 export const fetchEvents = async () => {
@@ -21,6 +36,9 @@ export const fetchEvents = async () => {
     return [];
   }
 };
+
+// Get all events (alias for fetchEvents to match the import in Bookings.tsx)
+export const getAllEvents = fetchEvents;
 
 // Create a new event
 export const createEvent = async (eventData: any, adminEmail: string) => {
