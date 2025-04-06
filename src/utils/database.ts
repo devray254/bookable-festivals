@@ -22,7 +22,8 @@ export {
   createEvent,
   updateEvent,
   deleteEvent,
-  getEventById
+  getEventById,
+  getAllEvents
 } from './events';
 
 // Re-export categories utilities
