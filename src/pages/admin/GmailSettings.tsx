@@ -1,11 +1,11 @@
 
 import { useState, useEffect } from 'react';
-import AdminLayout from '@/components/admin/AdminLayout';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import GmailSettingsForm from '@/components/admin/gmail/GmailSettingsForm';
+import { GmailSettingsForm } from '@/components/admin/gmail/GmailSettingsForm';
 import GmailStatus from '@/components/admin/gmail/GmailStatus';
-import CertificateEmailSettings from '@/components/admin/gmail/CertificateEmailSettings';
+import { CertificateEmailSettings } from '@/components/admin/gmail/CertificateEmailSettings';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/components/ui/use-toast';
 import { fetchGmailSettings, updateGmailSettings, GmailSettings } from '@/utils/gmail-settings';
@@ -59,7 +59,7 @@ const GmailSettingsPage = () => {
   const handleSettingsSave = async (newSettings: GmailSettings) => {
     try {
       setSaving(true);
-      await updateGmailSettings(newSettings);
+      await updateGmailSettings(newSettings, 'admin@example.com');
       setSettings(newSettings);
       toast({
         title: 'Success',
@@ -99,10 +99,13 @@ const GmailSettingsPage = () => {
                 </CardHeader>
                 <CardContent>
                   <GmailSettingsForm 
-                    settings={settings} 
-                    onSave={handleSettingsSave} 
-                    loading={loading} 
-                    saving={saving} 
+                    existingSettings={settings} 
+                    onSuccess={() => {
+                      toast({
+                        title: 'Success',
+                        description: 'Gmail settings saved successfully',
+                      });
+                    }} 
                   />
                 </CardContent>
               </Card>
@@ -124,12 +127,7 @@ const GmailSettingsPage = () => {
                 <CardTitle>Certificate Email Settings</CardTitle>
               </CardHeader>
               <CardContent>
-                <CertificateEmailSettings
-                  settings={settings}
-                  onSave={handleSettingsSave}
-                  loading={loading}
-                  saving={saving}
-                />
+                <CertificateEmailSettings />
               </CardContent>
             </Card>
           </TabsContent>

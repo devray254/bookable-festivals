@@ -7,14 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Loader2, Save } from "lucide-react";
-import { updateGmailSettings } from "@/utils/gmail-settings";
-
-interface GmailSettings {
-  clientId: string;
-  clientSecret: string;
-  redirectUri: string;
-  enabled: boolean;
-}
+import { updateGmailSettings, GmailSettings } from "@/utils/gmail-settings";
 
 interface GmailSettingsFormProps {
   existingSettings?: Partial<GmailSettings>;
@@ -26,14 +19,20 @@ export function GmailSettingsForm({ existingSettings, onSuccess }: GmailSettings
   
   const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<GmailSettings>({
     defaultValues: {
-      clientId: existingSettings?.clientId || '',
-      clientSecret: existingSettings?.clientSecret || '',
-      redirectUri: existingSettings?.redirectUri || window.location.origin + '/auth/callback',
-      enabled: existingSettings?.enabled || false
+      client_id: existingSettings?.client_id || '',
+      client_secret: existingSettings?.client_secret || '',
+      redirect_uri: existingSettings?.redirect_uri || window.location.origin + '/auth/callback',
+      certificate_sender_email: existingSettings?.certificate_sender_email || '',
+      certificate_email_subject: existingSettings?.certificate_email_subject || 'Your Certificate from Maabara Online',
+      certificate_email_body: existingSettings?.certificate_email_body || 'Dear {{name}},\n\nThank you for participating in our event. Please find your certificate attached.\n\nBest regards,\nMaabara Online Team',
+      is_connected: existingSettings?.is_connected || false,
+      access_token: existingSettings?.access_token || '',
+      refresh_token: existingSettings?.refresh_token || '',
+      token_expiry: existingSettings?.token_expiry || '',
     }
   });
   
-  const watchEnabled = watch("enabled");
+  const watchEnabled = watch("is_connected");
   
   const onSubmit = async (data: GmailSettings) => {
     setIsSubmitting(true);
@@ -58,38 +57,38 @@ export function GmailSettingsForm({ existingSettings, onSuccess }: GmailSettings
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="space-y-4">
         <div className="grid gap-2">
-          <Label htmlFor="clientId">Client ID</Label>
+          <Label htmlFor="client_id">Client ID</Label>
           <Input
-            id="clientId"
-            {...register("clientId", { required: "Client ID is required" })}
+            id="client_id"
+            {...register("client_id", { required: "Client ID is required" })}
             placeholder="Your Gmail OAuth Client ID"
           />
-          {errors.clientId && (
-            <p className="text-sm text-red-500">{errors.clientId.message}</p>
+          {errors.client_id && (
+            <p className="text-sm text-red-500">{errors.client_id.message}</p>
           )}
         </div>
         
         <div className="grid gap-2">
-          <Label htmlFor="clientSecret">Client Secret</Label>
+          <Label htmlFor="client_secret">Client Secret</Label>
           <Input
-            id="clientSecret"
+            id="client_secret"
             type="password"
-            {...register("clientSecret", { required: "Client Secret is required" })}
+            {...register("client_secret", { required: "Client Secret is required" })}
             placeholder="Your Gmail OAuth Client Secret"
           />
-          {errors.clientSecret && (
-            <p className="text-sm text-red-500">{errors.clientSecret.message}</p>
+          {errors.client_secret && (
+            <p className="text-sm text-red-500">{errors.client_secret.message}</p>
           )}
         </div>
         
         <div className="grid gap-2">
-          <Label htmlFor="redirectUri">Redirect URI</Label>
+          <Label htmlFor="redirect_uri">Redirect URI</Label>
           <Input
-            id="redirectUri"
-            {...register("redirectUri", { required: "Redirect URI is required" })}
+            id="redirect_uri"
+            {...register("redirect_uri", { required: "Redirect URI is required" })}
           />
-          {errors.redirectUri && (
-            <p className="text-sm text-red-500">{errors.redirectUri.message}</p>
+          {errors.redirect_uri && (
+            <p className="text-sm text-red-500">{errors.redirect_uri.message}</p>
           )}
           <p className="text-sm text-muted-foreground">
             This should match the redirect URI configured in your Google Cloud Console
@@ -98,11 +97,11 @@ export function GmailSettingsForm({ existingSettings, onSuccess }: GmailSettings
         
         <div className="flex items-center space-x-2">
           <Switch
-            id="enabled"
+            id="is_connected"
             checked={watchEnabled}
-            onCheckedChange={(checked) => setValue("enabled", checked)}
+            onCheckedChange={(checked) => setValue("is_connected", checked)}
           />
-          <Label htmlFor="enabled">Enable Gmail Authentication</Label>
+          <Label htmlFor="is_connected">Enable Gmail Authentication</Label>
         </div>
       </div>
       

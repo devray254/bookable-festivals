@@ -1,12 +1,17 @@
 
 import { query } from './db-connection';
 
-interface GmailSettings {
-  enabled: boolean;
-  clientId?: string;
-  clientSecret?: string;
-  redirectUri?: string;
-  scope?: string;
+export interface GmailSettings {
+  client_id: string;
+  client_secret: string;
+  redirect_uri: string;
+  certificate_sender_email: string;
+  certificate_email_subject: string;
+  certificate_email_body: string;
+  is_connected: boolean;
+  access_token: string;
+  refresh_token: string;
+  token_expiry: string;
 }
 
 // Fetch Gmail settings from database
@@ -15,23 +20,37 @@ export const fetchGmailSettings = async (): Promise<GmailSettings> => {
     // In a real app, this would fetch from the database
     // For demo purposes, we'll return mock settings
     return {
-      enabled: true,
-      clientId: 'mock-client-id',
-      clientSecret: 'mock-client-secret',
-      redirectUri: window.location.origin + '/auth/callback',
-      scope: 'email profile'
+      client_id: 'mock-client-id',
+      client_secret: 'mock-client-secret',
+      redirect_uri: window.location.origin + '/auth/callback',
+      certificate_sender_email: 'test@example.com',
+      certificate_email_subject: 'Your Certificate from Maabara Online',
+      certificate_email_body: 'Dear {{name}},\n\nThank you for participating in our event. Please find your certificate attached.\n\nBest regards,\nMaabara Online Team',
+      is_connected: false,
+      access_token: '',
+      refresh_token: '',
+      token_expiry: '',
     };
   } catch (error) {
     console.error('Error fetching Gmail settings:', error);
     // Default to disabled if there's an error
     return {
-      enabled: false
+      client_id: '',
+      client_secret: '',
+      redirect_uri: window.location.origin + '/auth/callback',
+      certificate_sender_email: '',
+      certificate_email_subject: 'Your Certificate from Maabara Online',
+      certificate_email_body: 'Dear {{name}},\n\nThank you for participating in our event. Please find your certificate attached.\n\nBest regards,\nMaabara Online Team',
+      is_connected: false,
+      access_token: '',
+      refresh_token: '',
+      token_expiry: '',
     };
   }
 };
 
 // Update Gmail settings
-export const updateGmailSettings = async (settings: GmailSettings, adminEmail: string) => {
+export const updateGmailSettings = async (settings: GmailSettings, adminEmail?: string) => {
   try {
     // In a real app, this would update the database
     console.log('Updating Gmail settings:', settings);
