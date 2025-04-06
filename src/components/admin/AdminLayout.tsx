@@ -38,10 +38,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   return (
     <div className="h-screen">
       <SidebarProvider defaultOpen={true}>
-        <Sidebar>
+        <Sidebar className="bg-sidebar">
           <SidebarHeader>
-            <h1 className="text-xl font-bold px-4 py-2">Maabara Online</h1>
-            <p className="text-xs text-muted-foreground px-4">Admin Panel</p>
+            <h1 className="text-xl font-bold px-4 py-2 text-sidebar-foreground">Maabara Online</h1>
+            <p className="text-xs text-sidebar-foreground/70 px-4">Admin Panel</p>
           </SidebarHeader>
           <SidebarContent>
             <SidebarGroup>
@@ -132,13 +132,13 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           <SidebarFooter>
             <SidebarSeparator />
             <div className="px-4 py-2 text-xs">
-              <Link to="/" className="text-muted-foreground hover:text-foreground">
+              <Link to="/" className="text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors">
                 Return to Website
               </Link>
             </div>
           </SidebarFooter>
         </Sidebar>
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto p-6 bg-background">
           {children}
         </main>
       </SidebarProvider>

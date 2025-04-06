@@ -78,7 +78,7 @@ export default function AdminEvents() {
     <AdminLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Events</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Events</h1>
           <p className="text-muted-foreground">Manage your events here</p>
         </div>
         
@@ -87,7 +87,7 @@ export default function AdminEvents() {
             <DbConnectionTester />
             <div className="mt-2 text-right">
               <button 
-                className="text-sm text-blue-500 hover:underline" 
+                className="text-sm text-blue-600 hover:underline" 
                 onClick={() => setShowDbTester(false)}
               >
                 Hide connection tester
@@ -97,58 +97,58 @@ export default function AdminEvents() {
         )}
         
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Card>
+          <Card className="border-blue-100">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Total Events</p>
-                  <h3 className="text-2xl font-bold">{events.length}</h3>
+                  <h3 className="text-2xl font-bold text-blue-700">{events.length}</h3>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
                   {events.length}
                 </div>
               </div>
             </CardContent>
           </Card>
           
-          <Card>
+          <Card className="border-cyan-100">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Upcoming</p>
-                  <h3 className="text-2xl font-bold">
+                  <h3 className="text-2xl font-bold text-cyan-700">
                     {events.filter(e => new Date(e.date) > new Date()).length}
                   </h3>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                <div className="h-12 w-12 rounded-full bg-cyan-100 flex items-center justify-center text-cyan-600 font-bold">
                   {events.filter(e => new Date(e.date) > new Date()).length}
                 </div>
               </div>
             </CardContent>
           </Card>
           
-          <Card>
+          <Card className="border-blue-100">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Free Events</p>
-                  <h3 className="text-2xl font-bold">{freeEvents}</h3>
+                  <h3 className="text-2xl font-bold text-blue-700">{freeEvents}</h3>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+                <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
                   {freeEvents}
                 </div>
               </div>
             </CardContent>
           </Card>
           
-          <Card>
+          <Card className="border-red-100">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Paid Events</p>
-                  <h3 className="text-2xl font-bold">{paidEvents}</h3>
+                  <h3 className="text-2xl font-bold text-red-700">{paidEvents}</h3>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+                <div className="h-12 w-12 rounded-full bg-red-100 flex items-center justify-center text-red-600 font-bold">
                   {paidEvents}
                 </div>
               </div>
@@ -156,7 +156,7 @@ export default function AdminEvents() {
           </Card>
         </div>
         
-        <Card>
+        <Card className="border-blue-100">
           <CardContent className="p-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
               <div className="relative w-full md:w-[300px]">
@@ -164,7 +164,7 @@ export default function AdminEvents() {
                 <Input 
                   type="search" 
                   placeholder="Search events..." 
-                  className="pl-8 w-full" 
+                  className="pl-8 w-full border-blue-200 focus-visible:ring-blue-500" 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -172,7 +172,7 @@ export default function AdminEvents() {
               <div className="flex gap-2">
                 <button 
                   onClick={loadEvents}
-                  className="p-2 rounded-full hover:bg-gray-100"
+                  className="p-2 rounded-full hover:bg-blue-50 text-blue-600"
                   title="Refresh events"
                 >
                   <RefreshCw className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />

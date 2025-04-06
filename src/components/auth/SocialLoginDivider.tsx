@@ -22,7 +22,7 @@ export const SocialLoginDivider = ({
           <div className="w-full border-t border-gray-200" />
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-white text-gray-500">
+          <span className="px-2 bg-white text-gray-600">
             Or continue with
           </span>
         </div>
@@ -31,7 +31,7 @@ export const SocialLoginDivider = ({
       <div className="mt-6">
         <Button 
           variant="outline" 
-          className="w-full flex items-center justify-center border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:border-blue-300 transition-all"
+          className="w-full flex items-center justify-center border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:border-blue-400 transition-all"
           onClick={onGmailLogin}
           disabled={isGmailLoading || isLoginLoading || !isGmailEnabled}
         >

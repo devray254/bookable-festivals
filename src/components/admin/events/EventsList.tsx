@@ -73,13 +73,13 @@ export function EventsList({ events, isLoading, onEventsChanged, adminEmail }: E
 
   if (isLoading) {
     return (
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle>All Events</CardTitle>
-          <Badge variant="outline">Loading...</Badge>
+      <Card className="border-blue-100">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-blue-50 border-b border-blue-100">
+          <CardTitle className="text-blue-800">All Events</CardTitle>
+          <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200">Loading...</Badge>
         </CardHeader>
         <CardContent className="flex justify-center py-10">
-          <RefreshCw className="h-10 w-10 animate-spin text-muted-foreground" />
+          <RefreshCw className="h-10 w-10 animate-spin text-blue-500" />
         </CardContent>
       </Card>
     );
@@ -87,29 +87,29 @@ export function EventsList({ events, isLoading, onEventsChanged, adminEmail }: E
 
   return (
     <>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle>All Events</CardTitle>
-          <Badge variant="outline">{events.length} Events</Badge>
+      <Card className="border-blue-100">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-blue-50 border-b border-blue-100">
+          <CardTitle className="text-blue-800">All Events</CardTitle>
+          <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200">{events.length} Events</Badge>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           {events.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-center text-muted-foreground">
-              <AlertCircle className="h-12 w-12 mb-2 text-muted-foreground/50" />
-              <h3 className="text-lg font-semibold">No events found</h3>
-              <p className="text-sm">Add your first event to get started</p>
+              <AlertCircle className="h-12 w-12 mb-2 text-blue-300" />
+              <h3 className="text-lg font-semibold text-blue-700">No events found</h3>
+              <p className="text-sm text-blue-600">Add your first event to get started</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b">
-                    <th className="text-left p-2">Title</th>
-                    <th className="text-left p-2">Date</th>
-                    <th className="text-left p-2">Location</th>
-                    <th className="text-left p-2">Category</th>
-                    <th className="text-left p-2">Price (KES)</th>
-                    <th className="text-left p-2">Actions</th>
+                  <tr className="border-b border-blue-100 bg-blue-50/50">
+                    <th className="text-left p-3 text-blue-800">Title</th>
+                    <th className="text-left p-3 text-blue-800">Date</th>
+                    <th className="text-left p-3 text-blue-800">Location</th>
+                    <th className="text-left p-3 text-blue-800">Category</th>
+                    <th className="text-left p-3 text-blue-800">Price (KES)</th>
+                    <th className="text-left p-3 text-blue-800">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -117,17 +117,23 @@ export function EventsList({ events, isLoading, onEventsChanged, adminEmail }: E
                     const isPastEvent = new Date(event.date) < new Date();
                     
                     return (
-                      <tr key={event.id} className="border-b">
-                        <td className="p-2 font-medium">{event.title}</td>
-                        <td className="p-2">{new Date(event.date).toLocaleDateString()}</td>
-                        <td className="p-2">{event.location}</td>
-                        <td className="p-2">
-                          <Badge variant="outline" className="capitalize">
+                      <tr key={event.id} className="border-b border-blue-50 hover:bg-blue-50/30">
+                        <td className="p-3 font-medium text-foreground">{event.title}</td>
+                        <td className="p-3 text-foreground">{new Date(event.date).toLocaleDateString()}</td>
+                        <td className="p-3 text-foreground">{event.location}</td>
+                        <td className="p-3">
+                          <Badge variant="outline" className="capitalize bg-cyan-50 text-cyan-700 border-cyan-200">
                             {event.category_name || `Category ${event.category_id}`}
                           </Badge>
                         </td>
-                        <td className="p-2">{typeof event.price === 'number' ? event.price.toLocaleString() : event.price}</td>
-                        <td className="p-2">
+                        <td className="p-3 text-foreground">
+                          {Number(event.price) === 0 ? (
+                            <span className="text-green-600 font-medium">Free</span>
+                          ) : (
+                            <span>{typeof event.price === 'number' ? event.price.toLocaleString() : event.price}</span>
+                          )}
+                        </td>
+                        <td className="p-3">
                           <div className="flex space-x-2">
                             <EditEventDialog 
                               event={event} 
@@ -137,7 +143,7 @@ export function EventsList({ events, isLoading, onEventsChanged, adminEmail }: E
                             <Button 
                               variant="ghost" 
                               size="icon" 
-                              className="text-destructive"
+                              className="text-red-500 hover:text-red-700 hover:bg-red-50"
                               onClick={() => setEventToDelete(event)}
                               title="Delete Event"
                             >
@@ -157,24 +163,24 @@ export function EventsList({ events, isLoading, onEventsChanged, adminEmail }: E
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!eventToDelete} onOpenChange={(open) => !open && setEventToDelete(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="border-red-200">
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle className="text-red-700">Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This will permanently delete the event 
-              <span className="font-semibold"> "{eventToDelete?.title}"</span>.
+              <span className="font-semibold text-foreground"> "{eventToDelete?.title}"</span>.
               This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting} className="border-blue-200 text-blue-700 hover:bg-blue-50">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
                 handleDelete();
               }}
               disabled={isDeleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-red-600 text-white hover:bg-red-700"
             >
               {isDeleting ? (
                 <>

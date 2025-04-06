@@ -106,7 +106,7 @@ export function EditUserDialog({ open, onOpenChange, user, onSuccess, adminEmail
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Full Name</FormLabel>
+              <FormLabel className="text-foreground">Full Name</FormLabel>
               <FormControl>
                 <Input placeholder="John Doe" {...field} className="border-blue-200 focus:border-blue-500" />
               </FormControl>
@@ -120,7 +120,7 @@ export function EditUserDialog({ open, onOpenChange, user, onSuccess, adminEmail
           name="phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Phone Number</FormLabel>
+              <FormLabel className="text-foreground">Phone Number</FormLabel>
               <FormControl>
                 <Input type="tel" placeholder="0712345678" {...field} className="border-blue-200 focus:border-blue-500" />
               </FormControl>
@@ -134,7 +134,7 @@ export function EditUserDialog({ open, onOpenChange, user, onSuccess, adminEmail
           name="role"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>User Role</FormLabel>
+              <FormLabel className="text-foreground">User Role</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger className="border-blue-200 focus:border-blue-500">
@@ -157,7 +157,7 @@ export function EditUserDialog({ open, onOpenChange, user, onSuccess, adminEmail
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>New Password (leave blank to keep current)</FormLabel>
+              <FormLabel className="text-foreground">New Password (leave blank to keep current)</FormLabel>
               <FormControl>
                 <Input type="password" placeholder="******" {...field} className="border-blue-200 focus:border-blue-500" />
               </FormControl>
@@ -172,9 +172,9 @@ export function EditUserDialog({ open, onOpenChange, user, onSuccess, adminEmail
   if (isMobile) {
     return (
       <Drawer open={open} onOpenChange={onOpenChange}>
-        <DrawerContent className="px-4">
+        <DrawerContent className="px-4 bg-background border-t border-blue-200">
           <DrawerHeader className="text-left">
-            <DrawerTitle>Edit User: {user.email}</DrawerTitle>
+            <DrawerTitle className="text-blue-800">Edit User: {user.email}</DrawerTitle>
           </DrawerHeader>
           <div className="px-4 py-2">
             <UserForm />
@@ -183,7 +183,7 @@ export function EditUserDialog({ open, onOpenChange, user, onSuccess, adminEmail
             <Button
               onClick={form.handleSubmit(onSubmit)}
               disabled={isSubmitting}
-              className="w-full bg-blue-600 hover:bg-blue-700"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
             >
               {isSubmitting ? "Saving..." : "Save Changes"}
             </Button>
@@ -202,10 +202,10 @@ export function EditUserDialog({ open, onOpenChange, user, onSuccess, adminEmail
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] max-h-[90vh]">
+      <DialogContent className="sm:max-w-[425px] max-h-[90vh] border-blue-200">
         <DialogHeader>
-          <DialogTitle>Edit User: {user.email}</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-blue-800">Edit User: {user.email}</DialogTitle>
+          <DialogDescription className="text-blue-600">
             Make changes to the user profile below.
           </DialogDescription>
         </DialogHeader>
@@ -227,7 +227,7 @@ export function EditUserDialog({ open, onOpenChange, user, onSuccess, adminEmail
             type="submit" 
             disabled={isSubmitting}
             onClick={form.handleSubmit(onSubmit)}
-            className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto"
+            className="bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto"
           >
             {isSubmitting ? "Saving..." : "Save Changes"}
           </Button>
