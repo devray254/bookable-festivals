@@ -24,7 +24,8 @@ export default defineConfig(({ mode }) => ({
     },
   },
   optimizeDeps: {
-    exclude: [], // Remove problematic dependencies from exclusion
+    include: ['react', 'react-dom', 'react-router-dom'],
+    exclude: [], // Clean up exclusions
   },
   plugins: [
     react(),
