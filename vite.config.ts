@@ -19,13 +19,12 @@ export default defineConfig(({ mode }) => ({
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
-          ui: ['@/components/ui'],
         },
       },
     },
   },
   optimizeDeps: {
-    exclude: ['node-sass'], // Exclude problematic dependencies
+    exclude: [], // Remove problematic dependencies from exclusion
   },
   plugins: [
     react(),
