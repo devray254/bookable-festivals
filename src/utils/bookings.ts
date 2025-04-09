@@ -1,3 +1,4 @@
+
 // Booking type definition
 export interface Booking {
   id: number;
