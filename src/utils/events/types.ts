@@ -20,6 +20,13 @@ export interface Event {
   created_at?: string;
   updated_at?: string;
   available_tickets?: number;
+  cpd_points?: number;
+  target_audience?: string;
+  learning_objectives?: string[];
+  facilitator?: string;
+  facilitator_bio?: string;
+  sponsors?: string[];
+  is_certified?: boolean;
 }
 
 export interface EventResponse {
@@ -43,6 +50,13 @@ export interface CreateEventData {
   webinar_time?: string;
   created_by?: string;
   available_tickets?: number;
+  cpd_points?: number;
+  target_audience?: string;
+  learning_objectives?: string[];
+  facilitator?: string;
+  facilitator_bio?: string;
+  sponsors?: string[];
+  is_certified?: boolean;
 }
 
 export interface UpdateEventData extends CreateEventData {
