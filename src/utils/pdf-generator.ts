@@ -147,6 +147,8 @@ export const generateCertificatePDF = (
     const contentLines = content.split('\n');
     let eventTitle = "";
     let eventDate = "";
+    let cpdPoints = 0;
+    let targetAudience = "";
     
     // Extract event information from content
     for (const line of contentLines) {
@@ -155,6 +157,19 @@ export const generateCertificatePDF = (
       }
       if (line.includes("[Event Date]")) {
         eventDate = line.replace(/.*\[Event Date\].*/, "Event Date");
+      }
+      if (line.includes("CPD Point")) {
+        // Extract CPD points from content
+        const match = line.match(/\*\*(\d+)\sCPD/);
+        if (match && match[1]) {
+          cpdPoints = parseInt(match[1], 10);
+        }
+        
+        // Extract target audience
+        const audienceMatch = line.match(/for\s(.+)$/);
+        if (audienceMatch && audienceMatch[1]) {
+          targetAudience = audienceMatch[1];
+        }
       }
     }
     
@@ -207,16 +222,57 @@ export const generateCertificatePDF = (
       pdf.setTextColor(66, 153, 225); // Blue
       pdf.text(formattedEventDate, pageWidth / 2, margin + 175, { align: "center" });
       
-      // Organized by text
-      pdf.setFont("helvetica", "normal");
-      pdf.setFontSize(14);
-      pdf.setTextColor(90, 90, 90);
-      pdf.text("organized by", pageWidth / 2, margin + 190, { align: "center" });
-      
-      pdf.setFont("helvetica", "bold");
-      pdf.setFontSize(16);
-      pdf.setTextColor(45, 55, 72); // Dark slate gray
-      pdf.text("Maabara Online Health CPD Provider", pageWidth / 2, margin + 205, { align: "center" });
+      // Add CPD points if available
+      if (cpdPoints > 0) {
+        // CPD points badge
+        pdf.setFillColor(235, 242, 254); // Light blue background
+        pdf.roundedRect(pageWidth / 2 - 80, margin + 185, 160, 25, 5, 5, 'F');
+        
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(14);
+        pdf.setTextColor(66, 153, 225); // Blue
+        pdf.text(
+          `${cpdPoints} CPD ${cpdPoints === 1 ? 'Point' : 'Points'} Awarded`, 
+          pageWidth / 2, 
+          margin + 195, 
+          { align: "center" }
+        );
+        
+        // Add target audience if available
+        if (targetAudience) {
+          pdf.setFont("helvetica", "normal");
+          pdf.setFontSize(12);
+          pdf.setTextColor(90, 90, 120);
+          pdf.text(
+            `For: ${targetAudience}`, 
+            pageWidth / 2, 
+            margin + 205, 
+            { align: "center" }
+          );
+        }
+        
+        // Organized by text (moved down to accommodate CPD points)
+        pdf.setFont("helvetica", "normal");
+        pdf.setFontSize(14);
+        pdf.setTextColor(90, 90, 90);
+        pdf.text("organized by", pageWidth / 2, margin + 225, { align: "center" });
+        
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(16);
+        pdf.setTextColor(45, 55, 72); // Dark slate gray
+        pdf.text("Maabara Online Health CPD Provider", pageWidth / 2, margin + 240, { align: "center" });
+      } else {
+        // Organized by text (original position when no CPD points)
+        pdf.setFont("helvetica", "normal");
+        pdf.setFontSize(14);
+        pdf.setTextColor(90, 90, 90);
+        pdf.text("organized by", pageWidth / 2, margin + 190, { align: "center" });
+        
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(16);
+        pdf.setTextColor(45, 55, 72); // Dark slate gray
+        pdf.text("Maabara Online Health CPD Provider", pageWidth / 2, margin + 205, { align: "center" });
+      }
     };
     
     addRecipientInfo();

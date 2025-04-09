@@ -20,6 +20,8 @@ held on
 
 organized by **Maabara Online Limited**.
 
+[CPD_POINTS_SECTION]
+
 We appreciate your dedication to professional growth and continued learning.
 
 Issued on: [Certificate Issued Date]
@@ -35,15 +37,28 @@ export const generateCertificateContent = (
   userName: string,
   eventTitle: string,
   eventDate: string,
-  issuedDate: string
+  issuedDate: string,
+  cpdPoints?: number,
+  targetAudience?: string
 ) => {
   const template = getCertificateTemplate();
+  
+  // Create CPD points section if applicable
+  let cpdPointsSection = '';
+  if (cpdPoints && cpdPoints > 0) {
+    cpdPointsSection = `This event awards **${cpdPoints} CPD ${cpdPoints === 1 ? 'Point' : 'Points'}**`;
+    if (targetAudience) {
+      cpdPointsSection += ` for ${targetAudience}`;
+    }
+    cpdPointsSection += '\n\n';
+  }
   
   return template
     .replace('[Full Name]', userName)
     .replace('[Event Title]', eventTitle)
     .replace('[Event Date]', eventDate)
-    .replace('[Certificate Issued Date]', issuedDate);
+    .replace('[Certificate Issued Date]', issuedDate)
+    .replace('[CPD_POINTS_SECTION]', cpdPointsSection);
 };
 
 // Template for actual certificate PDF

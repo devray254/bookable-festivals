@@ -1,29 +1,36 @@
 
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { Share2Icon, HeartIcon } from "lucide-react";
+import { Award } from "lucide-react";
 
 interface EventInfoProps {
   description: string;
+  cpdPoints?: number;
+  targetAudience?: string;
 }
 
-const EventInfo = ({ description }: EventInfoProps) => {
+const EventInfo = ({ description, cpdPoints, targetAudience }: EventInfoProps) => {
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-      <h2 className="text-2xl font-bold mb-4">About This Event</h2>
-      <p className="text-gray-700 mb-8 whitespace-pre-line">
-        {description}
-      </p>
+    <div className="mb-8">
+      <h2 className="text-xl font-semibold mb-4">Event Details</h2>
       
-      <div className="flex space-x-4">
-        <Button variant="outline" className="text-gray-700">
-          <Share2Icon className="h-4 w-4 mr-2" />
-          Share
-        </Button>
-        <Button variant="outline" className="text-gray-700">
-          <HeartIcon className="h-4 w-4 mr-2" />
-          Save
-        </Button>
+      {/* CPD Points Badge */}
+      {cpdPoints && cpdPoints > 0 && (
+        <div className="flex items-center mb-4 bg-blue-50 p-3 rounded-md border border-blue-200">
+          <Award className="w-5 h-5 mr-2 text-blue-600" />
+          <div>
+            <p className="font-medium text-blue-900">
+              {cpdPoints} CPD {cpdPoints === 1 ? 'Point' : 'Points'}
+            </p>
+            {targetAudience && (
+              <p className="text-sm text-blue-700">For: {targetAudience}</p>
+            )}
+          </div>
+        </div>
+      )}
+      
+      <div className="prose max-w-none">
+        {description.split('\n').map((paragraph, index) => (
+          <p key={index} className="mb-4">{paragraph}</p>
+        ))}
       </div>
     </div>
   );

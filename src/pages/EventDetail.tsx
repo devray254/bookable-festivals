@@ -235,7 +235,11 @@ const EventDetail = () => {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Main Content */}
                 <div className="lg:col-span-2">
-                  <EventInfo description={event.description || ""} />
+                  <EventInfo 
+                    description={event.description || ""} 
+                    cpdPoints={event.cpd_points} 
+                    targetAudience={event.target_audience}
+                  />
                   <EventLocation location={event.location} />
                 </div>
                 

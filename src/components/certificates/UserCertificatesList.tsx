@@ -14,6 +14,8 @@ interface UserCertificate {
   issued_date: string;
   event_date: string;
   downloaded: boolean;
+  cpd_points?: number;
+  target_audience?: string;
 }
 
 interface UserCertificatesListProps {
@@ -62,14 +64,18 @@ export function UserCertificatesList({ userId }: UserCertificatesListProps) {
             event_title: "Science Exhibition",
             issued_date: "2023-08-15",
             event_date: "2023-08-15",
-            downloaded: false
+            downloaded: false,
+            cpd_points: 5,
+            target_audience: "Healthcare Professionals"
           },
           {
             id: "CERT-2-123-1678938465",
             event_title: "Tech Workshop",
             issued_date: "2023-08-20",
             event_date: "2023-08-20",
-            downloaded: true
+            downloaded: true,
+            cpd_points: 3,
+            target_audience: "IT Professionals"
           }
         ]);
       }
@@ -84,14 +90,18 @@ export function UserCertificatesList({ userId }: UserCertificatesListProps) {
           event_title: "Science Exhibition",
           issued_date: "2023-08-15",
           event_date: "2023-08-15",
-          downloaded: false
+          downloaded: false,
+          cpd_points: 5,
+          target_audience: "Healthcare Professionals"
         },
         {
           id: "CERT-2-123-1678938465",
           event_title: "Tech Workshop",
           issued_date: "2023-08-20",
           event_date: "2023-08-20",
-          downloaded: true
+          downloaded: true,
+          cpd_points: 3,
+          target_audience: "IT Professionals"
         }
       ]);
     } finally {
@@ -113,7 +123,9 @@ export function UserCertificatesList({ userId }: UserCertificatesListProps) {
         userName,
         certificate.event_title,
         eventDate,
-        issuedDate
+        issuedDate,
+        certificate.cpd_points,
+        certificate.target_audience
       );
 
       setPreviewCertificate({
@@ -169,7 +181,9 @@ export function UserCertificatesList({ userId }: UserCertificatesListProps) {
         userName,
         certificate.event_title,
         eventDate,
-        issuedDate
+        issuedDate,
+        certificate.cpd_points,
+        certificate.target_audience
       );
 
       generateCertificatePDF(certificateContent, userName, certificate.id);
@@ -247,6 +261,12 @@ export function UserCertificatesList({ userId }: UserCertificatesListProps) {
                     <Calendar className="h-4 w-4 mr-1" />
                     <span>{new Date(certificate.issued_date).toLocaleDateString()}</span>
                   </div>
+                  {certificate.cpd_points && certificate.cpd_points > 0 && (
+                    <div className="flex items-center text-sm text-blue-600 mt-1">
+                      <Award className="h-4 w-4 mr-1" />
+                      <span>{certificate.cpd_points} CPD {certificate.cpd_points === 1 ? 'Point' : 'Points'}</span>
+                    </div>
+                  )}
                 </div>
                 <div className="flex items-center gap-2 w-full md:w-auto">
                   <Button 
