@@ -14,6 +14,18 @@ export default defineConfig(({ mode }) => ({
   build: {
     outDir: 'dist', // Output directory for build
     emptyOutDir: true, // Clear the output directory before building
+    chunkSizeWarningLimit: 1000, // Increase warning limit for larger chunks
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          ui: ['@/components/ui'],
+        },
+      },
+    },
+  },
+  optimizeDeps: {
+    exclude: ['node-sass'], // Exclude problematic dependencies
   },
   plugins: [
     react(),
